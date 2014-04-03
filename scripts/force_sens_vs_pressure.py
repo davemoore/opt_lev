@@ -31,7 +31,7 @@ gamma1 = 1./(7. * bead_rad/1e-6 * 10**-10/p * (365.24*24*3600.))
 sig_f1 = np.sqrt(4*bead_mass*gamma0*kb*T)
 sig_f2 = np.sqrt(4*bead_mass*gamma1*kb*T)
 
-fmeas = [1e-5, 4.7e-18]
+fmeas = [1e-5, 4.7e-17]
 
 gpts_hi = l < bead_rad
 gpts_lo = l > bead_rad
