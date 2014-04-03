@@ -19,7 +19,7 @@ scale_file = 1.
 
 fsamp = 1500.
 fdrive = 27
-NFFT = 2**11
+NFFT = 2**12
 phaselen = int(fsamp/fdrive) #number of samples used to find phase
 plot_scale = 1. ## scaling of corr coeff to units of electrons
 plot_offset = 1.
