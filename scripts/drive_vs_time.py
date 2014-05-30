@@ -10,7 +10,7 @@ import scipy.signal as sp
 import scipy.optimize as opt
 import cPickle as pickle
 
-path = "/Users/dcmoore/Documents/opt_lev/data/20140529/Bead1/charge"
+path = r"D:\Data\20140529\Bead1\charge_with_ref"
 reprocessfile = True
 plot_angle = False
 ref_file = 0 ## index of file to calculate angle and phase for
@@ -20,6 +20,7 @@ scale_file = 1.
 
 fsamp = 5000.
 fdrive = 41
+fref = 1027
 NFFT = 2**12
 phaselen = int(fsamp/fdrive) #number of samples used to find phase
 plot_scale = 1. ## scaling of corr coeff to units of electrons
@@ -98,6 +99,7 @@ def getdata(fname, maxv, ang):
         xpsd, freqs = matplotlib.mlab.psd(xdat, Fs = fsamp, NFFT = NFFT) 
         #ypsd, freqs = matplotlib.mlab.psd(ydat, Fs = fsamp, NFFT = NFFT) 
         max_bin = np.argmin( np.abs( freqs - fdrive ) )
+        ref_bin = np.argmin( np.abs( freqs - fref ) )
 
         xoff = sp.filtfilt(boff, aoff, xdat)
 
@@ -117,6 +119,7 @@ def getdata(fname, maxv, ang):
         out_dict = {"corr_t0": corr,
                     "max_corr": [corr_max, corr_max_pos],
                     "psd": np.sqrt(xpsd[max_bin]),
+                    "ref_psd": np.sqrt(xpsd[ref_bin]),
                     "temps": attribs["temps"],
                     "time": bu.labview_time_to_datetime(ctime)}
 
@@ -128,7 +131,7 @@ if reprocessfile:
   if( 'processed.pkl' in init_list):
     bad_idx = init_list.index( 'processed.pkl' )
     del init_list[bad_idx]
-  files = sorted(init_list, key = lambda str:int(re.findall('\d+', str)[2]))
+  files = sorted(init_list, key = lambda str:int(re.findall('\d+', str)[-2]))
 
   ang = getangle(files[ref_file])
   phase = getphase(files[ref_file], ang)
@@ -155,6 +158,7 @@ dates = matplotlib.dates.date2num(corrs_dict["time"])
 corr_t0 = np.array(corrs_dict["corr_t0"])
 max_corr = np.array(corrs_dict["max_corr"])[:,0]
 psd = np.array(corrs_dict["psd"])
+ref_psd = np.array(corrs_dict["ref_psd"])
 temp1 = np.array(corrs_dict["temps"])[:,0]
 temp2 = np.array(corrs_dict["temps"])[:,1]
 
@@ -162,6 +166,7 @@ plt.figure()
 plt.plot_date(dates, corr_t0/np.median(corr_t0), 'b.', label="Corr at t=0")
 plt.plot_date(dates, max_corr/np.median(max_corr), 'r.', label="Max corr")
 plt.plot_date(dates, psd/np.median(psd), 'k.', label="PSD")
+plt.plot_date(dates, ref_psd/np.median(ref_psd), '.', color=[0.5, 0.5, 0.5], label="Ref. PSD")
 plt.plot_date(dates, temp1/np.median(temp1), 'g', label="Laser temp")
 plt.plot_date(dates, temp2/np.median(temp2), 'c', label="Amp temp")
 plt.xlabel("Time")
