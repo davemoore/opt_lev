@@ -84,6 +84,9 @@ def getdata(fname, maxv, ang):
 	print "Processing ", fname
         dat, attribs = bu.getdata(os.path.join(path, fname))
 
+        if( len(attribs) > 0 ):
+            fsamp = attribs["Fsamp"]
+
         xdat, ydat = rotate_data(dat[:,data_columns[0]], dat[:,data_columns[1]], ang)
         lentrace = len(xdat)
         ## zero pad one cycle
