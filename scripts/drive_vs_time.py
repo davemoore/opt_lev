@@ -4,21 +4,22 @@
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
-import os
-import re
+import os, re
+import bead_util as bu
 import scipy.signal as sp
 import scipy.optimize as opt
+import cPickle as pickle
 
-path = "Bead1/27Hz100mV"
-reprocessfile = False
+path = "/Users/dcmoore/Documents/opt_lev/data/20140529/Bead1/charge"
+reprocessfile = True
 plot_angle = False
 ref_file = 0 ## index of file to calculate angle and phase for
 
 scale_fac = 1.
 scale_file = 1.
 
-fsamp = 1500.
-fdrive = 27
+fsamp = 5000.
+fdrive = 41
 NFFT = 2**12
 phaselen = int(fsamp/fdrive) #number of samples used to find phase
 plot_scale = 1. ## scaling of corr coeff to units of electrons
@@ -36,7 +37,7 @@ def rotate_data(x, y, ang):
 def getangle(fname):
         print "Getting angle from: ", fname 
         num_angs = 100
-	dat = np.loadtxt(os.path.join(path, fname), skiprows = 5, usecols = [2, 3, 4, 5] )
+        dat, attribs = bu.getdata(os.path.join(path, fname))
         pow_arr = np.zeros((num_angs,2))
         ang_list = np.linspace(-np.pi/2.0, np.pi/2.0, num_angs)
         for i,ang in enumerate(ang_list):
@@ -68,7 +69,7 @@ def getangle(fname):
 
 def getphase(fname, ang):
         print "Getting phase from: ", fname 
-	dat = np.loadtxt(os.path.join(path, fname), skiprows = 5, usecols = [2, 3, 4, 5] )
+        dat, attribs = bu.getdata(os.path.join(path, fname))
         xdat, ydat = rotate_data(dat[:,data_columns[0]], dat[:,data_columns[1]], ang)
         #xdat = sp.filtfilt(b, a, xdat)
         xdat = np.append(xdat, np.zeros( fsamp/fdrive ))
@@ -79,13 +80,11 @@ def getphase(fname, ang):
 
 
 def getdata(fname, maxv, ang):
+
 	print "Processing ", fname
-        dat = np.loadtxt(os.path.join(path, fname), skiprows = 5, usecols = [2, 3, 4, 5] )
+        dat, attribs = bu.getdata(os.path.join(path, fname))
+
         xdat, ydat = rotate_data(dat[:,data_columns[0]], dat[:,data_columns[1]], ang)
-        xdat = sp.filtfilt(b, a, xdat)
-        xoff = sp.filtfilt(boff, aoff, xdat)
-        #corr_full = np.correlate(xdat[:phaselen],dat[:phaselen,drive_column], 'full')
-        #corr_full = np.correlate(xdat,dat[:,drive_column], 'full')
         lentrace = len(xdat)
         ## zero pad one cycle
         xdat = np.append(xdat, np.zeros( fsamp/fdrive ))
@@ -97,6 +96,8 @@ def getdata(fname, maxv, ang):
         #ypsd, freqs = matplotlib.mlab.psd(ydat, Fs = fsamp, NFFT = NFFT) 
         max_bin = np.argmin( np.abs( freqs - fdrive ) )
 
+        xoff = sp.filtfilt(boff, aoff, xdat)
+
         if(False):
             plt.figure()
             plt.plot( xdat )
@@ -106,49 +107,64 @@ def getdata(fname, maxv, ang):
             plt.plot( corr_full )
             plt.show()
 
+        ctime = attribs["time"]
+
         curr_scale = 1.0
-        return [corr, corr_max, corr_max_pos, np.std(xoff), np.sqrt(xpsd[max_bin]), ang]
+        ## make a dictionary containing the various calculations
+        out_dict = {"corr_t0": corr,
+                    "max_corr": [corr_max, corr_max_pos],
+                    "psd": np.sqrt(xpsd[max_bin]),
+                    "temps": attribs["temps"],
+                    "time": bu.labview_time_to_datetime(ctime)}
+
+        return out_dict
 
 
 if reprocessfile:
   init_list = os.listdir(path)
-  if( 'processed.txt' in init_list):
-    bad_idx = init_list.index( 'processed.txt' )
+  if( 'processed.pkl' in init_list):
+    bad_idx = init_list.index( 'processed.pkl' )
     del init_list[bad_idx]
   files = sorted(init_list, key = lambda str:int(re.findall('\d+', str)[2]))
 
   ang = getangle(files[ref_file])
   phase = getphase(files[ref_file], ang)
-  corrs = []
-
+  corrs_dict = {}
   for f in files:
-    #curr_ang = getangle(f)
-    curr_ang = ang
-    corrs.append(getdata(f, phase, curr_ang))
-  plt.show()
-  #getdata2 = lambda f: getdata(f, phase, ang) 
-  #corrs = np.array(map(getdata2, files))
-  corrs = np.array(corrs)
-  np.save('processed.npy', corrs)
-else:
-    corrs = np.load('processed.npy')
+    curr_dict = getdata(f, phase, ang)
 
+    for k in curr_dict.keys():
+        if k in corrs_dict:
+            corrs_dict[k].append( curr_dict[k] )
+        else:
+            corrs_dict[k] = [curr_dict[k],]
+    
+  of = open("processed.pkl", "wb")
+  pickle.dump( corrs_dict, of )
+  of.close()
+else:
+  of = open("processed.pkl", "rb")
+  corrs_dict = pickle.load( of )
+  of.close()
+
+## first plot the variation versus time
+dates = matplotlib.dates.date2num(corrs_dict["time"])
+corr_t0 = np.array(corrs_dict["corr_t0"])
+max_corr = np.array(corrs_dict["max_corr"])[:,0]
+psd = np.array(corrs_dict["psd"])
+temp1 = np.array(corrs_dict["temps"])[:,0]
+temp2 = np.array(corrs_dict["temps"])[:,1]
 
 plt.figure() 
-plt.plot(corrs[:,0]/np.median(corrs[:,0]), 'c.', label="Corr at t=0")
-plt.plot(corrs[:,1]/np.median(corrs[:,1]), 'r.', label="Max corr")
-plt.plot(corrs[:,3]/np.median(corrs[:,3]), 'g.', label="Xoff rms")
-plt.plot(corrs[:,4]/np.median(corrs[:,4]), 'b.', label="PSD")
-normed_resp = corrs[:,1]/corrs[:,3]
-plt.plot(normed_resp/np.median(normed_resp), 'k.', label="Normed")
-plt.xlabel("File number")
+plt.plot_date(dates, corr_t0/np.median(corr_t0), 'b.', label="Corr at t=0")
+plt.plot_date(dates, max_corr/np.median(max_corr), 'r.', label="Max corr")
+plt.plot_date(dates, psd/np.median(psd), 'k.', label="PSD")
+plt.plot_date(dates, temp1/np.median(temp1), 'g', label="Laser temp")
+plt.plot_date(dates, temp2/np.median(temp2), 'c', label="Amp temp")
+plt.xlabel("Time")
 plt.ylabel("Correlation with drive")
 plt.legend(numpoints = 1)
 
-if( len(corrs[:,0]) > 10 ):
-    h, be = np.histogram(corrs[:,5], bins=len(corrs[:,5])/5.)
-    plt.figure()
-    plt.step(be[:-1], h, 'k', where='post')
 
 plt.show()
 
