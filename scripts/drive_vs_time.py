@@ -10,7 +10,7 @@ import scipy.signal as sp
 import scipy.optimize as opt
 import cPickle as pickle
 
-path = "/Users/dcmoore/Documents/opt_lev/data/20140603/Bead1/charge"
+path = "/Users/dcmoore/Documents/opt_lev/data/20140603/Bead1/MoreFlashes"
 reprocessfile = True
 plot_angle = False
 ref_file = 0 ## index of file to calculate angle and phase for
@@ -22,7 +22,7 @@ files_per_flash = 10
 fsamp = 5000.
 fdrive = 41
 fref = 1027
-NFFT = 2**12
+NFFT = 2**15
 phaselen = int(fsamp/fdrive) #number of samples used to find phase
 plot_scale = 1. ## scaling of corr coeff to units of electrons
 plot_offset = 1.
@@ -39,7 +39,7 @@ def rotate_data(x, y, ang):
 def getangle(fname):
         print "Getting angle from: ", fname 
         num_angs = 100
-        dat, attribs = bu.getdata(os.path.join(path, fname))
+        dat, attribs, cf = bu.getdata(os.path.join(path, fname))
         pow_arr = np.zeros((num_angs,2))
         ang_list = np.linspace(-np.pi/2.0, np.pi/2.0, num_angs)
         for i,ang in enumerate(ang_list):
@@ -48,6 +48,8 @@ def getangle(fname):
         
         best_ang = ang_list[ np.argmax(pow_arr[:,0]) ]
         print "Best angle [deg]: %f" % (best_ang*180/np.pi)
+
+        cf.close()
 
         if(plot_angle):
             plt.figure()
@@ -71,12 +73,15 @@ def getangle(fname):
 
 def getphase(fname, ang):
         print "Getting phase from: ", fname 
-        dat, attribs = bu.getdata(os.path.join(path, fname))
+        dat, attribs, cf = bu.getdata(os.path.join(path, fname))
         xdat, ydat = rotate_data(dat[:,data_columns[0]], dat[:,data_columns[1]], ang)
         #xdat = sp.filtfilt(b, a, xdat)
         xdat = np.append(xdat, np.zeros( fsamp/fdrive ))
         corr2 = np.correlate(xdat,dat[:,drive_column])
         maxv = np.argmax(corr2) 
+
+        cf.close()
+
         print maxv
         return maxv
 
@@ -84,7 +89,7 @@ def getphase(fname, ang):
 def getdata(fname, maxv, ang):
 
 	print "Processing ", fname
-        dat, attribs = bu.getdata(os.path.join(path, fname))
+        dat, attribs, cf = bu.getdata(os.path.join(path, fname))
 
         if( len(attribs) > 0 ):
             fsamp = attribs["Fsamp"]
@@ -124,6 +129,7 @@ def getdata(fname, maxv, ang):
                     "temps": attribs["temps"],
                     "time": bu.labview_time_to_datetime(ctime)}
 
+        cf.close()
         return out_dict
 
 
@@ -189,29 +195,37 @@ def plot_avg_for_per(x, y, idx1, idx2, linecol):
     ax.hlines(eval+eerr,x[mid_idx]-hash_width,x[mid_idx]+hash_width, color=linecol, linewidth=1.5)
     ax.hlines(eval-eerr,x[mid_idx]-hash_width,x[mid_idx]+hash_width, color=linecol, linewidth=1.5)
 
+    return x[mid_idx], eval
     
-    # Draw the bottom part of the error bars
-    #ax.vlines(dates,averages,p10)
-    #ax.hlines(p10,dates-.25,dates+.25)
 
 flash_idx=np.argwhere( (np.arange(0,len(dates)) % files_per_flash) == files_per_flash-1 )
 
 yy = plt.ylim()
 ## plot the location of the flashes and average each period between
 ## make sure to plot for first period
+avg_vals = []
 plot_avg_for_per( dates, max_corr/np.median(max_corr), 0, flash_idx[0], 'r')
 plot_avg_for_per( dates, psd/np.median(psd), 0, flash_idx[0], 'k')
 for i,f in enumerate(flash_idx):
     plt.plot_date( [dates[f], dates[f]], yy, 'k--')
     if( i < len(flash_idx)-1 ):
-        plot_avg_for_per( dates, max_corr/np.median(max_corr), flash_idx[i], flash_idx[i+1], 'r')
-        plot_avg_for_per( dates, psd/np.median(psd), flash_idx[i], flash_idx[i+1], 'k')
+        cx, eval_corr = plot_avg_for_per( dates, max_corr/np.median(max_corr), flash_idx[i], flash_idx[i+1], 'r')
+        cx, eval_psd = plot_avg_for_per( dates, psd/np.median(psd), flash_idx[i], flash_idx[i+1], 'k')
         
+        avg_vals.append( [cx, eval_corr, eval_psd] )
+
 plt.ylim(yy)
 
 plt.xlabel("Time")
 plt.ylabel("Correlation with drive")
 plt.legend(numpoints = 1, loc="upper left")
+
+# ## diff plot of mean values
+# avg_vals = np.array(avg_vals)
+# plt.figure()
+# hh, be = np.histogram( np.diff( avg_vals[:,1] ) )
+# plt.step(be[:-1], hh, where='post')
+
 
 ## now do the diff plot
 plt.figure() 

@@ -20,9 +20,9 @@ def getdata(fname):
     else:
         dat = np.loadtxt(fname, skiprows = 5, usecols = [2, 3, 4, 5])
         attribs = {}
+        f = []
 
-    return dat, attribs
-                           
+    return dat, attribs, f
 
 def labview_time_to_datetime(lt):
     ### Convert a labview timestamp (i.e. time since 1904) to a 
