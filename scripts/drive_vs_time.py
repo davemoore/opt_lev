@@ -10,19 +10,21 @@ import scipy.signal as sp
 import scipy.optimize as opt
 import cPickle as pickle
 
-path = "/Users/dcmoore/Documents/opt_lev/data/20140603/Bead1/MoreFlashes"
+path = r"D:\Data\20140605\Bead1\chargelp"
 reprocessfile = True
 plot_angle = False
 ref_file = 0 ## index of file to calculate angle and phase for
 
+file_start = 0
+
 scale_fac = 1.
 scale_file = 1.
 
-files_per_flash = 10
+files_per_flash = 5
 fsamp = 5000.
-fdrive = 41
+fdrive = 41.
 fref = 1027
-NFFT = 2**15
+NFFT = 2**14
 phaselen = int(fsamp/fdrive) #number of samples used to find phase
 plot_scale = 1. ## scaling of corr coeff to units of electrons
 plot_offset = 1.
@@ -131,19 +133,29 @@ def getdata(fname, maxv, ang):
 
         cf.close()
         return out_dict
-
+def find_str(str):
+    print str
+    num1 = "0" ##re.findall('\d+', str)[-3]
+    num2 = re.findall('\d+', str)[-2]
+    if "50" in num1:
+        return int(num1+num2)
+    else:
+        return int(num2)
 
 if reprocessfile:
   init_list = os.listdir(path)
   if( 'processed.pkl' in init_list):
     bad_idx = init_list.index( 'processed.pkl' )
     del init_list[bad_idx]
-  files = sorted(init_list, key = lambda str:int(re.findall('\d+', str)[-2]))
+  if( 'current_corr.txt' in init_list):
+    bad_idx = init_list.index( 'current_corr.txt' )
+    del init_list[bad_idx]
+  files = sorted(init_list, key = find_str)
 
-  ang = getangle(files[ref_file])
+  ang = 0 ##getangle(files[ref_file])
   phase = getphase(files[ref_file], ang)
   corrs_dict = {}
-  for f in files:
+  for f in files[file_start:-1]:
     curr_dict = getdata(f, phase, ang)
 
     for k in curr_dict.keys():
@@ -171,14 +183,14 @@ temp2 = np.array(corrs_dict["temps"])[:,1]
 
 plt.figure() 
 #plt.plot_date(dates, corr_t0/np.median(corr_t0), 'b.', label="Corr at t=0")
-plt.plot_date(dates, max_corr/np.median(max_corr), 'r.', label="Max corr")
-plt.plot_date(dates, psd/np.median(psd), 'k.', label="PSD")
-plt.plot_date(dates, ref_psd/np.median(ref_psd), '.', color=[0.5, 0.5, 0.5], label="Ref. PSD")
+plt.plot_date(dates, corr_t0, 'r.', label="Max corr")
+#plt.plot_date(dates, psd/np.median(psd), 'k.', label="PSD")
+#plt.plot_date(dates, ref_psd/np.median(ref_psd), '.', color=[0.5, 0.5, 0.5], label="Ref. PSD")
 
 ## fit a polynomial to the ref pdf
 p = np.polyfit(dates, ref_psd/np.median(ref_psd), 1)
 xx = np.linspace(dates[0], dates[-1], 1e3)
-plt.plot_date(dates, np.polyval(p, dates), marker=None, linestyle='-', linewidth=2, color=[0.5, 0.5, 0.5])
+##plt.plot_date(dates, np.polyval(p, dates), marker=None, linestyle='-', linewidth=2, color=[0.5, 0.5, 0.5])
 
 
 #plt.plot_date(dates, temp1/np.median(temp1), 'g', label="Laser temp")
@@ -204,13 +216,14 @@ yy = plt.ylim()
 ## plot the location of the flashes and average each period between
 ## make sure to plot for first period
 avg_vals = []
-plot_avg_for_per( dates, max_corr/np.median(max_corr), 0, flash_idx[0], 'r')
-plot_avg_for_per( dates, psd/np.median(psd), 0, flash_idx[0], 'k')
+plot_avg_for_per( dates, corr_t0, 0, flash_idx[0], 'r')
+#plot_avg_for_per( dates, psd/np.median(psd), 0, flash_idx[0], 'k')
 for i,f in enumerate(flash_idx):
     plt.plot_date( [dates[f], dates[f]], yy, 'k--')
     if( i < len(flash_idx)-1 ):
-        cx, eval_corr = plot_avg_for_per( dates, max_corr/np.median(max_corr), flash_idx[i], flash_idx[i+1], 'r')
-        cx, eval_psd = plot_avg_for_per( dates, psd/np.median(psd), flash_idx[i], flash_idx[i+1], 'k')
+        cx, eval_corr = plot_avg_for_per( dates, corr_t0, flash_idx[i], flash_idx[i+1], 'r')
+        eval_psd = 0.0
+        #cx, eval_psd = plot_avg_for_per( dates, psd/np.median(psd), flash_idx[i], flash_idx[i+1], 'k')
         
         avg_vals.append( [cx, eval_corr, eval_psd] )
 
@@ -220,43 +233,43 @@ plt.xlabel("Time")
 plt.ylabel("Correlation with drive")
 plt.legend(numpoints = 1, loc="upper left")
 
-# ## diff plot of mean values
-# avg_vals = np.array(avg_vals)
-# plt.figure()
-# hh, be = np.histogram( np.diff( avg_vals[:,1] ) )
-# plt.step(be[:-1], hh, where='post')
-
-
-## now do the diff plot
-plt.figure() 
-plt.plot_date(dates[:-1], np.diff(max_corr/np.median(max_corr)), 'r.', label="Max corr")
-plt.plot_date(dates[:-1], np.diff(psd/np.median(psd)), 'k.', label="PSD")
-yy = plt.ylim()
-for f in flash_idx:
-    plt.plot_date( [dates[f-1], dates[f-1]], yy, 'k--')
-plt.ylim(yy)
-
-plt.xlabel("Time")
-plt.ylabel("Diff from last point")
-plt.legend(numpoints = 1, loc="upper right")
-
-
-## now histo up the ones after a flash and those with no flash
-corr_diff = np.diff( (max_corr/np.median(max_corr)) ) ## / (np.polyval(p, dates)))
-flash_locs = np.zeros( len(corr_diff) ) > 0
-for f in flash_idx:
-  flash_locs[f-1] = True
-
-corr_diff_noflash = corr_diff[np.logical_not(flash_locs)]
-corr_diff_flash = corr_diff[flash_locs]
-
-hh_noflash, be = np.histogram(corr_diff_noflash, bins=50, range=[-0.1, 0.1], normed=False)
-hh_flash, be = np.histogram(corr_diff_flash, bins=50, range=[-0.1, 0.1], normed=False)
-
+#diff plot of mean values
+avg_vals = np.array(avg_vals)
 plt.figure()
-plt.step(be[:-1], hh_noflash, 'b', label="No flash")
-plt.step(be[:-1], hh_flash, 'r', label="Flash")
-plt.legend(numpoints=1)
+hh, be = np.histogram( np.diff( avg_vals[:,1] ) )
+plt.step(be[:-1], hh, where='post')
+
+
+# ## now do the diff plot
+# plt.figure() 
+# plt.plot_date(dates[:-1], np.diff(corr_t0/np.median(corr_t0)), 'r.', label="Max corr")
+# plt.plot_date(dates[:-1], np.diff(psd/np.median(psd)), 'k.', label="PSD")
+# yy = plt.ylim()
+# for f in flash_idx:
+#     plt.plot_date( [dates[f-1], dates[f-1]], yy, 'k--')
+# plt.ylim(yy)
+
+# plt.xlabel("Time")
+# plt.ylabel("Diff from last point")
+# plt.legend(numpoints = 1, loc="upper right")
+
+
+# ## now histo up the ones after a flash and those with no flash
+# corr_diff = np.diff( (corr_t0/np.median(corr_t0)) ) ## / (np.polyval(p, dates)))
+# flash_locs = np.zeros( len(corr_diff) ) > 0
+# for f in flash_idx:
+#   flash_locs[f-1] = True
+
+# corr_diff_noflash = corr_diff[np.logical_not(flash_locs)]
+# corr_diff_flash = corr_diff[flash_locs]
+
+# hh_noflash, be = np.histogram(corr_diff_noflash, bins=50, range=[-0.1, 0.1], normed=False)
+# hh_flash, be = np.histogram(corr_diff_flash, bins=50, range=[-0.1, 0.1], normed=False)
+
+# plt.figure()
+# plt.step(be[:-1], hh_noflash, 'b', label="No flash")
+# plt.step(be[:-1], hh_flash, 'r', label="Flash")
+# plt.legend(numpoints=1)
 
 plt.show()
 

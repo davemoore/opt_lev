@@ -288,42 +288,13 @@ For information on moving this example to another FPGA target, refer to ni.com/i
 				<Item Name="subTimeDelay.vi" Type="VI" URL="/&lt;vilib&gt;/express/express execution control/TimeDelayBlock.llb/subTimeDelay.vi"/>
 				<Item Name="niLvFPGAUserSpecifiedEmulationVISupport.lvclass" Type="LVClass" URL="/&lt;vilib&gt;/rvi/customViForEmulation/niLvFPGAUserSpecifiedEmulationVISupport.lvclass"/>
 				<Item Name="Error Cluster From Error Code.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Error Cluster From Error Code.vi"/>
-				<Item Name="NI_AALBase.lvlib" Type="Library" URL="/&lt;vilib&gt;/Analysis/NI_AALBase.lvlib"/>
-				<Item Name="NI_FpgaMspHost.lvlib" Type="Library" URL="/&lt;vilib&gt;/rvi/Analysis/host/Public/NI_FpgaMspHost.lvlib"/>
-				<Item Name="whitespace.ctl" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/whitespace.ctl"/>
-				<Item Name="Trim Whitespace.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Trim Whitespace.vi"/>
-				<Item Name="GetHelpDir.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/GetHelpDir.vi"/>
-				<Item Name="BuildHelpPath.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/BuildHelpPath.vi"/>
-				<Item Name="LVBoundsTypeDef.ctl" Type="VI" URL="/&lt;vilib&gt;/Utility/miscctls.llb/LVBoundsTypeDef.ctl"/>
-				<Item Name="Get String Text Bounds.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Get String Text Bounds.vi"/>
-				<Item Name="Get Text Rect.vi" Type="VI" URL="/&lt;vilib&gt;/picture/picture.llb/Get Text Rect.vi"/>
-				<Item Name="Convert property node font to graphics font.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Convert property node font to graphics font.vi"/>
-				<Item Name="Longest Line Length in Pixels.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Longest Line Length in Pixels.vi"/>
-				<Item Name="Three Button Dialog CORE.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Three Button Dialog CORE.vi"/>
-				<Item Name="Three Button Dialog.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Three Button Dialog.vi"/>
-				<Item Name="DialogTypeEnum.ctl" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/DialogTypeEnum.ctl"/>
-				<Item Name="Not Found Dialog.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Not Found Dialog.vi"/>
-				<Item Name="Set Bold Text.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Set Bold Text.vi"/>
-				<Item Name="Clear Errors.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Clear Errors.vi"/>
-				<Item Name="eventvkey.ctl" Type="VI" URL="/&lt;vilib&gt;/event_ctls.llb/eventvkey.ctl"/>
-				<Item Name="ErrWarn.ctl" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/ErrWarn.ctl"/>
-				<Item Name="Details Display Dialog.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Details Display Dialog.vi"/>
-				<Item Name="Search and Replace Pattern.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Search and Replace Pattern.vi"/>
-				<Item Name="Find Tag.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Find Tag.vi"/>
-				<Item Name="Format Message String.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Format Message String.vi"/>
-				<Item Name="Error Code Database.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Error Code Database.vi"/>
-				<Item Name="GetRTHostConnectedProp.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/GetRTHostConnectedProp.vi"/>
-				<Item Name="Set String Value.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Set String Value.vi"/>
-				<Item Name="TagReturnType.ctl" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/TagReturnType.ctl"/>
-				<Item Name="Check Special Tags.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Check Special Tags.vi"/>
-				<Item Name="General Error Handler CORE.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/General Error Handler CORE.vi"/>
-				<Item Name="DialogType.ctl" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/DialogType.ctl"/>
-				<Item Name="General Error Handler.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/General Error Handler.vi"/>
+				<Item Name="VISA Configure Serial Port (Instr).vi" Type="VI" URL="/&lt;vilib&gt;/Instr/_visa.llb/VISA Configure Serial Port (Instr).vi"/>
+				<Item Name="VISA Configure Serial Port (Serial Instr).vi" Type="VI" URL="/&lt;vilib&gt;/Instr/_visa.llb/VISA Configure Serial Port (Serial Instr).vi"/>
+				<Item Name="VISA Configure Serial Port" Type="VI" URL="/&lt;vilib&gt;/Instr/_visa.llb/VISA Configure Serial Port"/>
 			</Item>
 			<Item Name="NiFpgaLv.dll" Type="Document" URL="NiFpgaLv.dll">
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
 			</Item>
-			<Item Name="MultiChannelFeed_FPGATarget2_feedbackcooling(_T5hmXv3JUos.lvbitx" Type="Document" URL="../../../../../Documents and Settings/Mike/My Documents/opt_lev/vis/FPGA Bitfiles/MultiChannelFeed_FPGATarget2_feedbackcooling(_T5hmXv3JUos.lvbitx"/>
 			<Item Name="niFpgaExecutionStage.ctl" Type="VI" URL="/&lt;vilib&gt;/rvi/eio/common/niFpgaExecutionStage.ctl"/>
 			<Item Name="nirviEmuClasses.ctl" Type="VI" URL="/&lt;vilib&gt;/rvi/eio/common/nirviEmuClasses.ctl"/>
 			<Item Name="EIO_ResourceConfig.ctl" Type="VI" URL="/&lt;vilib&gt;/eio/EIO_ResourceConfig.ctl"/>
@@ -338,27 +309,7 @@ For information on moving this example to another FPGA target, refer to ni.com/i
 			<Item Name="nirviReportUnexpectedCaseInternalError.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/errors/nirviReportUnexpectedCaseInternalError.vi"/>
 			<Item Name="niLvFpgaErrorClusterFromErrorCode.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/errors/niLvFpgaErrorClusterFromErrorCode.vi"/>
 			<Item Name="niLvFPGAUserSpecifiedEmulationVISupport.ctl" Type="VI" URL="/&lt;vilib&gt;/rvi/customViForEmulation/niLvFPGAUserSpecifiedEmulationVISupport.ctl"/>
-			<Item Name="niLvFpga_Close_PCIe-7841R.vi" Type="VI" URL="/&lt;vilib&gt;/FPGAPlugInAG/PCIe-7841R/niLvFpga_Close_PCIe-7841R.vi"/>
-			<Item Name="niLvFpgaWhatHappensToTopLevelVI.ctl" Type="VI" URL="/&lt;vilib&gt;/rvi/errors/niLvFpgaWhatHappensToTopLevelVI.ctl"/>
-			<Item Name="niFpgaNodeNameForErrorReporting.ctl" Type="VI" URL="/&lt;vilib&gt;/rvi/interface/common/niFpgaNodeNameForErrorReporting.ctl"/>
-			<Item Name="niLvFpgaAdjustHostInterfaceError.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/errors/niLvFpgaAdjustHostInterfaceError.vi"/>
-			<Item Name="niFpgaFxpOverflowPolicy.ctl" Type="VI" URL="/&lt;vilib&gt;/rvi/Analysis/common/scripting/niFpgaFxpOverflowPolicy.ctl"/>
-			<Item Name="niFpgaNumIoResolution.ctl" Type="VI" URL="/&lt;vilib&gt;/rvi/Analysis/common/dataTypes/niFpgaNumIoResolution.ctl"/>
-			<Item Name="niFpgaBnFxpIntWrapper.ctl" Type="VI" URL="/&lt;vilib&gt;/rvi/Analysis/common/blockNode/niFpgaBnFxpIntWrapper.ctl"/>
-			<Item Name="niLvFpgaFilterSettings.ctl" Type="VI" URL="/&lt;vilib&gt;/rvi/Analysis/measure/butterworth/configuration/niLvFpgaFilterSettings.ctl"/>
-			<Item Name="nirviIIRReorderCoefficients.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/Analysis/measure/butterworth/configuration/nirviIIRReorderCoefficients.vi"/>
-			<Item Name="niFpgaBwSettings.ctl" Type="VI" URL="/&lt;vilib&gt;/rvi/Analysis/measure/butterworth/configuration/niFpgaBwSettings.ctl"/>
-			<Item Name="nirviBwFloatEquivCoeffs.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/Analysis/measure/butterworth/configuration/nirviBwFloatEquivCoeffs.vi"/>
-			<Item Name="nirviBwForceUnityGains.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/Analysis/measure/butterworth/configuration/nirviBwForceUnityGains.vi"/>
-			<Item Name="nirviBwQuantizeCoeffs.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/Analysis/measure/butterworth/configuration/nirviBwQuantizeCoeffs.vi"/>
-			<Item Name="niLvFpgaBwValidateConfig.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/Analysis/measure/butterworth/configuration/niLvFpgaBwValidateConfig.vi"/>
-			<Item Name="nirviBwProcessCoefficients.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/Analysis/measure/butterworth/configuration/nirviBwProcessCoefficients.vi"/>
-			<Item Name="nirviBwOrderingFilterSections.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/Analysis/measure/butterworth/configuration/nirviBwOrderingFilterSections.vi"/>
-			<Item Name="niLvFpga_Run_PCIe-7841R.vi" Type="VI" URL="/&lt;vilib&gt;/FPGAPlugInAG/PCIe-7841R/niLvFpga_Run_PCIe-7841R.vi"/>
-			<Item Name="nirviErrorClusterFromErrorCode.vi" Type="VI" URL="/&lt;vilib&gt;/RVI Host/nirviSupport.llb/nirviErrorClusterFromErrorCode.vi"/>
-			<Item Name="nirviWhatTheDeviceIsDoing.ctl" Type="VI" URL="/&lt;vilib&gt;/rvi/ClientSDK/nirviWhatTheDeviceIsDoing.ctl"/>
-			<Item Name="nirio_resource_hc.ctl" Type="VI" URL="/&lt;vilib&gt;/userdefined/High Color/nirio_resource_hc.ctl"/>
-			<Item Name="niLvFpga_Open_PCIe-7841R.vi" Type="VI" URL="/&lt;vilib&gt;/FPGAPlugInAG/PCIe-7841R/niLvFpga_Open_PCIe-7841R.vi"/>
+			<Item Name="MultiChannelFeed_FPGATarget2_feedbackcooling(_T5hmXv3JUos.lvbitx" Type="Document" URL="../MultiChannelFeed_FPGATarget2_feedbackcooling(_T5hmXv3JUos.lvbitx"/>
 		</Item>
 		<Item Name="Build Specifications" Type="Build"/>
 	</Item>

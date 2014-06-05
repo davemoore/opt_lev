@@ -5,9 +5,9 @@ import os
 import scipy.signal as sp
 
 
-refname = "41Hz_250mV_1027Hz_1mVref.h5"
+refname = "2mbar_xyzcool.h5"
 fname0 =  ""
-path = r"D:\Data\20140529\Bead1"
+path = r"D:\Data\20140605\Bead1"
 d2plt = 1
 if fname0 == "":
 	filelist = os.listdir(path)
@@ -24,7 +24,6 @@ if fname0 == "":
 
 
 		 
-
 
 Fs = 15e3  ## this is ignored with HDF5 files
 NFFT = 2**15
@@ -45,7 +44,7 @@ def getdata(fname):
 	else:
 		dat = numpy.loadtxt(fname, skiprows = 5, usecols = [2, 3, 4, 5] )
 
-	xpsd, freqs = matplotlib.mlab.psd(dat[:,0], Fs = Fs, NFFT = NFFT) 
+	xpsd, freqs = matplotlib.mlab.psd(dat[:, 0], Fs = Fs, NFFT = NFFT) 
 	ypsd, freqs = matplotlib.mlab.psd(dat[:, 1], Fs = Fs, NFFT = NFFT)
         zpsd, freqs = matplotlib.mlab.psd(dat[:, 2], Fs = Fs, NFFT = NFFT)
 	norm = numpy.median(dat[:, 2])
@@ -61,16 +60,17 @@ def rotate(vec1, vec2, theta):
 
 if refname:
 	data1 = getdata(os.path.join(path, refname))
-
-b, a = sp.butter(3, [2*20./Fs, 2*35./Fs], btype = 'bandpass')
+Fs = 5000
+b, a = sp.butter(3, [2*35./Fs, 2*45./Fs], btype = 'bandpass')
 
 if d2plt:	
 	fig = plt.figure()
-	rotated = rotate(data0[3][:, 0],data0[3][:, 1], numpy.pi*(0))
-        plt.plot(rotated[0])
-        plt.plot(rotated[1])
-        #plt.plot(sp.filtfilt(b, a, rotated[0]))
-        #plt.plot(sp.filtfilt(b, a, rotated[1]))
+	#rotated = rotate(data0[3][:, 0],data0[3][:, 1], numpy.pi*(0))
+	rotated = [data0[3][:,0], data0[3][:,1]]
+        #plt.plot(rotated[0])
+        #plt.plot(rotated[1])
+        plt.plot(sp.filtfilt(b, a, rotated[0]))
+        plt.plot(sp.filtfilt(b, a, rotated[1]))
         plt.plot(data0[3][:, 3])
         #plt.plot(data0[3][:, 2])
         #if refname:
