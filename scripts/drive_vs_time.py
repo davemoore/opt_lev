@@ -20,7 +20,6 @@ file_start = 0
 scale_fac = 1.
 scale_file = 1.
 
-files_per_flash = 5
 fsamp = 5000.
 fdrive = 41.
 fref = 1027
@@ -129,7 +128,8 @@ def getdata(fname, maxv, ang):
                     "psd": np.sqrt(xpsd[max_bin]),
                     "ref_psd": np.sqrt(xpsd[ref_bin]),
                     "temps": attribs["temps"],
-                    "time": bu.labview_time_to_datetime(ctime)}
+                    "time": bu.labview_time_to_datetime(ctime),
+                    "num_flashes": attribs["num_flashes"]}
 
         cf.close()
         return out_dict
@@ -180,6 +180,7 @@ psd = np.array(corrs_dict["psd"])
 ref_psd = np.array(corrs_dict["ref_psd"])
 temp1 = np.array(corrs_dict["temps"])[:,0]
 temp2 = np.array(corrs_dict["temps"])[:,1]
+num_flashes = np.array(corrs_dict["num_flashes"])
 
 plt.figure() 
 #plt.plot_date(dates, corr_t0/np.median(corr_t0), 'b.', label="Corr at t=0")
@@ -210,7 +211,8 @@ def plot_avg_for_per(x, y, idx1, idx2, linecol):
     return x[mid_idx], eval
     
 
-flash_idx=np.argwhere( (np.arange(0,len(dates)) % files_per_flash) == files_per_flash-1 )
+#flash_idx=np.argwhere( (np.arange(0,len(dates)) % files_per_flash) == files_per_flash-1 )
+flash_idx = np.argwhere( num_flashes > 0 )
 
 yy = plt.ylim()
 ## plot the location of the flashes and average each period between
