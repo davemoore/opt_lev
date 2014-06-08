@@ -10,7 +10,7 @@ import scipy.signal as sp
 import scipy.optimize as opt
 import cPickle as pickle
 
-path = r"D:\Data\20140605\Bead1\chargelp"
+path = r"D:\Data\20140605\Bead2\chargelp_CCG2"
 reprocessfile = True
 plot_angle = False
 ref_file = 0 ## index of file to calculate angle and phase for
@@ -218,16 +218,17 @@ yy = plt.ylim()
 ## plot the location of the flashes and average each period between
 ## make sure to plot for first period
 avg_vals = []
-plot_avg_for_per( dates, corr_t0, 0, flash_idx[0], 'r')
+if(len(flash_idx)>1):
+    plot_avg_for_per( dates, corr_t0, 0, flash_idx[0], 'r')
 #plot_avg_for_per( dates, psd/np.median(psd), 0, flash_idx[0], 'k')
-for i,f in enumerate(flash_idx):
-    plt.plot_date( [dates[f], dates[f]], yy, 'k--')
-    if( i < len(flash_idx)-1 ):
-        cx, eval_corr = plot_avg_for_per( dates, corr_t0, flash_idx[i], flash_idx[i+1], 'r')
-        eval_psd = 0.0
+    for i,f in enumerate(flash_idx):
+        plt.plot_date( [dates[f], dates[f]], yy, 'k--')
+        if( i < len(flash_idx)-1 ):
+            cx, eval_corr = plot_avg_for_per( dates, corr_t0, flash_idx[i], flash_idx[i+1], 'r')
+            eval_psd = 0.0
         #cx, eval_psd = plot_avg_for_per( dates, psd/np.median(psd), flash_idx[i], flash_idx[i+1], 'k')
         
-        avg_vals.append( [cx, eval_corr, eval_psd] )
+            avg_vals.append( [cx, eval_corr, eval_psd] )
 
 plt.ylim(yy)
 
@@ -237,9 +238,10 @@ plt.legend(numpoints = 1, loc="upper left")
 
 #diff plot of mean values
 avg_vals = np.array(avg_vals)
-plt.figure()
-hh, be = np.histogram( np.diff( avg_vals[:,1] ) )
-plt.step(be[:-1], hh, where='post')
+if(len(avg_vals)>2):
+    plt.figure()
+    hh, be = np.histogram( np.diff( avg_vals[:,1] ) )
+    plt.step(be[:-1], hh, where='post')
 
 
 # ## now do the diff plot
