@@ -5,9 +5,9 @@ import os
 import scipy.signal as sp
 
 
-refname = r"5e-5mbar_xyzcool.h5"
-fname0 =  ""
-path = r"D:\Data\20140605\Bead2"
+refname = r"2e-6mbar_xyzcool_41Hz_1kV_282.h5"
+fname0 =  r"2e-6mbar_xyzcool_41Hz_1kV_321.h5"
+path = r"D:\Data\20140610\Bead3\chargehvamp2"
 d2plt = 1
 if fname0 == "":
 	filelist = os.listdir(path)

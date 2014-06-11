@@ -10,15 +10,17 @@ import scipy.signal as sp
 import scipy.optimize as opt
 import cPickle as pickle
 
-path = r"D:\Data\20140605\Bead2\chargelp_CCG2"
+path = r"D:\Data\20140610\bead3\chargehvamp2"
 reprocessfile = True
 plot_angle = False
 ref_file = 0 ## index of file to calculate angle and phase for
 
 file_start = 0
 
-scale_fac = 1.
+scale_fac = 1./0.0017
 scale_file = 1.
+
+amp_gain = 200.
 
 fsamp = 5000.
 fdrive = 41.
@@ -91,15 +93,17 @@ def getdata(fname, maxv, ang):
 
 	print "Processing ", fname
         dat, attribs, cf = bu.getdata(os.path.join(path, fname))
-
+        dat[:, drive_column] *= amp_gain
         if( len(attribs) > 0 ):
             fsamp = attribs["Fsamp"]
-
+        
         xdat, ydat = rotate_data(dat[:,data_columns[0]], dat[:,data_columns[1]], ang)
+        dat[:, drive_column] = sp.filtfilt(b, a, dat[:, drive_column])
         lentrace = len(xdat)
         ## zero pad one cycle
         xdat = np.append(xdat, np.zeros( fsamp/fdrive ))
-        corr_full = np.correlate( xdat, dat[:,drive_column])/lentrace
+        drive_amp = np.sqrt(2)*np.std( dat[:,drive_column] )
+        corr_full = np.correlate( xdat, dat[:,drive_column])/(lentrace*drive_amp**2)*scale_fac
         corr = corr_full[ maxv ]
         corr_max = np.max(corr_full)
         corr_max_pos = np.argmax(corr_full)
