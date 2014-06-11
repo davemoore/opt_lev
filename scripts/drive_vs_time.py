@@ -187,19 +187,12 @@ temp2 = np.array(corrs_dict["temps"])[:,1]
 num_flashes = np.array(corrs_dict["num_flashes"])
 
 plt.figure() 
-#plt.plot_date(dates, corr_t0/np.median(corr_t0), 'b.', label="Corr at t=0")
 plt.plot_date(dates, corr_t0, 'r.', label="Max corr")
-#plt.plot_date(dates, psd/np.median(psd), 'k.', label="PSD")
-#plt.plot_date(dates, ref_psd/np.median(ref_psd), '.', color=[0.5, 0.5, 0.5], label="Ref. PSD")
 
 ## fit a polynomial to the ref pdf
 p = np.polyfit(dates, ref_psd/np.median(ref_psd), 1)
 xx = np.linspace(dates[0], dates[-1], 1e3)
-##plt.plot_date(dates, np.polyval(p, dates), marker=None, linestyle='-', linewidth=2, color=[0.5, 0.5, 0.5])
 
-
-#plt.plot_date(dates, temp1/np.median(temp1), 'g', label="Laser temp")
-#plt.plot_date(dates, temp2/np.median(temp2), 'c', label="Amp temp")
 
 def plot_avg_for_per(x, y, idx1, idx2, linecol):
     ## get the average and error (given by std of points) for a sub period between flashes
@@ -215,7 +208,6 @@ def plot_avg_for_per(x, y, idx1, idx2, linecol):
     return x[mid_idx], eval
     
 
-#flash_idx=np.argwhere( (np.arange(0,len(dates)) % files_per_flash) == files_per_flash-1 )
 flash_idx = np.argwhere( num_flashes > 0 )
 
 yy = plt.ylim()
@@ -224,14 +216,11 @@ yy = plt.ylim()
 avg_vals = []
 if(len(flash_idx)>1):
     plot_avg_for_per( dates, corr_t0, 0, flash_idx[0], 'r')
-#plot_avg_for_per( dates, psd/np.median(psd), 0, flash_idx[0], 'k')
     for i,f in enumerate(flash_idx):
         plt.plot_date( [dates[f], dates[f]], yy, 'k--')
         if( i < len(flash_idx)-1 ):
             cx, eval_corr = plot_avg_for_per( dates, corr_t0, flash_idx[i], flash_idx[i+1], 'r')
             eval_psd = 0.0
-        #cx, eval_psd = plot_avg_for_per( dates, psd/np.median(psd), flash_idx[i], flash_idx[i+1], 'k')
-        
             avg_vals.append( [cx, eval_corr, eval_psd] )
 
 plt.ylim(yy)
@@ -240,12 +229,48 @@ plt.xlabel("Time")
 plt.ylabel("Correlation with drive")
 plt.legend(numpoints = 1, loc="upper left")
 
+
+fig1 = plt.figure() 
+plt.subplot(1,2,1)
+plt.plot_date(dates, corr_t0-np.round(corr_t0), 'r.', markersize=2, label="Max corr")
+## set limits at +/- 5 sigma
+cmu, cstd = np.median(corr_t0-np.round(corr_t0)), np.std(corr_t0-np.round(corr_t0))
+yy = plt.ylim([cmu-5*cstd, cmu+5*cstd])
+for i,f in enumerate(flash_idx):
+    plt.plot_date( [dates[f], dates[f]], yy, marker=None, linestyle='-', color=[0.5, 0.5, 0.5])
+plt.plot_date(dates, corr_t0-np.round(corr_t0), 'r.', markersize=2, label="Max corr")
+plt.ylim(yy)
+plt.xlabel("Time")
+plt.ylabel("Residual to nearest integer charge [$e$]")
+ax = plt.gca()
+plt.subplot(1,2,2)
+ax2 = plt.gca()
+ax2.yaxis.set_visible(False)
+hh, be = np.histogram( corr_t0-np.round(corr_t0), bins = 30, range=yy )
+bc = be[:-1]+np.diff(be)/2.0
+
+## fit the data
+def gauss_fun(x, A, mu, sig):
+    return A*np.exp( -(x-mu)**2/(2*sig**2) )
+ax.set_position(matplotlib.transforms.Bbox(np.array([[0.125,0.1],[0.675,0.9]])))
+ax2.set_position(matplotlib.transforms.Bbox(np.array([[0.725,0.1],[0.9,0.9]])))
+
+bp, bcov = opt.curve_fit( gauss_fun, bc, hh, p0=[10, 0, 0.03] )
+
+xx = np.linspace(yy[0], yy[1], 1e3)
+plt.errorbar( hh, bc, xerr=np.sqrt(hh), yerr=0, fmt='k.', linewidth=1.5 )
+plt.plot( gauss_fun(xx, bp[0], bp[1], bp[2]), xx, 'r', linewidth=1.5, label="$\mu$ = %.3e $\pm$ %.3e $e$"%(bp[1], np.sqrt(bcov[1,1])))
+plt.legend()
+plt.ylim(yy)
+
+plt.xlabel("Counts")
+
 #diff plot of mean values
-avg_vals = np.array(avg_vals)
-if(len(avg_vals)>2):
-    plt.figure()
-    hh, be = np.histogram( np.diff( avg_vals[:,1] ) )
-    plt.step(be[:-1], hh, where='post')
+#avg_vals = np.array(avg_vals)
+#if(len(avg_vals)>2):
+#    plt.figure()
+#    hh, be = np.histogram( np.diff( avg_vals[:,1] ) )
+#    plt.step(be[:-1], hh, where='post')
 
 
 # ## now do the diff plot
