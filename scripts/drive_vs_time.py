@@ -32,7 +32,7 @@ plot_offset = 1.
 data_columns = [0, 1] ## column to calculate the correlation against
 drive_column = 3
 
-b, a = sp.butter(3, [2.*(fdrive-5)/fsamp, 2.*(fdrive+5)/fsamp ], btype = 'bandpass')
+b, a = sp.butter(3, [2.*(fdrive-1)/fsamp, 2.*(fdrive+1)/fsamp ], btype = 'bandpass')
 boff, aoff = sp.butter(3, 2.*(fdrive-10)/fsamp, btype = 'lowpass')
 
 def rotate_data(x, y, ang):
@@ -99,6 +99,7 @@ def getdata(fname, maxv, ang):
         
         xdat, ydat = rotate_data(dat[:,data_columns[0]], dat[:,data_columns[1]], ang)
         dat[:, drive_column] = sp.filtfilt(b, a, dat[:, drive_column])
+        ydat =  sp.filtfilt(b, a, ydat)
         lentrace = len(xdat)
         ## zero pad one cycle
         xdat = np.append(xdat, np.zeros( fsamp/fdrive ))
