@@ -10,7 +10,7 @@ import scipy.signal as sp
 import scipy.optimize as opt
 import cPickle as pickle
 
-path = r"D:\Data\20140610\bead3\chargehvamp2"
+path = "/data/20140617/Bead3/ramp_overnight"
 reprocessfile = True
 plot_angle = False
 ref_file = 0 ## index of file to calculate angle and phase for
@@ -138,14 +138,28 @@ def getdata(fname, maxv, ang):
 
         cf.close()
         return out_dict
+
 def find_str(str):
-    print str
-    num1 = "0" ##re.findall('\d+', str)[-3]
-    num2 = re.findall('\d+', str)[-2]
-    if "50" in num1:
-        return int(num1+num2)
+    """ Function to sort files.  Assumes that the filename ends
+        in #mV_#Hz[_#].h5 and sorts by end index first, then
+        by voltage """
+    idx_offset = 1e10 ## large number to ensure sorting by index first
+
+    fname, _ = os.path.splitext(str)
+
+    endstr = re.findall("\d+mV_\d+Hz[_]?[\d+]*", fname)
+    if( len(endstr) != 1 ):
+        ## couldn't find the expected pattern, just return the 
+        ## second to last number in the string
+        return int(re.findall('\d+', fname)[-2])
+        
+    ## now check to see if there's an index number
+    sparts = endstr[0].split("_")
+    if( len(sparts) == 3 ):
+        return idx_offset*int(sparts[2]) + int(sparts[0][:-2])
     else:
-        return int(num2)
+        return int(sparts[0][:-2])
+    
 
 if reprocessfile:
   init_list = os.listdir(path)
