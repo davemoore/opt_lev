@@ -4,23 +4,31 @@
 import numpy as np
 import matplotlib, calendar
 import matplotlib.pyplot as plt
-import os, re
+import os, re, glob
 import bead_util as bu
 import scipy.signal as sp
 import scipy.optimize as opt
 import cPickle as pickle
 
-path = "/data/20140617/Bead3/ramp_overnight"
+path = "/data/20140617/Bead3/overnight"
+## path to directory containing charge steps, used to calibrate phase and 
+## scaling.  leave empty to use data path
+cal_path = "/data/20140617/Bead3/chargelp"
+
 reprocessfile = True
 plot_angle = False
+plot_phase = False
+remove_outliers = True
+plot_flashes = False
 ref_file = 0 ## index of file to calculate angle and phase for
 
 file_start = 0
 
-scale_fac = 1./0.0017
+scale_fac = 1.
 scale_file = 1.
 
-amp_gain = 200.
+amp_gain = 200. ## gain to use for files in path
+amp_gain_cal = 1.  ## gain to use for files in cal_path
 
 fsamp = 5000.
 fdrive = 41.
@@ -30,7 +38,7 @@ phaselen = int(fsamp/fdrive) #number of samples used to find phase
 plot_scale = 1. ## scaling of corr coeff to units of electrons
 plot_offset = 1.
 data_columns = [0, 1] ## column to calculate the correlation against
-drive_column = 3
+drive_column = -1
 
 b, a = sp.butter(3, [2.*(fdrive-1)/fsamp, 2.*(fdrive+1)/fsamp ], btype = 'bandpass')
 boff, aoff = sp.butter(3, 2.*(fdrive-10)/fsamp, btype = 'lowpass')
@@ -85,15 +93,26 @@ def getphase(fname, ang):
 
         cf.close()
 
+        if(plot_phase):
+            plt.figure()
+            plt.plot( corr2 )
+            plt.figure()
+            xdat_filt = sp.filtfilt(b,a,xdat)
+            drive_filt = sp.filtfilt(b,a,dat[:,drive_column])
+            plt.plot( xdat_filt/np.max( xdat_filt ), label='x')
+            plt.plot( drive_filt/np.max( drive_filt ), label='drive' )
+            plt.legend()
+            plt.show()
+
         print maxv
         return maxv
 
 
-def getdata(fname, maxv, ang):
+def getdata(fname, maxv, ang, gain):
 
 	print "Processing ", fname
         dat, attribs, cf = bu.getdata(os.path.join(path, fname))
-        dat[:, drive_column] *= amp_gain
+        dat[:, drive_column] *= gain
         if( len(attribs) > 0 ):
             fsamp = attribs["Fsamp"]
         
@@ -104,7 +123,7 @@ def getdata(fname, maxv, ang):
         ## zero pad one cycle
         xdat = np.append(xdat, np.zeros( fsamp/fdrive ))
         drive_amp = np.sqrt(2)*np.std( dat[:,drive_column] )
-        corr_full = np.correlate( xdat, dat[:,drive_column])/(lentrace*drive_amp**2)*scale_fac
+        corr_full = np.correlate( xdat, dat[:,drive_column])/(lentrace*drive_amp**2)
         corr = corr_full[ maxv ]
         corr_max = np.max(corr_full)
         corr_max_pos = np.argmax(corr_full)
@@ -126,6 +145,10 @@ def getdata(fname, maxv, ang):
 
         ctime = attribs["time"]
 
+        ## is this a calibration file?
+        cdir,_ = os.path.split(fname)
+        is_cal = cdir == cal_path
+
         curr_scale = 1.0
         ## make a dictionary containing the various calculations
         out_dict = {"corr_t0": corr,
@@ -134,7 +157,8 @@ def getdata(fname, maxv, ang):
                     "ref_psd": np.sqrt(xpsd[ref_bin]),
                     "temps": attribs["temps"],
                     "time": bu.labview_time_to_datetime(ctime),
-                    "num_flashes": attribs["num_flashes"]}
+                    "num_flashes": attribs["num_flashes"],
+                    "is_cal": is_cal}
 
         cf.close()
         return out_dict
@@ -162,20 +186,22 @@ def find_str(str):
     
 
 if reprocessfile:
-  init_list = os.listdir(path)
-  if( 'processed.pkl' in init_list):
-    bad_idx = init_list.index( 'processed.pkl' )
-    del init_list[bad_idx]
-  if( 'current_corr.txt' in init_list):
-    bad_idx = init_list.index( 'current_corr.txt' )
-    del init_list[bad_idx]
+
+  init_list = glob.glob(path + "/*.h5")
   files = sorted(init_list, key = find_str)
 
+  if(cal_path):
+      cal_list = glob.glob(cal_path + "/*.h5")
+      cal_files = sorted( cal_list, key = find_str )
+      files = zip(cal_files[:-1],np.zeros(len(cal_files[:-1]))+amp_gain_cal) \
+              + zip(files[:-1],np.zeros(len(files[:-1]))+amp_gain)
+      
+
   ang = 0 ##getangle(files[ref_file])
-  phase = getphase(files[ref_file], ang)
+  phase = getphase(files[ref_file][0], ang)
   corrs_dict = {}
-  for f in files[file_start:-1]:
-    curr_dict = getdata(f, phase, ang)
+  for f,gain in files[file_start:]:
+    curr_dict = getdata(f, phase, ang, gain)
 
     for k in curr_dict.keys():
         if k in corrs_dict:
@@ -191,12 +217,30 @@ else:
   corrs_dict = pickle.load( of )
   of.close()
 
+## if a calibration data set is defined and the scale factor is 1,
+## then try to calculate the scale factor from the calibration
+is_cal = np.array( corrs_dict["is_cal"] )
+if( np.sum(is_cal) > 0 and scale_fac == 1.):
+    cal_dat = np.array(corrs_dict["corr_t0"])[is_cal]
+    ## take a guess at the step size
+    step_vals = np.abs( np.diff( cal_dat ) )
+    step_guess = np.median( step_vals[ step_vals > 3*np.std(step_vals)] )
+    ## only keep non-zero points (assuming sig-to-noise > 5)
+    cal_dat = cal_dat[cal_dat > 0.2*step_guess]
+    def scale_resid( s ):
+        return np.sum( (cal_dat/s - np.round(cal_dat/s))**2  )
+    ## do manual search for best scale fac
+    slist = np.linspace(step_guess/1.2, step_guess*1.2, 1e4)
+    scale_fac = 1./slist[np.argmin( map(scale_resid, slist) ) ]
+    print "Calibration: guess, best_fit: ", 1./step_guess, scale_fac
+    
 ## first plot the variation versus time
 dates = matplotlib.dates.date2num(corrs_dict["time"])
-corr_t0 = np.array(corrs_dict["corr_t0"])
-max_corr = np.array(corrs_dict["max_corr"])[:,0]
-psd = np.array(corrs_dict["psd"])
-ref_psd = np.array(corrs_dict["ref_psd"])
+corr_t0 = np.array(corrs_dict["corr_t0"])*scale_fac
+max_corr = np.array(corrs_dict["max_corr"])[:,0]*scale_fac
+best_phase = np.array(corrs_dict["max_corr"])[:,1]
+psd = np.array(corrs_dict["psd"])*scale_fac
+ref_psd = np.array(corrs_dict["ref_psd"])*scale_fac
 temp1 = np.array(corrs_dict["temps"])[:,0]
 temp2 = np.array(corrs_dict["temps"])[:,1]
 num_flashes = np.array(corrs_dict["num_flashes"])
@@ -229,10 +273,10 @@ yy = plt.ylim()
 ## plot the location of the flashes and average each period between
 ## make sure to plot for first period
 avg_vals = []
-if(len(flash_idx)>1):
+if(len(flash_idx)>1 and plot_flashes):
     plot_avg_for_per( dates, corr_t0, 0, flash_idx[0], 'r')
     for i,f in enumerate(flash_idx):
-        plt.plot_date( [dates[f], dates[f]], yy, 'k--')
+        plt.plot_date( [dates[f], dates[f]], yy, linestyle='-', color=[0.5, 0.5, 0.5], marker=None)
         if( i < len(flash_idx)-1 ):
             cx, eval_corr = plot_avg_for_per( dates, corr_t0, flash_idx[i], flash_idx[i+1], 'r')
             eval_psd = 0.0
@@ -242,35 +286,54 @@ plt.ylim(yy)
 
 plt.xlabel("Time")
 plt.ylabel("Correlation with drive")
-plt.legend(numpoints = 1, loc="upper left")
+##plt.legend(numpoints = 1, loc="upper left")
 
 
 fig1 = plt.figure() 
 plt.subplot(1,2,1)
-plt.plot_date(dates, corr_t0-np.round(corr_t0), 'r.', markersize=2, label="Max corr")
+
+resid_data = corr_t0-np.round(corr_t0)
+plt.plot_date(dates, resid_data, 'r.', markersize=2, label="Max corr")
 ## set limits at +/- 5 sigma
-cmu, cstd = np.median(corr_t0-np.round(corr_t0)), np.std(corr_t0-np.round(corr_t0))
+cmu, cstd = np.median(resid_data), np.std(resid_data)
 yy = plt.ylim([cmu-5*cstd, cmu+5*cstd])
-for i,f in enumerate(flash_idx):
-    plt.plot_date( [dates[f], dates[f]], yy, marker=None, linestyle='-', color=[0.5, 0.5, 0.5])
-plt.plot_date(dates, corr_t0-np.round(corr_t0), 'r.', markersize=2, label="Max corr")
 plt.ylim(yy)
 plt.xlabel("Time")
 plt.ylabel("Residual to nearest integer charge [$e$]")
 ax = plt.gca()
-plt.subplot(1,2,2)
-ax2 = plt.gca()
-ax2.yaxis.set_visible(False)
-hh, be = np.histogram( corr_t0-np.round(corr_t0), bins = 30, range=yy )
+
+hh, be = np.histogram( resid_data, bins = np.max([30, len(resid_data)/50]), range=yy )
 bc = be[:-1]+np.diff(be)/2.0
 
 ## fit the data
 def gauss_fun(x, A, mu, sig):
     return A*np.exp( -(x-mu)**2/(2*sig**2) )
+
+amp0 = np.sum(hh)/np.sqrt(2*np.pi*cstd)
+bp, bcov = opt.curve_fit( gauss_fun, bc, hh, p0=[amp0, cmu, cstd] )
+
+if( remove_outliers ):
+
+    ## throw out any bad times before doing the fit
+    time_window = 5 ## mins
+    nsig = 5
+    bad_points = np.argwhere(np.abs(resid_data > bp[1]+nsig*bp[2]))
+    pts_to_use = np.logical_not(is_cal)
+    for p in bad_points:
+        pts_to_use[ np.abs(dates - dates[p]) < time_window/(24.*60.)] = False
+
+    plt.plot_date(dates[pts_to_use], resid_data[pts_to_use], 'k.', markersize=2, label="Max corr")
+    hh, be = np.histogram( resid_data[pts_to_use], bins = np.max([50, len(resid_data[pts_to_use])/50]), range=yy )
+    bc = be[:-1]+np.diff(be)/2.0
+    cmu, cstd = np.median(resid_data[pts_to_use]), np.std(resid_data[pts_to_use])
+    amp0 = np.sum(hh)/np.sqrt(2*np.pi*cstd)
+    bp, bcov = opt.curve_fit( gauss_fun, bc, hh, p0=[amp0, cmu, cstd] )
+
+plt.subplot(1,2,2)
+ax2 = plt.gca()
+ax2.yaxis.set_visible(False)
 ax.set_position(matplotlib.transforms.Bbox(np.array([[0.125,0.1],[0.675,0.9]])))
 ax2.set_position(matplotlib.transforms.Bbox(np.array([[0.725,0.1],[0.9,0.9]])))
-
-bp, bcov = opt.curve_fit( gauss_fun, bc, hh, p0=[10, 0, 0.03] )
 
 xx = np.linspace(yy[0], yy[1], 1e3)
 plt.errorbar( hh, bc, xerr=np.sqrt(hh), yerr=0, fmt='k.', linewidth=1.5 )
@@ -280,44 +343,7 @@ plt.ylim(yy)
 
 plt.xlabel("Counts")
 
-#diff plot of mean values
-#avg_vals = np.array(avg_vals)
-#if(len(avg_vals)>2):
-#    plt.figure()
-#    hh, be = np.histogram( np.diff( avg_vals[:,1] ) )
-#    plt.step(be[:-1], hh, where='post')
 
-
-# ## now do the diff plot
-# plt.figure() 
-# plt.plot_date(dates[:-1], np.diff(corr_t0/np.median(corr_t0)), 'r.', label="Max corr")
-# plt.plot_date(dates[:-1], np.diff(psd/np.median(psd)), 'k.', label="PSD")
-# yy = plt.ylim()
-# for f in flash_idx:
-#     plt.plot_date( [dates[f-1], dates[f-1]], yy, 'k--')
-# plt.ylim(yy)
-
-# plt.xlabel("Time")
-# plt.ylabel("Diff from last point")
-# plt.legend(numpoints = 1, loc="upper right")
-
-
-# ## now histo up the ones after a flash and those with no flash
-# corr_diff = np.diff( (corr_t0/np.median(corr_t0)) ) ## / (np.polyval(p, dates)))
-# flash_locs = np.zeros( len(corr_diff) ) > 0
-# for f in flash_idx:
-#   flash_locs[f-1] = True
-
-# corr_diff_noflash = corr_diff[np.logical_not(flash_locs)]
-# corr_diff_flash = corr_diff[flash_locs]
-
-# hh_noflash, be = np.histogram(corr_diff_noflash, bins=50, range=[-0.1, 0.1], normed=False)
-# hh_flash, be = np.histogram(corr_diff_flash, bins=50, range=[-0.1, 0.1], normed=False)
-
-# plt.figure()
-# plt.step(be[:-1], hh_noflash, 'b', label="No flash")
-# plt.step(be[:-1], hh_flash, 'r', label="Flash")
-# plt.legend(numpoints=1)
 
 plt.show()
 
