@@ -163,36 +163,14 @@ def getdata(fname, maxv, ang, gain):
         cf.close()
         return out_dict
 
-def find_str(str):
-    """ Function to sort files.  Assumes that the filename ends
-        in #mV_#Hz[_#].h5 and sorts by end index first, then
-        by voltage """
-    idx_offset = 1e10 ## large number to ensure sorting by index first
-
-    fname, _ = os.path.splitext(str)
-
-    endstr = re.findall("\d+mV_\d+Hz[_]?[\d+]*", fname)
-    if( len(endstr) != 1 ):
-        ## couldn't find the expected pattern, just return the 
-        ## second to last number in the string
-        return int(re.findall('\d+', fname)[-2])
-        
-    ## now check to see if there's an index number
-    sparts = endstr[0].split("_")
-    if( len(sparts) == 3 ):
-        return idx_offset*int(sparts[2]) + int(sparts[0][:-2])
-    else:
-        return int(sparts[0][:-2])
-    
-
 if reprocessfile:
 
   init_list = glob.glob(path + "/*.h5")
-  files = sorted(init_list, key = find_str)
+  files = sorted(init_list, key = bu.find_str)
 
   if(cal_path):
       cal_list = glob.glob(cal_path + "/*.h5")
-      cal_files = sorted( cal_list, key = find_str )
+      cal_files = sorted( cal_list, key = bu.find_str )
       files = zip(cal_files[:-1],np.zeros(len(cal_files[:-1]))+amp_gain_cal) \
               + zip(files[:-1],np.zeros(len(files[:-1]))+amp_gain)
       
