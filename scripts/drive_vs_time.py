@@ -15,7 +15,7 @@ path = "/data/20140623/Bead1/ramp_overnight"
 ## scaling.  leave empty to use data path
 cal_path = "/data/20140617/Bead3/chargelp"
 
-reprocessfile = True
+reprocessfile = False
 plot_angle = False
 plot_phase = False
 remove_outliers = True
@@ -27,7 +27,7 @@ file_start = 0
 scale_fac = 1.
 scale_file = 1.
 
-amp_gain = 200. ## gain to use for files in path
+amp_gain = 1. ## gain to use for files in path
 amp_gain_cal = 1.  ## gain to use for files in cal_path
 
 fsamp = 5000.
@@ -163,7 +163,8 @@ def getdata(fname, maxv, ang, gain):
                     "temps": attribs["temps"],
                     "time": bu.labview_time_to_datetime(ctime),
                     "num_flashes": attribs["num_flashes"],
-                    "is_cal": is_cal}
+                    "is_cal": is_cal,
+                    "drive_amp": drive_amp}
 
         cf.close()
         return out_dict
@@ -227,6 +228,7 @@ ref_psd = np.array(corrs_dict["ref_psd"])*scale_fac
 temp1 = np.array(corrs_dict["temps"])[:,0]
 temp2 = np.array(corrs_dict["temps"])[:,1]
 num_flashes = np.array(corrs_dict["num_flashes"])
+drive_amp = np.array(corrs_dict["drive_amp"])
 
 plt.figure() 
 plt.plot_date(dates, corr_t0, 'r.', label="Max corr")
@@ -302,6 +304,7 @@ if( remove_outliers ):
     nsig = 5
     bad_points = np.argwhere(np.abs(resid_data > bp[1]+nsig*bp[2]))
     pts_to_use = np.logical_not(is_cal)
+    #pts_to_use = np.logical_and(np.logical_not(is_cal), bu.inrange(drive_amp, 950, 1050))
     for p in bad_points:
         pts_to_use[ np.abs(dates - dates[p]) < time_window/(24.*60.)] = False
 
