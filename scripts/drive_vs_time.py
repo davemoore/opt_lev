@@ -10,7 +10,7 @@ import scipy.signal as sp
 import scipy.optimize as opt
 import cPickle as pickle
 
-path = "/data/20140617/Bead3/overnight"
+path = "/data/20140623/Bead1/ramp_overnight"
 ## path to directory containing charge steps, used to calibrate phase and 
 ## scaling.  leave empty to use data path
 cal_path = "/data/20140617/Bead3/chargelp"
@@ -112,6 +112,11 @@ def getdata(fname, maxv, ang, gain):
 
 	print "Processing ", fname
         dat, attribs, cf = bu.getdata(os.path.join(path, fname))
+
+        ## make sure file opened correctly
+        if( len(dat) == 0 ):
+            return {}
+
         dat[:, drive_column] *= gain
         if( len(attribs) > 0 ):
             fsamp = attribs["Fsamp"]

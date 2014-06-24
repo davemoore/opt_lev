@@ -17,13 +17,19 @@ def getdata(fname):
 
     _, fext = os.path.splitext( fname )
     if( fext == ".h5"):
-        f = h5py.File(fname,'r')
-        dset = f['beads/data/pos_data']
-        dat = np.transpose(dset)
-        max_volt = dset.attrs['max_volt']
-        nbit = dset.attrs['nbit']
-        dat = 1.0*dat*max_volt/nbit
-        attribs = dset.attrs
+        try:
+            f = h5py.File(fname,'r')
+            dset = f['beads/data/pos_data']
+            dat = np.transpose(dset)
+            max_volt = dset.attrs['max_volt']
+            nbit = dset.attrs['nbit']
+            dat = 1.0*dat*max_volt/nbit
+            attribs = dset.attrs
+        except KeyError:
+            print "Warning, got no keys for: ", fname
+            dat = []
+            attribs = {}
+            f = []
     else:
         dat = np.loadtxt(fname, skiprows = 5, usecols = [2, 3, 4, 5])
         attribs = {}
