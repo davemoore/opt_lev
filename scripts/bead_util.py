@@ -13,6 +13,11 @@ bead_rho = 2.0e3 ## kg/m^3
 kb = 1.3806488e-23 #J/K
 bead_mass = 4./3*np.pi*bead_radius**3 * bead_rho
 
+## default columns for data files
+data_columns = [0, 1] ## column to calculate the correlation against
+drive_column = -1
+laser_column = 3
+
 def gain_fac( val ):
     ### Return the gain factor corresponding to a given voltage divider
     ### setting.  These numbers are from the calibration of the voltage
