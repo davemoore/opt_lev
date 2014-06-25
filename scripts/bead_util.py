@@ -184,14 +184,16 @@ def laser_reject(laser, low_freq, high_freq, thresh, N, Fs, plt_filt):
 
 
 def good_corr(drive, response, fsamp, fdrive):
-    corr = np.zeros(fsamp/fdrive - 1)
-    response = np.append(drive, np.zeros( fsamp/fdrive-1 ))
+    corr = np.zeros(fsamp/fdrive)
+    response = np.append(response, np.zeros( fsamp/fdrive-1 ))
     n_corr = len(drive)
     for i in range(len(corr)):
-        corr[i] = np.sum(drive*response[i:i+n_corr])
+        #Correct for loss of points at end
+        correct_fac = n_corr/(n_corr-i)
+        corr[i] = np.sum(drive*response[i:i+n_corr])*correct_fac
     return corr
 
-def corr_func(drive, response, fsamp, fdrive, good_pts = False, filt = False, band_width = 1):
+def corr_func(drive, response, fsamp, fdrive, good_pts = [], filt = False, band_width = 1):
     #gives the correlation over a cycle of drive between drive and response.
 
     #First subtract of mean of signals to avoid correlating dc
@@ -208,14 +210,12 @@ def corr_func(drive, response, fsamp, fdrive, good_pts = False, filt = False, ba
     lentrace = len(drive)
     drive_amp = np.sqrt(2)*np.std(drive)
 
-    #Zero pad one cycle of the response to correlater over phase shifts.
-    response = np.append(drive, np.zeros( fsamp/fdrive-1 ))
-    
+      
     #Throw out bad points if desired
-    if good_pts:
+    if len(good_pts):
         response[-good_pts] = 0.
         lentrace = np.sum(good_pts)    
 
 
-    corr_full = np.convolve( response, drive, 'valid')/(lentrace*drive_amp**2)
+    corr_full = good_corr(drive, response, fsamp, fdrive)/(lentrace*drive_amp**2)
     return corr_full
