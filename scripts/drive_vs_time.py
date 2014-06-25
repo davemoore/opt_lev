@@ -15,7 +15,7 @@ path = "/data/20140623/Bead1/ramp_overnight"
 ## scaling.  leave empty to use data path
 cal_path = "/data/20140617/Bead3/chargelp"
 
-reprocessfile = False
+reprocessfile = True
 plot_angle = False
 plot_phase = False
 remove_outliers = True
@@ -137,6 +137,15 @@ def getdata(fname, maxv, ang, gain):
         max_bin = np.argmin( np.abs( freqs - fdrive ) )
         ref_bin = np.argmin( np.abs( freqs - fref ) )
 
+        ## also correlate signal with drive squared
+        dsq = dat[:,drive_column]**2
+        dsq -= np.mean(dsq)
+        sq_amp = np.sqrt(2)*np.std( dsq )
+        ## only normalize by one factor of the squared amplitude
+        corr_sq_full = np.correlate( xdat, dsq )/(lentrace*sq_amp)
+        corr_sq_max = np.max(corr_sq_full)
+        corr_sq_max_pos = np.argmax(corr_sq_full)
+
         xoff = sp.filtfilt(boff, aoff, xdat)
 
         if(False):
@@ -158,6 +167,7 @@ def getdata(fname, maxv, ang, gain):
         ## make a dictionary containing the various calculations
         out_dict = {"corr_t0": corr,
                     "max_corr": [corr_max, corr_max_pos],
+                    "max_corr_sq": [corr_sq_max, corr_sq_max_pos],
                     "psd": np.sqrt(xpsd[max_bin]),
                     "ref_psd": np.sqrt(xpsd[ref_bin]),
                     "temps": attribs["temps"],
@@ -222,6 +232,7 @@ if( np.sum(is_cal) > 0 and scale_fac == 1.):
 dates = matplotlib.dates.date2num(corrs_dict["time"])
 corr_t0 = np.array(corrs_dict["corr_t0"])*scale_fac
 max_corr = np.array(corrs_dict["max_corr"])[:,0]*scale_fac
+max_corr_sq = np.array(corrs_dict["max_corr_sq"])[:,0]*scale_fac
 best_phase = np.array(corrs_dict["max_corr"])[:,1]
 psd = np.array(corrs_dict["psd"])*scale_fac
 ref_psd = np.array(corrs_dict["ref_psd"])*scale_fac
@@ -304,14 +315,15 @@ if( remove_outliers ):
     nsig = 5
     bad_points = np.argwhere(np.abs(resid_data > bp[1]+nsig*bp[2]))
     pts_to_use = np.logical_not(is_cal)
-    #pts_to_use = np.logical_and(np.logical_not(is_cal), bu.inrange(drive_amp, 950, 1050))
+    pts_to_use = np.logical_and(np.logical_not(is_cal), bu.inrange(drive_amp, 5, 2000))
+    print np.sum(pts_to_use)
     for p in bad_points:
         pts_to_use[ np.abs(dates - dates[p]) < time_window/(24.*60.)] = False
 
     plt.plot_date(dates[pts_to_use], resid_data[pts_to_use], 'k.', markersize=2, label="Max corr")
-    hh, be = np.histogram( resid_data[pts_to_use], bins = np.max([50, len(resid_data[pts_to_use])/50]), range=yy )
-    bc = be[:-1]+np.diff(be)/2.0
     cmu, cstd = np.median(resid_data[pts_to_use]), np.std(resid_data[pts_to_use])
+    hh, be = np.histogram( resid_data[pts_to_use], bins = np.max([50, len(resid_data[pts_to_use])/50]), range=[cmu-10*cstd, cmu+10*cstd] )
+    bc = be[:-1]+np.diff(be)/2.0
     amp0 = np.sum(hh)/np.sqrt(2*np.pi*cstd)
     bp, bcov = opt.curve_fit( gauss_fun, bc, hh, p0=[amp0, cmu, cstd] )
 
@@ -329,6 +341,31 @@ plt.ylim(yy)
 
 plt.xlabel("Counts")
 
+## plot correlation with drive squared vs voltage
+def make_corr_plot( amp_vec, corr_vec, col, lab=""):
+    ## get a list of the drive amplitudes
+    drive_list = np.unique( np.round( amp_vec/10. )*10.0 )
+    amp_list = []
+    for d in drive_list:
+        cvals = corr_vec[ bu.inrange(amp_vec, d-5, d+5) ]
+        amp_list.append( [np.median( cvals ), np.std(cvals)/np.sqrt(len(cvals))] )
+    amp_list = np.array(amp_list)
+
+    sf = 1.0 ##np.median( amp_list[:,0] )
+    #plt.plot( amp_vec, corr_vec/sf, '.', color=[col[0]+0.5, col[1]+0.5, col[2]+0.5], zorder=1)
+    plt.errorbar( drive_list, amp_list[:,0]/sf, yerr=amp_list[:,1]/sf, fmt='.', color=col, linewidth = 1.5, label=lab )
+    p = np.polyfit( drive_list, amp_list[:,0]/sf, 1)
+    xx = np.linspace( drive_list[0], drive_list[-1] )
+    plt.plot(xx, np.polyval(p, xx), color=col, linewidth = 1.5)
+    plt.xlim([0, 1e3])
+    plt.xlabel("Drive voltage [V]")
+    plt.ylabel("Correlation with drive signal [V]")
+    plt.legend(loc="upper left", numpoints = 1)
+    plt.ylim([-1, 2])
+
+plt.figure()
+make_corr_plot( drive_amp[pts_to_use], np.sqrt(max_corr_sq[pts_to_use]), [0,0,0], "sqrt(Corr w/ drive squared)")
+make_corr_plot( drive_amp[pts_to_use], corr_t0[pts_to_use]*drive_amp[pts_to_use], [1,0,0], "Corr w/ drive")
 
 
 plt.show()
