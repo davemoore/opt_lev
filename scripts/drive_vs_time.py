@@ -11,7 +11,7 @@ import scipy.signal as sp
 import scipy.optimize as opt
 import cPickle as pickle
 
-path = "/data/20140623/Bead1/chargelp"
+path = "/data/20140623/Bead1/ramp_overnight"
 ## path to directory containing charge steps, used to calibrate phase and 
 ## scaling.  leave empty to use data path
 cal_path = "/data/20140617/Bead3/chargelp"
@@ -40,6 +40,8 @@ plot_scale = 1. ## scaling of corr coeff to units of electrons
 plot_offset = 1.
 data_columns = [0, 1] ## column to calculate the correlation against
 drive_column = -1
+laser_column = 3
+
 
 b, a = sp.butter(3, [2.*(fdrive-1)/fsamp, 2.*(fdrive+1)/fsamp ], btype = 'bandpass')
 boff, aoff = sp.butter(3, 2.*(fdrive-10)/fsamp, btype = 'lowpass')
@@ -121,15 +123,20 @@ def getdata(fname, maxv, ang, gain):
         dat[:, drive_column] *= gain
         if( len(attribs) > 0 ):
             fsamp = attribs["Fsamp"]
-        
+            drive_amplitude = attribs["drive_amplitude"]
+            
         xdat, ydat = rotate_data(dat[:,data_columns[0]], dat[:,data_columns[1]], ang)
         dat[:, drive_column] = sp.filtfilt(b, a, dat[:, drive_column])
         ydat =  sp.filtfilt(b, a, ydat)
-        lentrace = len(xdat)
+        
+        print attribs.keys() 
+        pltbool = drive_amplitude==4.5001
+        lazer_good = np.append(bu.laser_reject(dat[:, laser_column], 60., 90., 1, 100, fsamp, pltbool), np.zeros(fsamp/fdrive))
+        lentrace = np.sum(lazer_good)
         ## zero pad one cycle
-        xdat = np.append(xdat, np.zeros( fsamp/fdrive ))
+        xdat = np.append(xdat, np.zeros( fsamp/fdrive ))-np.mean(xdat)
         drive_amp = np.sqrt(2)*np.std( dat[:,drive_column] )
-        corr_full = np.correlate( xdat, dat[:,drive_column])/(lentrace*drive_amp**2)
+        corr_full = np.correlate( xdat*lazer_good, dat[:,drive_column])/(lentrace*drive_amp**2)
         corr = corr_full[ maxv ]
         corr_max = np.max(corr_full)
         corr_max_pos = np.argmax(corr_full)
