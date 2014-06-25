@@ -3,11 +3,12 @@ import matplotlib
 import matplotlib.pyplot as plt
 import os
 import scipy.signal as sp
+import bead_util as bu
+import numpy as np
 
-
-refname = r"2e-6mbar_xyzcool_41Hz_1kV_282.h5"
-fname0 =  r"2e-6mbar_xyzcool_41Hz_1kV_321.h5"
-path = r"D:\Data\20140610\Bead3\chargehvamp2"
+refname = r"urmbar_xyzcool_4500mV_41Hz_7.h5"
+fname0 =  r"urmbar_xyzcool_4500mV_41Hz_8.h5"
+path = r"/data/20140623/Bead1/ramp_overnight"
 d2plt = 1
 if fname0 == "":
 	filelist = os.listdir(path)
@@ -25,7 +26,7 @@ if fname0 == "":
 
 		 
 
-Fs = 15e3  ## this is ignored with HDF5 files
+Fs = 5e3  ## this is ignored with HDF5 files
 NFFT = 2**14
 def getdata(fname):
 	print "Opening file: ", fname
@@ -46,7 +47,7 @@ def getdata(fname):
 
 	xpsd, freqs = matplotlib.mlab.psd(dat[:, 0], Fs = Fs, NFFT = NFFT) 
 	ypsd, freqs = matplotlib.mlab.psd(dat[:, 1], Fs = Fs, NFFT = NFFT)
-        zpsd, freqs = matplotlib.mlab.psd(dat[:, 2], Fs = Fs, NFFT = NFFT)
+        zpsd, freqs = matplotlib.mlab.psd(dat[:, 3], Fs = Fs, NFFT = NFFT)
 	norm = numpy.median(dat[:, 2])
 	return [freqs, xpsd, ypsd, dat, zpsd]
 
@@ -64,19 +65,25 @@ Fs = 5000
 b, a = sp.butter(3, [2*35./Fs, 2*45./Fs], btype = 'bandpass')
 
 if d2plt:	
-	fig = plt.figure()
 	#rotated = rotate(data0[3][:, 0],data0[3][:, 1], numpy.pi*(0))
 	rotated = [data0[3][:,0], data0[3][:,1]]
-        #plt.plot(rotated[0])
+       
+        time= np.arange(0, 100, 1./Fs)
+        goodpts = bu.laser_reject(data0[3][:, 3], 60., 90., 3e-6, 100, Fs, True)
+        badpts = goodpts<1
+        plt.figure()
+        plt.plot(time[goodpts], rotated[0][goodpts], 'k.')
+        plt.plot(time[badpts], rotated[0][badpts], 'r.')
         #plt.plot(rotated[1])
-        plt.plot(sp.filtfilt(b, a, rotated[0]))
-        plt.plot(sp.filtfilt(b, a, rotated[1]))
-        plt.plot(data0[3][:, 3])
+        #plt.plot(sp.filtfilt(b, a, rotated[0])
+        #plt.plot(sp.filtfilt(b, a, rotated[1]))
+        #plt.plot(range(len(stds))[goodpts], data0[3][:, 3][goodpts], 'b.')
+        #plt.plot(range(len(stds))[badpts], data0[3][:, 3][badpts], 'r.')
         #plt.plot(data0[3][:, 2])
         #if refname:
         #    plt.plot(data1[3][:, 0])
         #    plt.plot(data1[3][:, 1])
-
+        plt.show()
 
 
 fig = plt.figure()
