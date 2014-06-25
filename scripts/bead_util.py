@@ -13,6 +13,23 @@ bead_rho = 2.0e3 ## kg/m^3
 kb = 1.3806488e-23 #J/K
 bead_mass = 4./3*np.pi*bead_radius**3 * bead_rho
 
+def gain_fac( val ):
+    ### Return the gain factor corresponding to a given voltage divider
+    ### setting.  These numbers are from the calibration of the voltage
+    ### divider on 2014/06/20 (in lab notebook)
+    volt_div_vals = {0.:  1.,
+                     1.:  1.,
+                     20.0: 100./5.07,
+                     40.0: 100./2.67,
+                     80.0: 100./1.38,
+                     200.0: 100./0.464}
+    if val in volt_div_vals:
+        return volt_div_vals[val]
+    else:
+        print "Warning, could not find volt_div value"
+        return 1.
+    
+
 def getdata(fname):
     ### Get bead data from a file.  Guesses whether it's a text file
     ### or a HDF5 file by the file extension
@@ -27,6 +44,19 @@ def getdata(fname):
             nbit = dset.attrs['nbit']
             dat = 1.0*dat*max_volt/nbit
             attribs = dset.attrs
+
+            ## correct the drive amplitude for the voltage divider. 
+            ## this assumes the drive is the last column in the dset
+            vd = attribs['volt_div'] if 'volt_div' in attribs else 1.0
+            curr_gain = gain_fac(vd)
+            dat[:,-1] *= curr_gain
+
+            ## now double check that the rescaled drive amp seems reasonable
+            ## and warn the user if not
+            offset_frac = np.abs(np.sqrt(2)*np.std( dat[:,-1] )/(200.0 * attribs['drive_amplitude'] )-1.0)
+            if( curr_gain != 1.0 and offset_frac > 0.1):
+                print "Warning, voltage_div setting doesn't appear to match the expected gain for ", fname
+
         except KeyError:
             print "Warning, got no keys for: ", fname
             dat = []

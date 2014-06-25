@@ -13,7 +13,7 @@ import cPickle as pickle
 path = "/data/20140623/Bead1/ramp_overnight"
 ## path to directory containing charge steps, used to calibrate phase and 
 ## scaling.  leave empty to use data path
-cal_path = ""
+cal_path = "/data/20140617/Bead3/chargelp"
 
 reprocessfile = True
 plot_angle = False
@@ -27,7 +27,7 @@ file_start = 0
 scale_fac = 1.
 scale_file = 1.
 
-amp_gain = 200. ## gain to use for files in path
+amp_gain = 1. ## gain to use for files in path
 amp_gain_cal = 1.  ## gain to use for files in cal_path
 
 fsamp = 5000.
@@ -39,8 +39,8 @@ plot_scale = 1. ## scaling of corr coeff to units of electrons
 plot_offset = 1.
 data_columns = [0, 1] ## column to calculate the correlation against
 drive_column = -1
-laser_column = 3
 
+b, a = sp.butter(3, [2.*(fdrive-1)/fsamp, 2.*(fdrive+1)/fsamp ], btype = 'bandpass')
 boff, aoff = sp.butter(3, 2.*(fdrive-10)/fsamp, btype = 'lowpass')
 
 def rotate_data(x, y, ang):
@@ -108,7 +108,7 @@ def getphase(fname, ang):
         return maxv
 
 
-def getdata(fname, maxv, ang):
+def getdata(fname, maxv, ang, gain):
 
 	print "Processing ", fname
         dat, attribs, cf = bu.getdata(os.path.join(path, fname))
@@ -117,25 +117,18 @@ def getdata(fname, maxv, ang):
         if( len(dat) == 0 ):
             return {}
 
-
+        dat[:, drive_column] *= gain
         if( len(attribs) > 0 ):
             fsamp = attribs["Fsamp"]
-            volt_div = attribs["volt_div"]
-            fdrive = attribs["drive_freq"]
-            drive_amplitude = attribs["drive_amplitude"]
-            b, a = sp.butter(3, [2.*(fdrive-1)/fsamp, 2.*(fdrive+1)/fsamp ], btype = 'bandpass')
-
-
+        
         xdat, ydat = rotate_data(dat[:,data_columns[0]], dat[:,data_columns[1]], ang)
-        dat[:, drive_column] = sp.filtfilt(b, a, dat[:, drive_column])*volt_div
+        dat[:, drive_column] = sp.filtfilt(b, a, dat[:, drive_column])
         ydat =  sp.filtfilt(b, a, ydat)
-        xdat = sp.filtfilt(b, a, xdat)
         lentrace = len(xdat)
         ## zero pad one cycle
         xdat = np.append(xdat, np.zeros( fsamp/fdrive ))
         drive_amp = np.sqrt(2)*np.std( dat[:,drive_column] )
-        print len(dat[:, drive_column]), len(dat[:, laser_column])
-        corr_full = bu.corr_reject( xdat, dat[:,drive_column], dat[:, laser_column], 0.005, 500)/(drive_amplitude**2)
+        corr_full = np.correlate( xdat, dat[:,drive_column])/(lentrace*drive_amp**2)
         corr = corr_full[ maxv ]
         corr_max = np.max(corr_full)
         corr_max_pos = np.argmax(corr_full)
@@ -143,6 +136,15 @@ def getdata(fname, maxv, ang):
         #ypsd, freqs = matplotlib.mlab.psd(ydat, Fs = fsamp, NFFT = NFFT) 
         max_bin = np.argmin( np.abs( freqs - fdrive ) )
         ref_bin = np.argmin( np.abs( freqs - fref ) )
+
+        ## also correlate signal with drive squared
+        dsq = dat[:,drive_column]**2
+        dsq -= np.mean(dsq)
+        sq_amp = np.sqrt(2)*np.std( dsq )
+        ## only normalize by one factor of the squared amplitude
+        corr_sq_full = np.correlate( xdat, dsq )/(lentrace*sq_amp)
+        corr_sq_max = np.max(corr_sq_full)
+        corr_sq_max_pos = np.argmax(corr_sq_full)
 
         xoff = sp.filtfilt(boff, aoff, xdat)
 
@@ -162,20 +164,17 @@ def getdata(fname, maxv, ang):
         is_cal = cdir == cal_path
 
         curr_scale = 1.0
-        print attribs.keys()
         ## make a dictionary containing the various calculations
         out_dict = {"corr_t0": corr,
                     "max_corr": [corr_max, corr_max_pos],
+                    "max_corr_sq": [corr_sq_max, corr_sq_max_pos],
                     "psd": np.sqrt(xpsd[max_bin]),
                     "ref_psd": np.sqrt(xpsd[ref_bin]),
                     "temps": attribs["temps"],
                     "time": bu.labview_time_to_datetime(ctime),
                     "num_flashes": attribs["num_flashes"],
                     "is_cal": is_cal,
-                    "drive_amplitude": attribs["drive_amplitude"],
-                    "drive_freq": attribs["drive_freq"],
-                    "volt_div": attribs["volt_div"],
-                    "Fsamp": attribs["Fsamp"]}
+                    "drive_amp": drive_amp}
 
         cf.close()
         return out_dict
@@ -184,9 +183,8 @@ if reprocessfile:
 
   init_list = glob.glob(path + "/*.h5")
   files = sorted(init_list, key = bu.find_str)
-  
 
-  if(False):
+  if(cal_path):
       cal_list = glob.glob(cal_path + "/*.h5")
       cal_files = sorted( cal_list, key = bu.find_str )
       files = zip(cal_files[:-1],np.zeros(len(cal_files[:-1]))+amp_gain_cal) \
@@ -194,10 +192,10 @@ if reprocessfile:
       
 
   ang = 0 ##getangle(files[ref_file])
-  phase = 0# getphase(files[ref_file][0], ang)
+  phase = getphase(files[ref_file][0], ang)
   corrs_dict = {}
-  for f in files:
-    curr_dict = getdata(f, phase, ang)
+  for f,gain in files[file_start:]:
+    curr_dict = getdata(f, phase, ang, gain)
 
     for k in curr_dict.keys():
         if k in corrs_dict:
@@ -234,27 +232,14 @@ if( np.sum(is_cal) > 0 and scale_fac == 1.):
 dates = matplotlib.dates.date2num(corrs_dict["time"])
 corr_t0 = np.array(corrs_dict["corr_t0"])*scale_fac
 max_corr = np.array(corrs_dict["max_corr"])[:,0]*scale_fac
+max_corr_sq = np.array(corrs_dict["max_corr_sq"])[:,0]*scale_fac
 best_phase = np.array(corrs_dict["max_corr"])[:,1]
 psd = np.array(corrs_dict["psd"])*scale_fac
 ref_psd = np.array(corrs_dict["ref_psd"])*scale_fac
 temp1 = np.array(corrs_dict["temps"])[:,0]
 temp2 = np.array(corrs_dict["temps"])[:,1]
 num_flashes = np.array(corrs_dict["num_flashes"])
-drive_amplitude = np.array(corrs_dict["drive_amplitude"])
-drive_freq = np.array(corrs_dict["drive_freq"])
-volt_div = np.array(corrs_dict["volt_div"])
-Fsamps = np.array(corrs_dict["Fsamp"])
-
-
-
-phase = map(bu.unwrap_phase, best_phase*(Fsamps/drive_freq)**(-1.))
-
-plt.figure()
-plt.plot(drive_amplitude, corr_t0*10**5, 'r.',label="corr_t0")
-plt.plot(drive_amplitude, max_corr*10**5, 'b.', label = "max_corr")
-plt.plot(drive_amplitude, phase, 'm.', label = "phase")
-plt.legend()
-plt.xlabel("drive_amplitude")
+drive_amp = np.array(corrs_dict["drive_amp"])
 
 plt.figure() 
 plt.plot_date(dates, corr_t0, 'r.', label="Max corr")
@@ -330,13 +315,15 @@ if( remove_outliers ):
     nsig = 5
     bad_points = np.argwhere(np.abs(resid_data > bp[1]+nsig*bp[2]))
     pts_to_use = np.logical_not(is_cal)
+    pts_to_use = np.logical_and(np.logical_not(is_cal), bu.inrange(drive_amp, 5, 2000))
+    print np.sum(pts_to_use)
     for p in bad_points:
         pts_to_use[ np.abs(dates - dates[p]) < time_window/(24.*60.)] = False
 
     plt.plot_date(dates[pts_to_use], resid_data[pts_to_use], 'k.', markersize=2, label="Max corr")
-    hh, be = np.histogram( resid_data[pts_to_use], bins = np.max([50, len(resid_data[pts_to_use])/50]), range=yy )
-    bc = be[:-1]+np.diff(be)/2.0
     cmu, cstd = np.median(resid_data[pts_to_use]), np.std(resid_data[pts_to_use])
+    hh, be = np.histogram( resid_data[pts_to_use], bins = np.max([50, len(resid_data[pts_to_use])/50]), range=[cmu-10*cstd, cmu+10*cstd] )
+    bc = be[:-1]+np.diff(be)/2.0
     amp0 = np.sum(hh)/np.sqrt(2*np.pi*cstd)
     bp, bcov = opt.curve_fit( gauss_fun, bc, hh, p0=[amp0, cmu, cstd] )
 
@@ -354,6 +341,31 @@ plt.ylim(yy)
 
 plt.xlabel("Counts")
 
+## plot correlation with drive squared vs voltage
+def make_corr_plot( amp_vec, corr_vec, col, lab=""):
+    ## get a list of the drive amplitudes
+    drive_list = np.unique( np.round( amp_vec/10. )*10.0 )
+    amp_list = []
+    for d in drive_list:
+        cvals = corr_vec[ bu.inrange(amp_vec, d-5, d+5) ]
+        amp_list.append( [np.median( cvals ), np.std(cvals)/np.sqrt(len(cvals))] )
+    amp_list = np.array(amp_list)
+
+    sf = 1.0 ##np.median( amp_list[:,0] )
+    #plt.plot( amp_vec, corr_vec/sf, '.', color=[col[0]+0.5, col[1]+0.5, col[2]+0.5], zorder=1)
+    plt.errorbar( drive_list, amp_list[:,0]/sf, yerr=amp_list[:,1]/sf, fmt='.', color=col, linewidth = 1.5, label=lab )
+    p = np.polyfit( drive_list, amp_list[:,0]/sf, 1)
+    xx = np.linspace( drive_list[0], drive_list[-1] )
+    plt.plot(xx, np.polyval(p, xx), color=col, linewidth = 1.5)
+    plt.xlim([0, 1e3])
+    plt.xlabel("Drive voltage [V]")
+    plt.ylabel("Correlation with drive signal [V]")
+    plt.legend(loc="upper left", numpoints = 1)
+    plt.ylim([-1, 2])
+
+plt.figure()
+make_corr_plot( drive_amp[pts_to_use], np.sqrt(max_corr_sq[pts_to_use]), [0,0,0], "sqrt(Corr w/ drive squared)")
+make_corr_plot( drive_amp[pts_to_use], corr_t0[pts_to_use]*drive_amp[pts_to_use], [1,0,0], "Corr w/ drive")
 
 
 plt.show()
