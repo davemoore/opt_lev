@@ -46,7 +46,14 @@ def getdata(fname):
             ## correct the drive amplitude for the voltage divider. 
             ## this assumes the drive is the last column in the dset
             vd = attribs['volt_div'] if 'volt_div' in attribs else 1.0
-            dat[:,-1] *= gain_fac(vd)
+            curr_gain = gain_fac(vd)
+            dat[:,-1] *= curr_gain
+
+            ## now double check that the rescaled drive amp seems reasonable
+            ## and warn the user if not
+            offset_frac = np.abs(np.sqrt(2)*np.std( dat[:,-1] )/(200.0 * attribs['drive_amplitude'] )-1.0)
+            if( curr_gain != 1.0 and offset_frac > 0.1):
+                print "Warning, voltage_div setting doesn't appear to match the expected gain for ", fname
 
         except KeyError:
             print "Warning, got no keys for: ", fname
