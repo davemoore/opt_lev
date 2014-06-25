@@ -1,3 +1,4 @@
+
 ## load all files in a directory and plot the correlation of the resonse
 ## with the drive signal versus time
 
@@ -10,7 +11,7 @@ import scipy.signal as sp
 import scipy.optimize as opt
 import cPickle as pickle
 
-path = "/data/20140623/Bead1/ramp_overnight"
+path = "/data/20140623/Bead1/chargelp"
 ## path to directory containing charge steps, used to calibrate phase and 
 ## scaling.  leave empty to use data path
 cal_path = "/data/20140617/Bead3/chargelp"
