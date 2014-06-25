@@ -5,6 +5,8 @@ import numpy as np
 import datetime as dt
 import matplotlib.pyplot as plt
 import scipy.optimize as opt
+import scipy.signal as sp
+
 
 bead_radius = 2.53e-6 ##m
 bead_rho = 2.0e3 ## kg/m^3
@@ -159,3 +161,21 @@ def find_str(str):
     else:
         return int(sparts[0][:-2])
     
+def unwrap_phase(cycles):
+    #Converts phase in cycles from ranging from 0 to 1 to ranging from -0.5 to 0.5 
+    if cycles>0.5:
+        cycles +=-1
+    return cycles
+
+def laser_reject(laser, low_freq, high_freq, thresh, N, Fs, plt_filt):
+    #returns boolian vector of points where laser is quiet in band. Averages over N points.
+    b, a = sp.butter(3, [2.*low_freq/Fs, 2.*high_freq/Fs], btype = 'bandpass')
+    filt_laser_sq = np.convolve(np.ones(N)/N, sp.filtfilt(b, a, laser)**2, 'same')
+    if plt_filt:
+        plt.figure()
+        plt.plot(filt_laser_sq)
+        plt.show()
+    return filt_laser_sq<=thresh
+
+
+
