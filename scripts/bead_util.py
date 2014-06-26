@@ -117,9 +117,15 @@ def get_calibration(refname, fit_freqs, make_plot=False,
     fit_bool = inrange( freqs, fit_freqs[0], fit_freqs[1] )
 
     ## if there's large peaks in the spectrum, it can cause the fit to fail
-    ## this attempts to exclude them, assuming the first few points in the 
-    ## range are clear of such peaks
-    if(exclude_peaks):
+    ## this attempts to exclude them.  If a single boolean=True is passed,
+    ## then any points 50% higher than the starting points are excluded (useful
+    ## for th overdamped case). If a list defining frequency ranges is passed, e.g.:
+    ## [[f1start, f1stop],[f2start, f2stop],...], then points within the given
+    ## ranges are excluded
+    if( isinstance(exclude_peaks, list) ):
+        for cex in exclude_peaks:
+            fit_bool = np.logical_and(fit_bool, np.logical_not( inrange(freqs, cex[0],cex[1])))
+    elif(exclude_peaks):
         fit_bool = np.logical_and( fit_bool, xpsd < 1.5*Aemp )
 
     xdat_fit = freqs[fit_bool]
@@ -219,3 +225,6 @@ def corr_func(drive, response, fsamp, fdrive, good_pts = [], filt = False, band_
 
     corr_full = good_corr(drive, response, fsamp, fdrive)/(lentrace*drive_amp**2)
     return corr_full
+
+def gauss_fun(x, A, mu, sig):
+    return A*np.exp( -(x-mu)**2/(2*sig**2) )
