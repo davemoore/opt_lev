@@ -13,11 +13,6 @@ bead_rho = 2.0e3 ## kg/m^3
 kb = 1.3806488e-23 #J/K
 bead_mass = 4./3*np.pi*bead_radius**3 * bead_rho
 
-## default columns for data files
-data_columns = [0, 1] ## column to calculate the correlation against
-drive_column = -1
-laser_column = 3
-
 def gain_fac( val ):
     ### Return the gain factor corresponding to a given voltage divider
     ### setting.  These numbers are from the calibration of the voltage
@@ -219,3 +214,16 @@ def corr_func(drive, response, fsamp, fdrive, good_pts = [], filt = False, band_
 
     corr_full = good_corr(drive, response, fsamp, fdrive)/(lentrace*drive_amp**2)
     return corr_full
+
+def corr_blocks(drive, response, fsamp, fdrive, good_pts = [], filt = False, band_width = 1, N_blocks = 20):
+    #Computes correlation in blocks to determine error.
+
+    #first determine average phase to use throughout.
+    tot_phase =  np.argmax(corr_func(drive, response, fsamp, fdrive, good_pts, filt, band_width))
+    
+    #Now initialize arrays and loop over blocks
+    corr_in_blocks = np.zeros(N_blocks)
+    len_block = len(drive)/int(N_blocks)
+    for i in range(N_blocks):
+        corr_in_blocks[i] = corr_func(drive[i*len_block:(i+1)*len_block], response[i*len_block:(i+1)*len_block], fsamp, fdrive, good_pts, filt, band_width)[tot_phase]
+    return [np.mean(corr_in_blocks), np.std(corr_in_blocks)/N_blocks]
