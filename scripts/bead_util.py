@@ -62,7 +62,7 @@ def getdata(fname):
             if( curr_gain != 1.0 and offset_frac > 0.1):
                 print "Warning, voltage_div setting doesn't appear to match the expected gain for ", fname
 
-        except KeyError:
+        except (KeyError, IOError):
             print "Warning, got no keys for: ", fname
             dat = []
             attribs = {}
