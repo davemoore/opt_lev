@@ -195,7 +195,7 @@ def good_corr(drive, response, fsamp, fdrive):
     n_corr = len(drive)
     for i in range(len(corr)):
         #Correct for loss of points at end
-        correct_fac = n_corr/(n_corr-i)
+        correct_fac = 1.0*n_corr/(n_corr-i)
         corr[i] = np.sum(drive*response[i:i+n_corr])*correct_fac
     return corr
 
