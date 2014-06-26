@@ -11,21 +11,27 @@ import scipy.signal as sp
 import scipy.optimize as opt
 import cPickle as pickle
 
-path = "/data/20140623/Bead1/ramp_overnight"
+path = "/data/20140623/Bead1/freq_sweep_chirp"
 ## path to directory containing charge steps, used to calibrate phase and 
 ## scaling.  leave empty to use data path
-cal_path = "/data/20140617/Bead3/chargelp"
+cal_path = "/data/20140623/Bead1/one_charge_chirp"
+
+## path to save plots and processed files (make it if it doesn't exist)
+outpath = "/home/dcmoore/analysis" + path[5:]
+if( not os.path.isdir( outpath ) ):
+    os.makedirs(outpath)
 
 reprocessfile = True
 plot_angle = False
 plot_phase = False
+remove_laser_noise = False
 remove_outliers = True
 plot_flashes = False
 ref_file = 0 ## index of file to calculate angle and phase for
 
 file_start = 0
 
-scale_fac = 1.
+scale_fac = 1./0.00156
 scale_file = 1.
 
 amp_gain = 1. ## gain to use for files in path
@@ -124,19 +130,19 @@ def getdata(fname, maxv, ang, gain):
         if( len(attribs) > 0 ):
             fsamp = attribs["Fsamp"]
             drive_amplitude = attribs["drive_amplitude"]
+
             
         xdat, ydat = rotate_data(dat[:,data_columns[0]], dat[:,data_columns[1]], ang)
-        dat[:, drive_column] = sp.filtfilt(b, a, dat[:, drive_column])
-        ydat =  sp.filtfilt(b, a, ydat)
-        
-        print attribs.keys() 
-        pltbool = drive_amplitude==4.5001
-        lazer_good = np.append(bu.laser_reject(dat[:, laser_column], 60., 90., 1, 100, fsamp, pltbool), np.zeros(fsamp/fdrive))
-        lentrace = np.sum(lazer_good)
-        ## zero pad one cycle
-        xdat = np.append(xdat, np.zeros( fsamp/fdrive ))-np.mean(xdat)
-        drive_amp = np.sqrt(2)*np.std( dat[:,drive_column] )
-        corr_full = np.correlate( xdat*lazer_good, dat[:,drive_column])/(lentrace*drive_amp**2)
+
+        drive_amp = np.sqrt(2)*np.std(dat[:,drive_column])
+
+        if( remove_laser_noise ):
+            laser_good = bu.laser_reject(dat[:, laser_column], 60., 90., 4e-6, 100, fsamp, False)
+        else:
+            laser_good = np.ones_like(dat[:, laser_column]) > 0
+
+        corr_full = bu.corr_func(dat[:,drive_column], xdat, fsamp, fdrive, good_pts=laser_good)
+
         corr = corr_full[ maxv ]
         corr_max = np.max(corr_full)
         corr_max_pos = np.argmax(corr_full)
@@ -150,7 +156,7 @@ def getdata(fname, maxv, ang, gain):
         dsq -= np.mean(dsq)
         sq_amp = np.sqrt(2)*np.std( dsq )
         ## only normalize by one factor of the squared amplitude
-        corr_sq_full = np.correlate( xdat, dsq )/(lentrace*sq_amp)
+        corr_sq_full = bu.corr_func(dsq*sq_amp, xdat, fsamp, fdrive)
         corr_sq_max = np.max(corr_sq_full)
         corr_sq_max_pos = np.argmax(corr_sq_full)
 
@@ -197,6 +203,8 @@ if reprocessfile:
       cal_files = sorted( cal_list, key = bu.find_str )
       files = zip(cal_files[:-1],np.zeros(len(cal_files[:-1]))+amp_gain_cal) \
               + zip(files[:-1],np.zeros(len(files[:-1]))+amp_gain)
+  else:
+      files = zip(files[:-1],np.zeros(len(files[:-1]))+amp_gain)      
       
 
   ang = 0 ##getangle(files[ref_file])
@@ -211,11 +219,11 @@ if reprocessfile:
         else:
             corrs_dict[k] = [curr_dict[k],]
     
-  of = open("processed.pkl", "wb")
+  of = open(os.path.join(outpath, "processed.pkl"), "wb")
   pickle.dump( corrs_dict, of )
   of.close()
 else:
-  of = open("processed.pkl", "rb")
+  of = open(os.path.join(outpath, "processed.pkl"), "rb")
   corrs_dict = pickle.load( of )
   of.close()
 
@@ -323,7 +331,7 @@ if( remove_outliers ):
     nsig = 5
     bad_points = np.argwhere(np.abs(resid_data > bp[1]+nsig*bp[2]))
     pts_to_use = np.logical_not(is_cal)
-    pts_to_use = np.logical_and(np.logical_not(is_cal), bu.inrange(drive_amp, 5, 2000))
+    #pts_to_use = np.logical_and(np.logical_not(is_cal), bu.inrange(drive_amp, 5, 2000))
     print np.sum(pts_to_use)
     for p in bad_points:
         pts_to_use[ np.abs(dates - dates[p]) < time_window/(24.*60.)] = False
@@ -352,26 +360,24 @@ plt.xlabel("Counts")
 ## plot correlation with drive squared vs voltage
 def make_corr_plot( amp_vec, corr_vec, col, lab=""):
     ## get a list of the drive amplitudes
-    drive_list = np.unique( np.round( amp_vec/10. )*10.0 )
-    amp_list = []
-    for d in drive_list:
-        cvals = corr_vec[ bu.inrange(amp_vec, d-5, d+5) ]
-        amp_list.append( [np.median( cvals ), np.std(cvals)/np.sqrt(len(cvals))] )
-    amp_list = np.array(amp_list)
+    drive_list = amp_vec
+    amp_list = np.transpose(np.vstack((corr_vec, np.zeros_like(corr_vec))))
 
     sf = 1.0 ##np.median( amp_list[:,0] )
     #plt.plot( amp_vec, corr_vec/sf, '.', color=[col[0]+0.5, col[1]+0.5, col[2]+0.5], zorder=1)
     plt.errorbar( drive_list, amp_list[:,0]/sf, yerr=amp_list[:,1]/sf, fmt='.', color=col, linewidth = 1.5, label=lab )
-    p = np.polyfit( drive_list, amp_list[:,0]/sf, 1)
-    xx = np.linspace( drive_list[0], drive_list[-1] )
+    fit_pts = drive_list < 40
+    p = np.polyfit( drive_list[fit_pts], amp_list[fit_pts,0]/sf, 1)
+    xx = np.linspace( np.min(drive_list), np.max(drive_list), 1e2)
     plt.plot(xx, np.polyval(p, xx), color=col, linewidth = 1.5)
-    plt.xlim([0, 1e3])
+    #plt.xlim([0, 1e3])
     plt.xlabel("Drive voltage [V]")
     plt.ylabel("Correlation with drive signal [V]")
     plt.legend(loc="upper left", numpoints = 1)
-    plt.ylim([-1, 2])
+    #plt.ylim([-1, 2])
 
 plt.figure()
+pts_to_use = np.ones_like(drive_amp) > 0
 make_corr_plot( drive_amp[pts_to_use], np.sqrt(max_corr_sq[pts_to_use]), [0,0,0], "sqrt(Corr w/ drive squared)")
 make_corr_plot( drive_amp[pts_to_use], corr_t0[pts_to_use]*drive_amp[pts_to_use], [1,0,0], "Corr w/ drive")
 
