@@ -57,7 +57,7 @@ def getdata(fname):
             if( curr_gain != 1.0 and offset_frac > 0.1):
                 print "Warning, voltage_div setting doesn't appear to match the expected gain for ", fname
 
-        except KeyError:
+        except (KeyError, IOError):
             print "Warning, got no keys for: ", fname
             dat = []
             attribs = {}
@@ -112,9 +112,15 @@ def get_calibration(refname, fit_freqs, make_plot=False,
     fit_bool = inrange( freqs, fit_freqs[0], fit_freqs[1] )
 
     ## if there's large peaks in the spectrum, it can cause the fit to fail
-    ## this attempts to exclude them, assuming the first few points in the 
-    ## range are clear of such peaks
-    if(exclude_peaks):
+    ## this attempts to exclude them.  If a single boolean=True is passed,
+    ## then any points 50% higher than the starting points are excluded (useful
+    ## for th overdamped case). If a list defining frequency ranges is passed, e.g.:
+    ## [[f1start, f1stop],[f2start, f2stop],...], then points within the given
+    ## ranges are excluded
+    if( isinstance(exclude_peaks, list) ):
+        for cex in exclude_peaks:
+            fit_bool = np.logical_and(fit_bool, np.logical_not( inrange(freqs, cex[0],cex[1])))
+    elif(exclude_peaks):
         fit_bool = np.logical_and( fit_bool, xpsd < 1.5*Aemp )
 
     xdat_fit = freqs[fit_bool]
@@ -215,6 +221,7 @@ def corr_func(drive, response, fsamp, fdrive, good_pts = [], filt = False, band_
     corr_full = good_corr(drive, response, fsamp, fdrive)/(lentrace*drive_amp**2)
     return corr_full
 
+<<<<<<< HEAD
 def corr_blocks(drive, response, fsamp, fdrive, good_pts = [], filt = False, band_width = 1, N_blocks = 20):
     #Computes correlation in blocks to determine error.
 
@@ -227,3 +234,7 @@ def corr_blocks(drive, response, fsamp, fdrive, good_pts = [], filt = False, ban
     for i in range(N_blocks):
         corr_in_blocks[i] = corr_func(drive[i*len_block:(i+1)*len_block], response[i*len_block:(i+1)*len_block], fsamp, fdrive, good_pts, filt, band_width)[tot_phase]
     return [np.mean(corr_in_blocks), np.std(corr_in_blocks)/N_blocks]
+=======
+def gauss_fun(x, A, mu, sig):
+    return A*np.exp( -(x-mu)**2/(2*sig**2) )
+>>>>>>> 29f76810a70806943d6dd3583533168ede8efd6a
