@@ -221,7 +221,6 @@ def corr_func(drive, response, fsamp, fdrive, good_pts = [], filt = False, band_
     corr_full = good_corr(drive, response, fsamp, fdrive)/(lentrace*drive_amp**2)
     return corr_full
 
-<<<<<<< HEAD
 def corr_blocks(drive, response, fsamp, fdrive, good_pts = [], filt = False, band_width = 1, N_blocks = 20):
     #Computes correlation in blocks to determine error.
 
@@ -234,7 +233,7 @@ def corr_blocks(drive, response, fsamp, fdrive, good_pts = [], filt = False, ban
     for i in range(N_blocks):
         corr_in_blocks[i] = corr_func(drive[i*len_block:(i+1)*len_block], response[i*len_block:(i+1)*len_block], fsamp, fdrive, good_pts, filt, band_width)[tot_phase]
     return [np.mean(corr_in_blocks), np.std(corr_in_blocks)/N_blocks]
-=======
+
 def gauss_fun(x, A, mu, sig):
     return A*np.exp( -(x-mu)**2/(2*sig**2) )
->>>>>>> 29f76810a70806943d6dd3583533168ede8efd6a
+
