@@ -1,37 +1,59 @@
-## loads files containing the position response versus voltage and
-## plots the linearity of the response
+
+## load all files in a directory and plot the correlation of the resonse
+## with the drive signal versus time
 
 import numpy as np
-import matplotlib, math, os, re
-import matplotlib.mlab as mlab
+import matplotlib, calendar
 import matplotlib.pyplot as plt
+import os, re, glob
+import bead_util as bu
 import scipy.signal as sp
 import scipy.optimize as opt
+import cPickle as pickle
+import matplotlib.gridspec as gridspec
 
-dirlist = ["Bead1/Vramp", "Bead1/Vramp_day2", "Bead1/Vramp_trial3", 
-           "Bead1/Vramp_trial4", "Bead1/Vramp_trial5",
-           "Bead1/Vramp_trial6", "Bead1/Vramp_trial7", "Bead1/Vramp_trial8", "Bead1/Vramp_trial9"]
-#path = "Bead1/Vramp_day2"
-cal_file = "Bead1/2mbar_axcool.dat"
-damp_file = "Bead1/2e-5mbar_xyzcool.dat"
-reprocessfile = True
+path = "/data/20140617/Bead3/recharge_vramphi"
+## path to directory containing charge steps, used to calibrate phase and 
+## scaling.  leave empty to use data path
+cal_path = "/data/20140617/Bead3/chargelp"
+
+## path to save plots and processed files (make it if it doesn't exist)
+outpath = "/home/dcmoore/analysis" + path[5:]
+if( not os.path.isdir( outpath ) ):
+    os.makedirs(outpath)
+
+#Htot = np.load(os.path.join("/home/dcmoore/analysis" + cal_path[5:], "trans_func.npy") )
+
+reprocessfile = False
 plot_angle = False
-ref_file = -1 ## index of file to calculate angle and phase for
+plot_phase = False
+remove_laser_noise = False
+remove_outliers = True
+plot_flashes = False
+ref_file = 0 ## index of file to calculate angle and phase for
 
-scale_fac = 1.
+file_start = 0
+
+scale_fac = 1. ##1./0.00156 * 1/63.
 scale_file = 1.
 
-fsamp = 1500.
-fdrive = 30
-NFFT = 2**10
+amp_gain = 200. ## gain to use for files in path
+amp_gain_cal = 1.  ## gain to use for files in cal_path
+
+fsamp = 5000.
+fdrive = 41.
+fref = 1027
+NFFT = 2**14
 phaselen = int(fsamp/fdrive) #number of samples used to find phase
 plot_scale = 1. ## scaling of corr coeff to units of electrons
 plot_offset = 1.
 data_columns = [0, 1] ## column to calculate the correlation against
-drive_column = 3
+drive_column = -1
+laser_column = 3
 
-b, a = sp.butter(3, [2.*(fdrive-5)/fsamp, 2.*(fdrive+5)/fsamp ], btype = 'bandpass')
-boff, aoff = sp.butter(3, 2.*(fdrive-20)/fsamp, btype = 'lowpass')
+
+b, a = sp.butter(3, [2.*(fdrive-1)/fsamp, 2.*(fdrive+1)/fsamp ], btype = 'bandpass')
+boff, aoff = sp.butter(3, 2.*(fdrive-10)/fsamp, btype = 'lowpass')
 
 def rotate_data(x, y, ang):
     c, s = np.cos(ang), np.sin(ang)
@@ -40,7 +62,7 @@ def rotate_data(x, y, ang):
 def getangle(fname):
         print "Getting angle from: ", fname 
         num_angs = 100
-	dat = np.loadtxt(os.path.join(path, fname), skiprows = 5, usecols = [2, 3, 4, 5] )
+        dat, attribs, cf = bu.getdata(os.path.join(path, fname))
         pow_arr = np.zeros((num_angs,2))
         ang_list = np.linspace(-np.pi/2.0, np.pi/2.0, num_angs)
         for i,ang in enumerate(ang_list):
@@ -49,6 +71,8 @@ def getangle(fname):
         
         best_ang = ang_list[ np.argmax(pow_arr[:,0]) ]
         print "Best angle [deg]: %f" % (best_ang*180/np.pi)
+
+        cf.close()
 
         if(plot_angle):
             plt.figure()
@@ -72,162 +96,205 @@ def getangle(fname):
 
 def getphase(fname, ang):
         print "Getting phase from: ", fname 
-	dat = np.loadtxt(os.path.join(path, fname), skiprows = 5, usecols = [2, 3, 4, 5] )
+        dat, attribs, cf = bu.getdata(os.path.join(path, fname))
         xdat, ydat = rotate_data(dat[:,data_columns[0]], dat[:,data_columns[1]], ang)
         #xdat = sp.filtfilt(b, a, xdat)
         xdat = np.append(xdat, np.zeros( fsamp/fdrive ))
         corr2 = np.correlate(xdat,dat[:,drive_column])
         maxv = np.argmax(corr2) 
+
+        cf.close()
+
+        if(plot_phase):
+            plt.figure()
+            plt.plot( corr2 )
+            plt.figure()
+            xdat_filt = sp.filtfilt(b,a,xdat)
+            drive_filt = sp.filtfilt(b,a,dat[:,drive_column])
+            plt.plot( xdat_filt/np.max( xdat_filt ), label='x')
+            plt.plot( drive_filt/np.max( drive_filt ), label='drive' )
+            plt.legend()
+            plt.show()
+
         print maxv
         return maxv
 
 
-def getdata(fname, maxv, ang, make_plot=False):
+def getdata(fname, maxv, ang, gain):
+
 	print "Processing ", fname
-        dat = np.loadtxt(os.path.join(path, fname), skiprows = 5, usecols = [2, 3, 4, 5] )
+        dat, attribs, cf = bu.getdata(os.path.join(path, fname))
+
+        ## make sure file opened correctly
+        if( len(dat) == 0 ):
+            return {}
+
+        dat[:, drive_column] *= gain
+        if( len(attribs) > 0 ):
+            fsamp = attribs["Fsamp"]
+            drive_amplitude = attribs["drive_amplitude"]
+
+            
         xdat, ydat = rotate_data(dat[:,data_columns[0]], dat[:,data_columns[1]], ang)
-        xdat = sp.filtfilt(b, a, xdat)
-        xoff = sp.filtfilt(boff, aoff, xdat)
-        #corr_full = np.correlate(xdat[:phaselen],dat[:phaselen,drive_column], 'full')
-        #corr_full = np.correlate(xdat,dat[:,drive_column], 'full')
-        lentrace = len(xdat)
-        ## zero pad one cycle
-        xdat = np.append(xdat, np.zeros( fsamp/fdrive ))
-        corr_full = np.correlate( xdat, dat[:,drive_column])/(lentrace*np.std(dat[:,drive_column]))
-        corr = corr_full[ maxv ]
+
+        drive_amp = np.sqrt(2)*np.std(dat[:,drive_column])
+
+        if( remove_laser_noise ):
+            laser_good = bu.laser_reject(dat[:, laser_column], 60., 90., 4e-6, 100, fsamp, False)
+        else:
+            laser_good = np.ones_like(dat[:, laser_column]) > 0
+
+        #df = np.fft.rfft( dat[:,drive_column] )
+        #drive_pred = np.fft.irfft( df*Htot )
+
+        corr_full = bu.corr_func(dat[:,drive_column], xdat, fsamp, fdrive, good_pts=laser_good)
+        #corr_full = bu.corr_func(drive_pred, xdat, fsamp, fdrive, good_pts=laser_good)
+
+        #corr = corr_full[ maxv ]
+        corr = corr_full[ 0 ]
+
         corr_max = np.max(corr_full)
         corr_max_pos = np.argmax(corr_full)
         xpsd, freqs = matplotlib.mlab.psd(xdat, Fs = fsamp, NFFT = NFFT) 
         #ypsd, freqs = matplotlib.mlab.psd(ydat, Fs = fsamp, NFFT = NFFT) 
         max_bin = np.argmin( np.abs( freqs - fdrive ) )
+        ref_bin = np.argmin( np.abs( freqs - fref ) )
 
-        if(make_plot):
-            plt.figure(spec_fig.number)
-            plt.loglog( freqs, np.sqrt(xpsd) )
+        ## also correlate signal with drive squared
+        dsq = dat[:,drive_column]**2
+        dsq -= np.mean(dsq)
+        sq_amp = np.sqrt(2)*np.std( dsq )
+        ## only normalize by one factor of the squared amplitude
+        corr_sq_full = bu.corr_func(dsq*sq_amp, xdat, fsamp, fdrive)
+        corr_sq_max = np.max(corr_sq_full)
+        corr_sq_max_pos = np.argmax(corr_sq_full)
+
+        xoff = sp.filtfilt(boff, aoff, xdat)
+
+        if(False):
+            plt.figure()
+            plt.plot( xdat )
+            plt.plot( dat[:, drive_column] )
+
+            plt.figure()
+            plt.plot( corr_full )
+            plt.show()
+
+        ctime = attribs["time"]
+
+        ## is this a calibration file?
+        cdir,_ = os.path.split(fname)
+        is_cal = cdir == cal_path
 
         curr_scale = 1.0
-        return [corr, corr_max, corr_max_pos, np.std(xoff), np.sqrt(xpsd[max_bin]), ang, curr_volt(fname)/2000.]
+        ## make a dictionary containing the various calculations
+        out_dict = {"corr_t0": corr,
+                    "max_corr": [corr_max, corr_max_pos],
+                    "max_corr_sq": [corr_sq_max, corr_sq_max_pos],
+                    "psd": np.sqrt(xpsd[max_bin]),
+                    "ref_psd": np.sqrt(xpsd[ref_bin]),
+                    "temps": attribs["temps"],
+                    "time": bu.labview_time_to_datetime(ctime),
+                    "num_flashes": attribs["num_flashes"],
+                    "is_cal": is_cal,
+                    "drive_amp": drive_amp}
 
-def func2(f, A, f0, Damping):
-    omega = 2*math.pi*f
-    omega_0 = 2*math.pi*f0
-    return np.sqrt(A*Damping/((omega_0**2 - omega**2)**2 + omega**2*Damping**2))
+        cf.close()
+        return out_dict
 
+if reprocessfile:
 
-def abs_cal( cf, fit_points = [0, NFFT/2], skip_points = False ):
+  init_list = glob.glob(path + "/*.h5")
+  files = sorted(init_list, key = bu.find_str)
 
-    dat = np.loadtxt(cf, skiprows = 5, usecols = [2, 3, 4, 5] )
-    xdat, ydat = rotate_data(dat[:,data_columns[0]], dat[:,data_columns[1]], ang)
+  if(cal_path):
+      cal_list = glob.glob(cal_path + "/*.h5")
+      cal_files = sorted( cal_list, key = bu.find_str )
+      files = zip(cal_files[:-1],np.zeros(len(cal_files[:-1]))+amp_gain_cal) \
+              + zip(files[:-1],np.zeros(len(files[:-1]))+amp_gain)
+  else:
+      files = zip(files[:-1],np.zeros(len(files[:-1]))+amp_gain)      
+      
 
-    cpsd_x, f = mlab.psd( xdat, Fs=fsamp, NFFT=NFFT )
-    cpsd_y, f = mlab.psd( ydat, Fs=fsamp, NFFT=NFFT )
+  ang = 0 ##getangle(files[ref_file])
+  phase = getphase(files[ref_file][0], ang)
+  corrs_dict = {}
+  for f,gain in files[file_start:]:
+    curr_dict = getdata(f, phase, ang, gain)
 
-
-    ##first, fit for the absolute calibration
-    spars = [1, 80, 2000]
-
-    if(skip_points):
-        xdat_fit = f[fit_points[0]:fit_points[1]]
-        ydat_fit = np.sqrt(cpsd_x[fit_points[0]:fit_points[1]])
-        bad_pts = ydat_fit > ydat_fit[0] * 1.5
-        xdat_fit = xdat_fit[ np.logical_not(bad_pts) ]
-        ydat_fit = ydat_fit[ np.logical_not(bad_pts) ]
-        func3 = lambda x, A, f0, gam: func2(x, A, res_freq, gam)
-        bp, bcov = opt.curve_fit( func3, xdat_fit, ydat_fit, p0=spars)
-    else:
-        xdat_fit = f[fit_points[0]:fit_points[1]]
-        ydat_fit = np.sqrt(cpsd_x[fit_points[0]:fit_points[1]])
-        bp, bcov = opt.curve_fit( func2, xdat_fit, ydat_fit, p0=spars)
-
-
-
-    print bp
-
-    norm_rat = (2*1.38e-23*300/(0.1e-12)) * 1/bp[0]
-
-    plt.figure(44)
-    plt.loglog( f, np.sqrt(norm_rat * cpsd_x), '.' )
-    plt.loglog( xdat_fit, np.sqrt(norm_rat * ydat_fit**2), 'k.' )
-    xx = np.linspace( f[fit_points[0]], f[fit_points[1]], 1e3)
-    plt.loglog( xx, np.sqrt(norm_rat * func2( xx, bp[0], bp[1], bp[2] )**2), 'r')
-    plt.xlabel("Freq [Hz]")
-    plt.ylabel("PSD [m Hz$^{-1/2}$]")
-    plt.show()
-    
-    return np.sqrt(norm_rat), bp[1], bp[2]
-
-curr_volt = lambda str:int(re.findall('\d+', str)[-1])
-
-
-
-## get angle from first directory
-path = dirlist[0]
-init_list = os.listdir(path)
-if( 'processed.txt' in init_list):
-    bad_idx = init_list.index( 'processed.txt' )
-    del init_list[bad_idx]
-files = sorted(init_list, key = curr_volt)
-ang = getangle(files[ref_file])
-
-cal_fac, res_freq, axdamp = abs_cal( cal_file )
-
-damp_fit = abs_cal( damp_file, [10, 150], True )
-
-spec_fig = plt.figure()
-fit_fig = plt.figure()
-baseline_fig = plt.figure()
-for path in dirlist:
-
-    if reprocessfile:
-      init_list = os.listdir(path)
-      if( 'processed.txt' in init_list):
-        bad_idx = init_list.index( 'processed.txt' )
-        del init_list[bad_idx]
-      files = sorted(init_list, key = curr_volt)
-
-      ang = getangle(files[ref_file])
-      phase = getphase(files[ref_file], ang)
-      corrs = []
-
-      for f in files:
-        #curr_ang = getangle(f)
-        curr_ang = ang
-        if( f == files[-1] ):
-            make_plot = True
+    for k in curr_dict.keys():
+        if k in corrs_dict:
+            corrs_dict[k].append( curr_dict[k] )
         else:
-            make_plot = False
-        corrs.append(getdata(f, phase, curr_ang, make_plot))
-      #getdata2 = lambda f: getdata(f, phase, ang) 
-      #corrs = np.array(map(getdata2, files))
-      corrs = np.array(corrs)
-      np.save('processed.npy', corrs)
-    else:
-        corrs = np.load('processed.npy')
+            corrs_dict[k] = [curr_dict[k],]
+    
+  of = open(os.path.join(outpath, "processed.pkl"), "wb")
+  pickle.dump( corrs_dict, of )
+  of.close()
+else:
+  of = open(os.path.join(outpath, "processed.pkl"), "rb")
+  corrs_dict = pickle.load( of )
+  of.close()
 
-    ## fit max correlation
-    def ffn( x, A ):
-        return A*x
+## if a calibration data set is defined and the scale factor is 1,
+## then try to calculate the scale factor from the calibration
+is_cal = np.array( corrs_dict["is_cal"] )
+if( np.sum(is_cal) > 0 and scale_fac == 1.):
+    cal_dat = np.array(corrs_dict["corr_t0"])[is_cal]
+    ## take a guess at the step size
+    step_vals = np.abs( np.diff( cal_dat ) )
+    step_guess = np.median( step_vals[ step_vals > 3*np.std(step_vals)] )
+    ## only keep non-zero points (assuming sig-to-noise > 5)
+    cal_dat = cal_dat[cal_dat > 0.2*step_guess]
+    def scale_resid( s ):
+        return np.sum( (cal_dat/s - np.round(cal_dat/s))**2  )
+    ## do manual search for best scale fac
+    slist = np.linspace(step_guess/1.2, step_guess*1.2, 1e4)
+    scale_fac = 1./slist[np.argmin( map(scale_resid, slist) ) ]
+    print "Calibration: guess, best_fit: ", 1./step_guess, scale_fac
+    
+## first plot the variation versus time
+dates = matplotlib.dates.date2num(corrs_dict["time"])
+corr_t0 = np.array(corrs_dict["corr_t0"])*scale_fac
+max_corr = np.array(corrs_dict["max_corr"])[:,0]*scale_fac
+max_corr_sq = np.array(corrs_dict["max_corr_sq"])[:,0]*scale_fac
+best_phase = np.array(corrs_dict["max_corr"])[:,1]
+psd = np.array(corrs_dict["psd"])*scale_fac
+ref_psd = np.array(corrs_dict["ref_psd"])*scale_fac
+temp1 = np.array(corrs_dict["temps"])[:,0]
+temp2 = np.array(corrs_dict["temps"])[:,1]
+num_flashes = np.array(corrs_dict["num_flashes"])
+drive_amp = np.array(corrs_dict["drive_amp"])
 
-    bp, bcov = opt.curve_fit( ffn, corrs[:,6], cal_fac*corrs[:,1], p0=[corrs[-1,1]/corrs[-1,6]] )
+fig=plt.figure() 
+gs = gridspec.GridSpec(2, 1, height_ratios=[2,1])
+plt.subplot(gs[0])
+#plt.plot_date(dates, corr_t0, 'r.', label="Max corr")
+x = drive_amp[np.logical_not(is_cal)]
+y = x*corr_t0[np.logical_not(is_cal)]
+plt.plot( x, y, 'k.', label='Measured response' )
+xl = [0, x.max()*1.05]
 
-    xx = np.linspace( 0, corrs[-1,6], 1e2)
+gpts = x < 100
+p = np.polyfit( x[gpts], y[gpts], 1)
+xx = np.linspace( xl[0], xl[1], 1e2)
 
-    plt.figure(fit_fig.number)
-    plt.plot(corrs[:,6],cal_fac*corrs[:,1], '.')
-    plt.plot( xx, ffn(xx, bp) , label="A = %.3e $\pm$ %.3e" % (bp, bcov[0,0]))
+plt.plot(xx, np.polyval(p, xx), 'r', linewidth=1.5, label='Linear fit')
+#plt.xlabel("Drive amplitude [V]")
+plt.ylabel("Drive response, q*V [e V]")
+plt.xlim(xl)
+plt.legend(numpoints=1)
 
-    #plt.figure(baseline_fig.number)
-    #plt.plot(corrs[:,6],cal_fac*corrs[:,3], '.')
+plt.subplot(gs[1])
+plt.plot(x, y-np.polyval(p, x), 'k.', linewidth=1.5)
+plt.plot(xx, np.zeros_like(xx), 'r', linewidth=1.5)
+plt.ylabel("Data - Fit")
+plt.xlabel("Drive amplitude [V]")
+plt.ylim([-20,20])
+plt.xlim(xl)
 
-    plt.xlabel("Voltage (V)")
-    plt.ylabel("Correlated motion (m)")
-    plt.legend(numpoints = 1, loc="upper left")
-
-    ## now num charges
-    zm = np.sqrt( damp_fit[2]**2 + ((2*np.pi*res_freq)**2 - (2*np.pi*fdrive)**2)**2 )
-    ##print "Num charges: ", 0.1e-12 * (2*np.pi*fdrive) * zm * 2e-3 * bp[0] / 1.6e-19 
-    print "Num charges: ", 0.1e-12*(2*np.pi*72)**2 * 2e-3 * bp[0]/ 1.6e-19
-
+fig.set_size_inches(8,8)
+plt.savefig( os.path.join(outpath, "drive_linearity.pdf") )
 
 plt.show()
 
