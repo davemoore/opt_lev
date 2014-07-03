@@ -5,9 +5,9 @@ import os
 import scipy.signal as sp
 
 
-refname = r"2e-6mbar_xyzcool_41Hz_1kV_282.h5"
-fname0 =  r"2e-6mbar_xyzcool_41Hz_1kV_321.h5"
-path = r"D:\Data\20140610\Bead3\chargehvamp2"
+refname = r"7_3e-7mbar_xyzcool_1001mV_41Hz_4.h5"
+fname0 =  r"7_3e-7mbar_xyzcool_1001mV_41Hz_5.h5"
+path = "/data/20140617/Bead3/ramp_overnight/"
 d2plt = 1
 if fname0 == "":
 	filelist = os.listdir(path)
@@ -25,7 +25,7 @@ if fname0 == "":
 
 		 
 
-Fs = 15e3  ## this is ignored with HDF5 files
+Fs = 5e3  ## this is ignored with HDF5 files
 NFFT = 2**14
 def getdata(fname):
 	print "Opening file: ", fname
@@ -71,7 +71,7 @@ if d2plt:
         #plt.plot(rotated[1])
         plt.plot(sp.filtfilt(b, a, rotated[0]))
         plt.plot(sp.filtfilt(b, a, rotated[1]))
-        plt.plot(data0[3][:, 3])
+        plt.plot(data0[3][:, -1])
         #plt.plot(data0[3][:, 2])
         #if refname:
         #    plt.plot(data1[3][:, 0])
