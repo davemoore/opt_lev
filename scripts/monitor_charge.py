@@ -10,12 +10,12 @@ import scipy.signal as sp
 import scipy.optimize as opt
 import cPickle as pickle
 
-path = r"D:\Data\20140610\Bead3\chargelp"
+path = r"D:\Data\20140711\Bead6\chargelp_chirps_10s"
 fdrive = 41.
 make_plot = True
 
 data_columns = [0, 1] ## column to calculate the correlation against
-drive_column = 3 ## column containing drive signal
+drive_column = -1 ## column containing drive signal
 
 def getphase(fname):
         print "Getting phase from: ", fname 
@@ -94,5 +94,6 @@ while( True ):
     if make_plot:
         plt.plot(corr_data)
         plt.draw()
+        plt.pause(0.001)
 
     
