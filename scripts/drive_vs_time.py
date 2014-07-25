@@ -53,7 +53,7 @@ plot_scale = 1. ## scaling of corr coeff to units of electrons
 plot_offset = 1.
 laser_column = 3
 
-def getdata(fname, gain):
+def getdata(fname, gain, resp_fit, resp_dat, orth_pars):
 
 	print "Processing ", fname
         dat, attribs, cf = bu.getdata(os.path.join(path, fname))
@@ -84,8 +84,6 @@ def getdata(fname, gain):
         if( not is_cal and drive_dat != None):
             dat[:,-1] = drive_dat[:,-1]
 
-        xdat, ydat, zdat = dat[:,bu.data_columns[0]], dat[:,bu.data_columns[1]], dat[:,bu.data_columns[2]]
-
         drive_amp,_ = bu.get_drive_amp( dat[:,bu.drive_column], fsamp )
 
 
@@ -96,48 +94,28 @@ def getdata(fname, gain):
         if( curr_gain != 1.0 and offset_frac > 0.1):
             print "Warning, voltage_div setting doesn't appear to match the expected gain for ", fname
 
+        xdat, ydat, zdat = dat[:,bu.data_columns[0]], dat[:,bu.data_columns[1]], dat[:,bu.data_columns[2]]
 
-        corr_full = bu.corr_func(dat[:,bu.drive_column], xdat, fsamp, fdrive)
+        if( orth_pars ):
+            xdat, ydat, zdat = bu.orthogonalize( xdat, ydat, zdat,
+                                                 orth_pars[0], orth_pars[1], orth_pars[2] )
 
-        corr = corr_full[ 0 ]
-        corr_max = np.max(corr_full)
-        corr_max_pos = np.argmax(corr_full)
-        xpsd, freqs = matplotlib.mlab.psd(xdat, Fs = fsamp, NFFT = NFFT) 
-        #ypsd, freqs = matplotlib.mlab.psd(ydat, Fs = fsamp, NFFT = NFFT) 
-        max_bin = np.argmin( np.abs( freqs - fdrive ) )
-        ref_bin = np.argmin( np.abs( freqs - fref ) )
+        ## make correlation in time domain with predicted drive (fixed to known phase)
+        corr_fit = bu.corr_func(np.fft.irfft(resp_fit), xdat, fsamp, fsamp)[0]
+        corr_dat = bu.corr_func(np.fft.irfft(resp_dat), xdat, fsamp, fsamp)[0]
 
-        ## also correlate signal with drive squared
-        dsq = dat[:,bu.drive_column]**2
-        dsq -= np.mean(dsq)
-        sq_amp = np.sqrt(2)*np.std( dsq )
-        ## only normalize by one factor of the squared amplitude
-        corr_sq_full = bu.corr_func(dsq*sq_amp, xdat, fsamp, fdrive)
-        corr_sq_max = np.max(corr_sq_full)
-        corr_sq_max_pos = np.argmax(corr_sq_full)
+        ## calculate optimal filter
+        vt = np.fft.rfft( xdat )
+        st = resp_fit
+        of_fit = np.real(np.sum( np.conj(st) * vt / J)/np.sum( np.abs(st)**2/J ))
 
-        if(False):
-            plt.figure()
-            plt.plot( xdat )
-            plt.plot( dat[:, bu.drive_column] )
+        st = resp_dat
+        of_dat = np.real(np.sum( np.conj(st) * vt / J)/np.sum( np.abs(st)**2/J ))
 
-            plt.figure()
-            plt.plot( corr_full )
-            plt.show()
 
-        ctime = attribs["time"]
-
-        ## is this a calibration file?
-        cdir,_ = os.path.split(fname)
-        is_cal = cdir == cal_path
-
-        curr_scale = 1.0
         ## make a dictionary containing the various calculations
-        out_dict = {"corr_t0": corr,
-                    "max_corr": [corr_max, corr_max_pos],
-                    "max_corr_sq": [corr_sq_max, corr_sq_max_pos],
-                    "psd": np.sqrt(xpsd[max_bin]),
-                    "ref_psd": np.sqrt(xpsd[ref_bin]),
+        out_dict = {"corr": [corr_fit, corr_dat]
+                    "of": [of_fit, of_dat]
                     "temps": attribs["temps"],
                     "time": bu.labview_time_to_datetime(ctime),
                     "num_flashes": attribs["num_flashes"],
@@ -171,7 +149,7 @@ if reprocessfile:
       
   corrs_dict = {}
   for f,gain in files[file_start:]:
-    curr_dict = getdata(f, gain)
+    curr_dict = getdata(f, gain, tf_fit, tf_dat, orth_pars)
 
     for k in curr_dict.keys():
         if k in corrs_dict:
