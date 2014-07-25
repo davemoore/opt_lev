@@ -15,6 +15,7 @@ path = "/data/20140724/Bead3/no_charge_chirp"
 ## path to directory containing charge steps, used to calibrate phase and 
 ## scaling.  leave empty to use data path
 cal_path = "/data/20140724/Bead3/chargelp_fine_calib"
+single_charge_fnums = [13, 14]
 
 ref_2mbar = "/data/20140724/Bead3/2mbar_zcool_50mV_40Hz.h5"
 
@@ -85,7 +86,7 @@ def getdata(fname, gain):
 
         xdat, ydat, zdat = dat[:,bu.data_columns[0]], dat[:,bu.data_columns[1]], dat[:,bu.data_columns[2]]
 
-        drive_amp = bu.get_drive_amp( dat[:,bu.drive_column], fsamp )
+        drive_amp,_ = bu.get_drive_amp( dat[:,bu.drive_column], fsamp )
 
 
         ## now double check that the rescaled drive amp seems reasonable
@@ -96,7 +97,7 @@ def getdata(fname, gain):
             print "Warning, voltage_div setting doesn't appear to match the expected gain for ", fname
 
 
-        corr_full = bu.corr_func(dat[:,bu.drive_column], xdat, fsamp, fdrive, good_pts=laser_good)
+        corr_full = bu.corr_func(dat[:,bu.drive_column], xdat, fsamp, fdrive)
 
         corr = corr_full[ 0 ]
         corr_max = np.max(corr_full)
@@ -114,8 +115,6 @@ def getdata(fname, gain):
         corr_sq_full = bu.corr_func(dsq*sq_amp, xdat, fsamp, fdrive)
         corr_sq_max = np.max(corr_sq_full)
         corr_sq_max_pos = np.argmax(corr_sq_full)
-
-        xoff = sp.filtfilt(boff, aoff, xdat)
 
         if(False):
             plt.figure()
@@ -158,10 +157,18 @@ if reprocessfile:
       cal_files = sorted( cal_list, key = bu.find_str )
       files = zip(cal_files[:-1],np.zeros(len(cal_files[:-1]))+amp_gain_cal) \
               + zip(files[:-1],np.zeros(len(files[:-1]))+amp_gain)
+
+      ## make the transfer function from the calibration files with one
+      ## charge
+      tf_fit, tf_dat, orth_pars = bu.get_avg_trans_func( cal_files, single_charge_fnums )
+      ## get the noise from the 0 charge files at 10V
+      J = bu.get_avg_noise( cal_files, single_charge_fnums[1]+1, orth_pars, make_plot = False )
+
   else:
+      print "Warning, no calibration path defined.  Assuming default response function"
+      
       files = zip(files[:-1],np.zeros(len(files[:-1]))+amp_gain)      
       
-
   corrs_dict = {}
   for f,gain in files[file_start:]:
     curr_dict = getdata(f, gain)
@@ -210,7 +217,7 @@ temp2 = np.array(corrs_dict["temps"])[:,1]
 num_flashes = np.array(corrs_dict["num_flashes"])
 drive_amp = np.array(corrs_dict["drive_amp"])
 
-plt.figure() 
+fig = plt.figure() 
 plt.plot_date(dates, corr_t0, 'r.', label="Max corr")
 
 ## fit a polynomial to the ref pdf
