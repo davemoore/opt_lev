@@ -154,6 +154,8 @@ def getdata(fname, maxv, ang, gain):
 
         xdat, ydat, zdat = dat[:,bu.data_columns[0]], dat[:,bu.data_columns[1]], dat[:,bu.data_columns[2]]
 
+
+        
             
         drive_amp = np.sqrt(2)*np.std(dat[:,bu.drive_column])
 
