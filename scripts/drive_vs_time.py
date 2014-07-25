@@ -52,76 +52,7 @@ plot_scale = 1. ## scaling of corr coeff to units of electrons
 plot_offset = 1.
 laser_column = 3
 
-
-b, a = sp.butter(3, [2.*(fdrive-1)/fsamp, 2.*(fdrive+1)/fsamp ], btype = 'bandpass')
-boff, aoff = sp.butter(3, 2.*(fdrive-10)/fsamp, btype = 'lowpass')
-
-def rotate_data(x, y, ang):
-    c, s = np.cos(ang), np.sin(ang)
-    return c*x - s*y, s*x + c*y
-
-def getangle(fname):
-        print "Getting angle from: ", fname 
-        num_angs = 100
-        dat, attribs, cf = bu.getdata(os.path.join(path, fname))
-        pow_arr = np.zeros((num_angs,2))
-        ang_list = np.linspace(-np.pi/2.0, np.pi/2.0, num_angs)
-        for i,ang in enumerate(ang_list):
-            rot_x, rot_y = rotate_data(dat[:,bu.data_columns[0]], dat[:,bu.data_columns[1]], ang)
-            pow_arr[i, :] = [np.std(rot_x), np.std(rot_y)]
-        
-        best_ang = ang_list[ np.argmax(pow_arr[:,0]) ]
-        print "Best angle [deg]: %f" % (best_ang*180/np.pi)
-
-        cf.close()
-
-        if(plot_angle):
-            plt.figure()
-            plt.plot(ang_list, pow_arr[:,0], label='x')
-            plt.plot(ang_list, pow_arr[:,1], label='y')
-            plt.xlabel("Rotation angle")
-            plt.ylabel("RMS at drive freq.")
-            plt.legend()
-            
-            ## also plot rotated time stream
-            rot_x, rot_y = rotate_data(dat[:,bu.data_columns[0]], dat[:,bu.data_columns[1]], best_ang)
-            plt.figure()
-            plt.plot(rot_x)
-            plt.plot(rot_y)
-            plt.plot(dat[:, bu.drive_column] * np.max(rot_x)/np.max(dat[:,bu.drive_column]))
-            plt.show()
-        
-        
-
-        return best_ang
-
-def getphase(fname, ang):
-        print "Getting phase from: ", fname 
-        dat, attribs, cf = bu.getdata(os.path.join(path, fname))
-        xdat, ydat = rotate_data(dat[:,bu.data_columns[0]], dat[:,bu.data_columns[1]], ang)
-        #xdat = sp.filtfilt(b, a, xdat)
-        xdat = np.append(xdat, np.zeros( fsamp/fdrive ))
-        corr2 = np.correlate(xdat,dat[:,bu.drive_column])
-        maxv = np.argmax(corr2) 
-
-        cf.close()
-
-        if(plot_phase):
-            plt.figure()
-            plt.plot( corr2 )
-            plt.figure()
-            xdat_filt = sp.filtfilt(b,a,xdat)
-            drive_filt = sp.filtfilt(b,a,dat[:,bu.drive_column])
-            plt.plot( xdat_filt/np.max( xdat_filt ), label='x')
-            plt.plot( drive_filt/np.max( drive_filt ), label='drive' )
-            plt.legend()
-            plt.show()
-
-        print maxv
-        return maxv
-
-
-def getdata(fname, maxv, ang, gain):
+def getdata(fname, gain):
 
 	print "Processing ", fname
         dat, attribs, cf = bu.getdata(os.path.join(path, fname))
@@ -165,14 +96,9 @@ def getdata(fname, maxv, ang, gain):
             print "Warning, voltage_div setting doesn't appear to match the expected gain for ", fname
 
 
-        if( remove_laser_noise ):
-            laser_good = bu.laser_reject(dat[:, laser_column], 60., 90., 4e-6, 100, fsamp, False)
-        else:
-            laser_good = np.ones_like(dat[:, laser_column]) > 0
-
         corr_full = bu.corr_func(dat[:,bu.drive_column], xdat, fsamp, fdrive, good_pts=laser_good)
 
-        corr = corr_full[ maxv ]
+        corr = corr_full[ 0 ]
         corr_max = np.max(corr_full)
         corr_max_pos = np.argmax(corr_full)
         xpsd, freqs = matplotlib.mlab.psd(xdat, Fs = fsamp, NFFT = NFFT) 
@@ -236,11 +162,9 @@ if reprocessfile:
       files = zip(files[:-1],np.zeros(len(files[:-1]))+amp_gain)      
       
 
-  ang = 0 ##getangle(files[ref_file])
-  phase = getphase(files[ref_file][0], ang)
   corrs_dict = {}
   for f,gain in files[file_start:]:
-    curr_dict = getdata(f, phase, ang, gain)
+    curr_dict = getdata(f, gain)
 
     for k in curr_dict.keys():
         if k in corrs_dict:

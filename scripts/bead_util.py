@@ -273,3 +273,7 @@ def get_drive_amp(drive_data, fsamp, drive_freq="chirp", makePlot=False):
         plt.show()
             
     return np.median( drive_data / chirp_sampled )
+
+def rotate_data(x, y, ang):
+    c, s = np.cos(ang), np.sin(ang)
+    return c*x - s*y, s*x + c*y
