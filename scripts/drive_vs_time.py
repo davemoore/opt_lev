@@ -11,10 +11,12 @@ import scipy.signal as sp
 import scipy.optimize as opt
 import cPickle as pickle
 
-path = "/data/20140623/Bead1/freq_sweep_chirp"
+path = "/data/20140724/Bead3/no_charge_chirp"
 ## path to directory containing charge steps, used to calibrate phase and 
 ## scaling.  leave empty to use data path
-cal_path = "/data/20140623/Bead1/one_charge_chirp"
+cal_path = "/data/20140724/Bead3/chargelp_fine_calib"
+
+ref_2mbar = "/data/20140724/Bead3/2mbar_zcool_50mV_40Hz.h5"
 
 ## path to save plots and processed files (make it if it doesn't exist)
 outpath = "/home/dcmoore/analysis" + path[5:]
@@ -264,6 +266,17 @@ plt.plot_date(dates, corr_t0, 'r.', label="Max corr")
 p = np.polyfit(dates, ref_psd/np.median(ref_psd), 1)
 xx = np.linspace(dates[0], dates[-1], 1e3)
 
+## now do absolute calibration as well
+if(ref_2mbar):
+    abs_cal, fit_bp, fit_cov = bu.get_calibration(ref_2mbar, [1,200],
+                                                  make_plot=True,
+                                                  NFFT=2**14,
+                                                  exclude_peaks=False)
+    scale_fac_abs = (bu.bead_mass*(2*np.pi*fit_bp[1])**2)*bu.plate_sep/(bu.e_charge) * abs_cal
+    corr_abs = np.array(corrs_dict["max_corr"])[:,0]*scale_fac_abs
+    plt.figure( fig.number )
+    plt.plot(dates, corr_abs, 'g.')
+    plt.show()
 
 def plot_avg_for_per(x, y, idx1, idx2, linecol):
     ## get the average and error (given by std of points) for a sub period between flashes
