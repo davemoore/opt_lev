@@ -14,9 +14,14 @@ kb = 1.3806488e-23 #J/K
 bead_mass = 4./3*np.pi*bead_radius**3 * bead_rho
 
 ## default columns for data files
-data_columns = [0, 1] ## column to calculate the correlation against
+data_columns = [0, 1, 2] ## column to calculate the correlation against
 drive_column = -1
 laser_column = 3
+
+prime_comb = np.loadtxt("../waveforms/rand_wf_primes.txt")
+## normalize the prime_comb to have max = 1
+prime_comb /= np.max( np.abs(prime_comb) )
+
 
 def gain_fac( val ):
     ### Return the gain factor corresponding to a given voltage divider
@@ -35,7 +40,7 @@ def gain_fac( val ):
         return 1.
     
 
-def getdata(fname):
+def getdata(fname, gain_error=1.0):
     ### Get bead data from a file.  Guesses whether it's a text file
     ### or a HDF5 file by the file extension
 
@@ -53,14 +58,9 @@ def getdata(fname):
             ## correct the drive amplitude for the voltage divider. 
             ## this assumes the drive is the last column in the dset
             vd = attribs['volt_div'] if 'volt_div' in attribs else 1.0
-            curr_gain = gain_fac(vd)
-            dat[:,-1] *= curr_gain
-
-            ## now double check that the rescaled drive amp seems reasonable
-            ## and warn the user if not
-            offset_frac = np.abs(np.sqrt(2)*np.std( dat[:,-1] )/(200.0 * attribs['drive_amplitude'] )-1.0)
-            if( curr_gain != 1.0 and offset_frac > 0.1):
-                print "Warning, voltage_div setting doesn't appear to match the expected gain for ", fname
+            if( vd > 0 ):
+                curr_gain = gain_fac(vd*gain_error)
+                dat[:,-1] *= curr_gain
 
         except (KeyError, IOError):
             print "Warning, got no keys for: ", fname
@@ -159,7 +159,7 @@ def find_str(str):
 
     fname, _ = os.path.splitext(str)
 
-    endstr = re.findall("\d+mV_\d+Hz[_]?[\d+]*", fname)
+    endstr = re.findall("\d+mV_[\d+Hz_]*[a-zA-Z_]*[\d+]*", fname)
     if( len(endstr) != 1 ):
         ## couldn't find the expected pattern, just return the 
         ## second to last number in the string
@@ -167,7 +167,7 @@ def find_str(str):
         
     ## now check to see if there's an index number
     sparts = endstr[0].split("_")
-    if( len(sparts) == 3 ):
+    if( len(sparts) >= 3 ):
         return idx_offset*int(sparts[2]) + int(sparts[0][:-2])
     else:
         return int(sparts[0][:-2])
@@ -243,3 +243,33 @@ def corr_blocks(drive, response, fsamp, fdrive, good_pts = [], filt = False, ban
 def gauss_fun(x, A, mu, sig):
     return A*np.exp( -(x-mu)**2/(2*sig**2) )
 
+def get_drive_amp(drive_data, fsamp, drive_freq="chirp", makePlot=False):
+
+    ntile = len(drive_data)/fsamp
+    samp_pts = np.linspace(0, ntile, ntile*fsamp)
+
+    if( drive_freq == "chirp" ):
+        ## get the amplitude from the correlation with the expected waveform
+
+        tiled_chirp = np.tile( prime_comb, int(ntile) )
+        tvec = np.linspace( 0, ntile, len(tiled_chirp) )
+        chirp_sampled = np.interp( samp_pts, tvec, tiled_chirp )
+
+        ## chirp sampled lags the data by 1 samples, presumably due to the trigger,
+        ## so account for that here
+        chirp_sampled = np.roll( chirp_sampled, 1 )
+
+    elif( isinstance(drive_freq, (int,long,float)) ):
+        chirp_sampled = np.sin( 2.*np.pi*samp_pts )
+    else:
+        print "Warning: get_drive_amp requires numeric frequency or 'chirp'"
+        return 0.
+        
+
+    if(makePlot):
+        plt.figure()
+        plt.plot( drive_data )
+        plt.plot( chirp_sampled*np.median( drive_data / chirp_sampled ) )
+        plt.show()
+            
+    return np.median( drive_data / chirp_sampled )

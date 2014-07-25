@@ -87,7 +87,7 @@ def getangle(fname):
             rot_x, rot_y = rotate_data(dat[:,bu.data_columns[0]], dat[:,bu.data_columns[1]], best_ang)
             plt.figure()
             plt.plot(rot_x)
-            plt.plot(rot_y)z
+            plt.plot(rot_y)
             plt.plot(dat[:, bu.drive_column] * np.max(rot_x)/np.max(dat[:,bu.drive_column]))
             plt.show()
         
@@ -149,15 +149,21 @@ def getdata(fname, maxv, ang, gain):
         is_cal = cdir == cal_path
 
         ## now insert the drive column from the drive file (ignore for calibrations)
-        if( not is_cal and drive_dat):
+        if( not is_cal and drive_dat != None):
             dat[:,-1] = drive_dat[:,-1]
 
         xdat, ydat, zdat = dat[:,bu.data_columns[0]], dat[:,bu.data_columns[1]], dat[:,bu.data_columns[2]]
 
+        drive_amp = bu.get_drive_amp( dat[:,bu.drive_column], fsamp )
 
-        
-            
-        drive_amp = np.sqrt(2)*np.std(dat[:,bu.drive_column])
+
+        ## now double check that the rescaled drive amp seems reasonable
+        ## and warn the user if not
+        curr_gain = bu.gain_fac( attribs['volt_div']*gain )
+        offset_frac = np.abs( drive_amp/(curr_gain * attribs['drive_amplitude']/1e3 )-1.0)
+        if( curr_gain != 1.0 and offset_frac > 0.1):
+            print "Warning, voltage_div setting doesn't appear to match the expected gain for ", fname
+
 
         if( remove_laser_noise ):
             laser_good = bu.laser_reject(dat[:, laser_column], 60., 90., 4e-6, 100, fsamp, False)
