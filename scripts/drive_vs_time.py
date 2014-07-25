@@ -36,6 +36,10 @@ file_start = 0
 scale_fac = 1./0.00156
 scale_file = 1.
 
+## These gains should always be left as one as long as
+## the voltage_div setting was set correctly when taking data
+## Otherwise, they are the ratio of the true gain to the gain
+## that was set
 amp_gain = 1. ## gain to use for files in path
 amp_gain_cal = 1.  ## gain to use for files in cal_path
 
@@ -46,8 +50,6 @@ NFFT = 2**14
 phaselen = int(fsamp/fdrive) #number of samples used to find phase
 plot_scale = 1. ## scaling of corr coeff to units of electrons
 plot_offset = 1.
-data_columns = [0, 1] ## column to calculate the correlation against
-drive_column = -1
 laser_column = 3
 
 
@@ -65,7 +67,7 @@ def getangle(fname):
         pow_arr = np.zeros((num_angs,2))
         ang_list = np.linspace(-np.pi/2.0, np.pi/2.0, num_angs)
         for i,ang in enumerate(ang_list):
-            rot_x, rot_y = rotate_data(dat[:,data_columns[0]], dat[:,data_columns[1]], ang)
+            rot_x, rot_y = rotate_data(dat[:,bu.data_columns[0]], dat[:,bu.data_columns[1]], ang)
             pow_arr[i, :] = [np.std(rot_x), np.std(rot_y)]
         
         best_ang = ang_list[ np.argmax(pow_arr[:,0]) ]
@@ -82,11 +84,11 @@ def getangle(fname):
             plt.legend()
             
             ## also plot rotated time stream
-            rot_x, rot_y = rotate_data(dat[:,data_columns[0]], dat[:,data_columns[1]], best_ang)
+            rot_x, rot_y = rotate_data(dat[:,bu.data_columns[0]], dat[:,bu.data_columns[1]], best_ang)
             plt.figure()
             plt.plot(rot_x)
-            plt.plot(rot_y)
-            plt.plot(dat[:, drive_column] * np.max(rot_x)/np.max(dat[:,drive_column]))
+            plt.plot(rot_y)z
+            plt.plot(dat[:, bu.drive_column] * np.max(rot_x)/np.max(dat[:,bu.drive_column]))
             plt.show()
         
         
@@ -96,10 +98,10 @@ def getangle(fname):
 def getphase(fname, ang):
         print "Getting phase from: ", fname 
         dat, attribs, cf = bu.getdata(os.path.join(path, fname))
-        xdat, ydat = rotate_data(dat[:,data_columns[0]], dat[:,data_columns[1]], ang)
+        xdat, ydat = rotate_data(dat[:,bu.data_columns[0]], dat[:,bu.data_columns[1]], ang)
         #xdat = sp.filtfilt(b, a, xdat)
         xdat = np.append(xdat, np.zeros( fsamp/fdrive ))
-        corr2 = np.correlate(xdat,dat[:,drive_column])
+        corr2 = np.correlate(xdat,dat[:,bu.drive_column])
         maxv = np.argmax(corr2) 
 
         cf.close()
@@ -109,7 +111,7 @@ def getphase(fname, ang):
             plt.plot( corr2 )
             plt.figure()
             xdat_filt = sp.filtfilt(b,a,xdat)
-            drive_filt = sp.filtfilt(b,a,dat[:,drive_column])
+            drive_filt = sp.filtfilt(b,a,dat[:,bu.drive_column])
             plt.plot( xdat_filt/np.max( xdat_filt ), label='x')
             plt.plot( drive_filt/np.max( drive_filt ), label='drive' )
             plt.legend()
@@ -128,22 +130,39 @@ def getdata(fname, maxv, ang, gain):
         if( len(dat) == 0 ):
             return {}
 
-        dat[:, drive_column] *= gain
         if( len(attribs) > 0 ):
             fsamp = attribs["Fsamp"]
             drive_amplitude = attribs["drive_amplitude"]
 
-            
-        xdat, ydat = rotate_data(dat[:,data_columns[0]], dat[:,data_columns[1]], ang)
+        ## now get the drive recorded by the other computer (if available)
+        fname_drive = fname.replace("/data", "/data_slave")
+        fname_drive = fname_drive.replace(".h5", "_drive.h5")            
 
-        drive_amp = np.sqrt(2)*np.std(dat[:,drive_column])
+        ## gain is not set in the drive file, so use the one from the data file
+        if( os.path.isfile( fname_drive ) ):
+            drive_dat, drive_attribs, drive_cf = bu.getdata(fname_drive, gain_error=attribs['volt_div']*gain)
+        else:
+            drive_dat = None
+
+        ## is this a calibration file?
+        cdir,_ = os.path.split(fname)
+        is_cal = cdir == cal_path
+
+        ## now insert the drive column from the drive file (ignore for calibrations)
+        if( not is_cal and drive_dat):
+            dat[:,-1] = drive_dat[:,-1]
+
+        xdat, ydat, zdat = dat[:,bu.data_columns[0]], dat[:,bu.data_columns[1]], dat[:,bu.data_columns[2]]
+
+            
+        drive_amp = np.sqrt(2)*np.std(dat[:,bu.drive_column])
 
         if( remove_laser_noise ):
             laser_good = bu.laser_reject(dat[:, laser_column], 60., 90., 4e-6, 100, fsamp, False)
         else:
             laser_good = np.ones_like(dat[:, laser_column]) > 0
 
-        corr_full = bu.corr_func(dat[:,drive_column], xdat, fsamp, fdrive, good_pts=laser_good)
+        corr_full = bu.corr_func(dat[:,bu.drive_column], xdat, fsamp, fdrive, good_pts=laser_good)
 
         corr = corr_full[ maxv ]
         corr_max = np.max(corr_full)
@@ -154,7 +173,7 @@ def getdata(fname, maxv, ang, gain):
         ref_bin = np.argmin( np.abs( freqs - fref ) )
 
         ## also correlate signal with drive squared
-        dsq = dat[:,drive_column]**2
+        dsq = dat[:,bu.drive_column]**2
         dsq -= np.mean(dsq)
         sq_amp = np.sqrt(2)*np.std( dsq )
         ## only normalize by one factor of the squared amplitude
@@ -167,7 +186,7 @@ def getdata(fname, maxv, ang, gain):
         if(False):
             plt.figure()
             plt.plot( xdat )
-            plt.plot( dat[:, drive_column] )
+            plt.plot( dat[:, bu.drive_column] )
 
             plt.figure()
             plt.plot( corr_full )
