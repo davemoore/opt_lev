@@ -24,7 +24,7 @@ outpath = "/home/dcmoore/analysis" + path[5:]
 if( not os.path.isdir( outpath ) ):
     os.makedirs(outpath)
 
-reprocessfile = True
+reprocessfile = False
 plot_angle = False
 plot_phase = False
 remove_laser_noise = False
@@ -34,7 +34,7 @@ ref_file = 0 ## index of file to calculate angle and phase for
 
 file_start = 0
 
-scale_fac = 1./0.00156
+scale_fac = 3.
 scale_file = 1.
 
 ## These gains should always be left as one as long as
@@ -93,6 +93,8 @@ def getdata(fname, gain, resp_fit, resp_dat, orth_pars):
         offset_frac = np.abs( drive_amp/(curr_gain * attribs['drive_amplitude']/1e3 )-1.0)
         if( curr_gain != 1.0 and offset_frac > 0.1):
             print "Warning, voltage_div setting doesn't appear to match the expected gain for ", fname
+            print "Skipping this point"
+            return {}
 
         xdat, ydat, zdat = dat[:,bu.data_columns[0]], dat[:,bu.data_columns[1]], dat[:,bu.data_columns[2]]
 
@@ -101,21 +103,22 @@ def getdata(fname, gain, resp_fit, resp_dat, orth_pars):
                                                  orth_pars[0], orth_pars[1], orth_pars[2] )
 
         ## make correlation in time domain with predicted drive (fixed to known phase)
-        corr_fit = bu.corr_func(np.fft.irfft(resp_fit), xdat, fsamp, fsamp)[0]
-        corr_dat = bu.corr_func(np.fft.irfft(resp_dat), xdat, fsamp, fsamp)[0]
+        corr_fit = bu.corr_func(np.fft.irfft(resp_fit), xdat, fsamp, fsamp)[0]/drive_amp
+        corr_dat = bu.corr_func(np.fft.irfft(resp_dat), xdat, fsamp, fsamp)[0]/drive_amp
 
         ## calculate optimal filter
         vt = np.fft.rfft( xdat )
         st = resp_fit
-        of_fit = np.real(np.sum( np.conj(st) * vt / J)/np.sum( np.abs(st)**2/J ))
+        of_fit = np.real(np.sum( np.conj(st) * vt / J)/np.sum( np.abs(st)**2/J ))/drive_amp
 
         st = resp_dat
-        of_dat = np.real(np.sum( np.conj(st) * vt / J)/np.sum( np.abs(st)**2/J ))
+        of_dat = np.real(np.sum( np.conj(st) * vt / J)/np.sum( np.abs(st)**2/J ))/drive_amp
 
+        ctime = attribs["time"]
 
         ## make a dictionary containing the various calculations
-        out_dict = {"corr": [corr_fit, corr_dat]
-                    "of": [of_fit, of_dat]
+        out_dict = {"corr": [corr_fit, corr_dat],
+                    "of": [of_fit, of_dat],
                     "temps": attribs["temps"],
                     "time": bu.labview_time_to_datetime(ctime),
                     "num_flashes": attribs["num_flashes"],
@@ -165,42 +168,39 @@ else:
   corrs_dict = pickle.load( of )
   of.close()
 
-## if a calibration data set is defined and the scale factor is 1,
-## then try to calculate the scale factor from the calibration
-is_cal = np.array( corrs_dict["is_cal"] )
-if( np.sum(is_cal) > 0 and scale_fac == 1.):
-    cal_dat = np.array(corrs_dict["corr_t0"])[is_cal]
-    ## take a guess at the step size
-    step_vals = np.abs( np.diff( cal_dat ) )
-    step_guess = np.median( step_vals[ step_vals > 3*np.std(step_vals)] )
-    ## only keep non-zero points (assuming sig-to-noise > 5)
-    cal_dat = cal_dat[cal_dat > 0.2*step_guess]
-    def scale_resid( s ):
-        return np.sum( (cal_dat/s - np.round(cal_dat/s))**2  )
-    ## do manual search for best scale fac
-    slist = np.linspace(step_guess/1.2, step_guess*1.2, 1e4)
-    scale_fac = 1./slist[np.argmin( map(scale_resid, slist) ) ]
-    print "Calibration: guess, best_fit: ", 1./step_guess, scale_fac
     
 ## first plot the variation versus time
+
+## apply rough calibration to the various metrics by 
+## assuming ~1 charge on the calibration points
+is_cal = np.array(corrs_dict["is_cal"])
+
+sfac_rel = [ 1./np.median(np.array(corrs_dict["corr"])[is_cal,0]),
+             1./np.median(np.array(corrs_dict["corr"])[is_cal,1]), 
+             1./np.median(np.array(corrs_dict["of"])[is_cal,0]), 
+             1./np.median(np.array(corrs_dict["of"])[is_cal,1]) ]
+
 dates = matplotlib.dates.date2num(corrs_dict["time"])
-corr_t0 = np.array(corrs_dict["corr_t0"])*scale_fac
-max_corr = np.array(corrs_dict["max_corr"])[:,0]*scale_fac
-max_corr_sq = np.array(corrs_dict["max_corr_sq"])[:,0]*scale_fac
-best_phase = np.array(corrs_dict["max_corr"])[:,1]
-psd = np.array(corrs_dict["psd"])*scale_fac
-ref_psd = np.array(corrs_dict["ref_psd"])*scale_fac
+corr_fit = np.array(corrs_dict["corr"])[:,0]*scale_fac*sfac_rel[0]
+corr_dat = np.array(corrs_dict["corr"])[:,1]*scale_fac*sfac_rel[1]
+of_fit = np.array(corrs_dict["of"])[:,0]*scale_fac*sfac_rel[2]
+of_dat = np.array(corrs_dict["of"])[:,1]*scale_fac*sfac_rel[3]
 temp1 = np.array(corrs_dict["temps"])[:,0]
 temp2 = np.array(corrs_dict["temps"])[:,1]
 num_flashes = np.array(corrs_dict["num_flashes"])
 drive_amp = np.array(corrs_dict["drive_amp"])
 
 fig = plt.figure() 
-plt.plot_date(dates, corr_t0, 'r.', label="Max corr")
+plt.plot_date(dates, corr_fit, 'r.', label="Corr from fit")
+plt.plot_date(dates, corr_dat, 'g.', label="Corr from dat")
+plt.plot_date(dates, of_fit, 'k.', label="OF from fit")
+plt.plot_date(dates, of_dat, 'b.', label="OF from dat")
+plt.legend(numpoints=1)
+plt.xlabel("Time")
+plt.ylabel("Correlation with drive [e]")
+plt.title("Comparison of correlation calculations")
 
-## fit a polynomial to the ref pdf
-p = np.polyfit(dates, ref_psd/np.median(ref_psd), 1)
-xx = np.linspace(dates[0], dates[-1], 1e3)
+amp_for_plotting = of_fit
 
 ## now do absolute calibration as well
 if(ref_2mbar):
@@ -209,51 +209,28 @@ if(ref_2mbar):
                                                   NFFT=2**14,
                                                   exclude_peaks=False)
     scale_fac_abs = (bu.bead_mass*(2*np.pi*fit_bp[1])**2)*bu.plate_sep/(bu.e_charge) * abs_cal
-    corr_abs = np.array(corrs_dict["max_corr"])[:,0]*scale_fac_abs
-    plt.figure( fig.number )
-    plt.plot(dates, corr_abs, 'g.')
+    corr_abs = (amp_for_plotting)/scale_fac*scale_fac_abs
+    fig2 = plt.figure()
+    plt.plot(dates, amp_for_plotting, 'r.', label="Step calibration")
+    plt.plot(dates, corr_abs, 'k.', label="Absolute calibration")
+
+    plt.xlabel("Time")
+    plt.ylabel("Correlation with drive [e]")
+    plt.title("Comparison of calibrations")
+
+
     plt.show()
 
-def plot_avg_for_per(x, y, idx1, idx2, linecol):
-    ## get the average and error (given by std of points) for a sub period between flashes
-    eval, eerr = np.median(y[idx1:idx2]), np.std(y[idx1:idx2])/np.sqrt(idx2-idx1)
-    ax = plt.gca()
 
-    mid_idx = int( (idx1 + idx2)/2 )
-    ax.vlines(x[mid_idx],eval-eerr,eval+eerr, color=linecol, linewidth=1.5)
-    hash_width = (x[idx2]-x[idx1])/10.
-    ax.hlines(eval+eerr,x[mid_idx]-hash_width,x[mid_idx]+hash_width, color=linecol, linewidth=1.5)
-    ax.hlines(eval-eerr,x[mid_idx]-hash_width,x[mid_idx]+hash_width, color=linecol, linewidth=1.5)
-
-    return x[mid_idx], eval
     
 
-flash_idx = np.argwhere( num_flashes > 0 )
 
-yy = plt.ylim()
-## plot the location of the flashes and average each period between
-## make sure to plot for first period
-avg_vals = []
-if(len(flash_idx)>1 and plot_flashes):
-    plot_avg_for_per( dates, corr_t0, 0, flash_idx[0], 'r')
-    for i,f in enumerate(flash_idx):
-        plt.plot_date( [dates[f], dates[f]], yy, linestyle='-', color=[0.5, 0.5, 0.5], marker=None)
-        if( i < len(flash_idx)-1 ):
-            cx, eval_corr = plot_avg_for_per( dates, corr_t0, flash_idx[i], flash_idx[i+1], 'r')
-            eval_psd = 0.0
-            avg_vals.append( [cx, eval_corr, eval_psd] )
-
-plt.ylim(yy)
-
-plt.xlabel("Time")
-plt.ylabel("Correlation with drive")
-##plt.legend(numpoints = 1, loc="upper left")
 
 
 fig1 = plt.figure() 
 plt.subplot(1,2,1)
 
-resid_data = corr_t0-np.round(corr_t0)
+resid_data = amp_for_plotting-np.round(amp_for_plotting)
 plt.plot_date(dates, resid_data, 'r.', markersize=2, label="Max corr")
 ## set limits at +/- 5 sigma
 cmu, cstd = np.median(resid_data), np.std(resid_data)
@@ -306,29 +283,8 @@ plt.ylim(yy)
 
 plt.xlabel("Counts")
 
-## plot correlation with drive squared vs voltage
-def make_corr_plot( amp_vec, corr_vec, col, lab=""):
-    ## get a list of the drive amplitudes
-    drive_list = amp_vec
-    amp_list = np.transpose(np.vstack((corr_vec, np.zeros_like(corr_vec))))
 
-    sf = 1.0 ##np.median( amp_list[:,0] )
-    #plt.plot( amp_vec, corr_vec/sf, '.', color=[col[0]+0.5, col[1]+0.5, col[2]+0.5], zorder=1)
-    plt.errorbar( drive_list, amp_list[:,0]/sf, yerr=amp_list[:,1]/sf, fmt='.', color=col, linewidth = 1.5, label=lab )
-    fit_pts = drive_list < 40
-    p = np.polyfit( drive_list[fit_pts], amp_list[fit_pts,0]/sf, 1)
-    xx = np.linspace( np.min(drive_list), np.max(drive_list), 1e2)
-    plt.plot(xx, np.polyval(p, xx), color=col, linewidth = 1.5)
-    #plt.xlim([0, 1e3])
-    plt.xlabel("Drive voltage [V]")
-    plt.ylabel("Correlation with drive signal [V]")
-    plt.legend(loc="upper left", numpoints = 1)
-    #plt.ylim([-1, 2])
 
-plt.figure()
-pts_to_use = np.ones_like(drive_amp) > 0
-make_corr_plot( drive_amp[pts_to_use], np.sqrt(max_corr_sq[pts_to_use]), [0,0,0], "sqrt(Corr w/ drive squared)")
-make_corr_plot( drive_amp[pts_to_use], corr_t0[pts_to_use]*drive_amp[pts_to_use], [1,0,0], "Corr w/ drive")
 
 
 plt.show()

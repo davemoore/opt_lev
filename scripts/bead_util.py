@@ -225,7 +225,7 @@ def corr_func(drive, response, fsamp, fdrive, good_pts = [], filt = False, band_
         lentrace = np.sum(good_pts)    
 
 
-    corr_full = good_corr(drive, response, fsamp, fdrive)/(lentrace*drive_amp**2)
+    corr_full = good_corr(drive, response, fsamp, fdrive)/lentrace
     return corr_full
 
 def corr_blocks(drive, response, fsamp, fdrive, good_pts = [], filt = False, band_width = 1, N_blocks = 20):
