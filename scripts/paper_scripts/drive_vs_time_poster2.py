@@ -11,93 +11,25 @@ import scipy.signal as sp
 import scipy.optimize as opt
 import cPickle as pickle
 
+matplotlib.rc('font', family='serif') 
 
-path = "/data/20140724/Bead3/no_charge_chirp"
-cal_path = ["/data/20140724/Bead3/chargelp_fine_calib", "/data/20140724/Bead3/recharge"]
-noise_path = "" 
-single_charge_fnums = [13, 14]
-ref_2mbar = "/data/20140724/Bead3/2mbar_zcool_50mV_40Hz.h5"
-scale_fac = 1./470.
-
-# path = "/data/20140728/Bead5/no_charge_chirp"
-# cal_path = "/data/20140728/Bead5/chargelp_chirp_calib"
-# noise_path = "" 
-# single_charge_fnums = [11,28]
-# ref_2mbar = "/data/20140728/Bead5/2mbar_zcool_50mV_40Hz.h5"
-# scale_fac = 1.
-# cut_off_val = 130
-
-# path = "/data/20140729/Bead4/no_charge_chirp"
-# cal_path = ["/data/20140729/Bead4/chargelp_cal", "/data/20140729/Bead4/recharge"]
-# noise_path = "/data/20140729/Bead4/chargelp_noise"
-# single_charge_fnums = [0, 50]
-# ref_2mbar = "/data/20140729/Bead4/2mbar_zcool_50mV_40Hz.h5"
-# scale_fac = -1.
-
-# path = "/data/20140801/Bead6/no_charge"
-# cal_path = ["/data/20140801/Bead6/chargelp_cal", "/data/20140801/Bead6/recharge"]
-# noise_path = "/data/20140801/Bead6/plates_terminated"
-# single_charge_fnums = [0, 60]
-# ref_2mbar = "/data/20140801/Bead6/2mbar_zcool_50mV_41Hz.h5"
-# scale_fac = -1./111 * 1.03
-
-# path = "/data/20140803/Bead8/no_charge"
-# cal_path = ["/data/20140803/Bead8/chargelp_cal", "/data/20140803/Bead8/recharge"]
-# noise_path = "/data/20140803/Bead8/plates_terminated"
-# single_charge_fnums = [0, 60]
-# ref_2mbar = "/data/20140803/Bead8/2mbar_zcool_50mV_41Hz.h5"
-# scale_fac = 1/355.
-
-# path = "/data/20140804/Bead1/no_charge"
-# cal_path = ["/data/20140804/Bead1/chargelp_cal", "/data/20140804/Bead1/recharge"]
-# noise_path = "/data/20140804/Bead1/plates_terminated"
-# single_charge_fnums = [0,34]
-# ref_2mbar = "/data/20140804/Bead1/2mbar_zcool_50mV_41Hz.h5"
-# scale_fac = 1.
-
-# path = "/data/20140805/Bead1/no_charge"
-# cal_path = ["/data/20140805/Bead1/chargelp_cal", "/data/20140805/Bead1/recharge"]
-# noise_path = "/data/20140805/Bead1/plates_terminated"
-# single_charge_fnums = [12,22]
-# ref_2mbar = "/data/20140805/Bead1/2mbar_zcool_50mV_2500Hz.h5"
-# scale_fac = -1.
-
-# path = "/data/20140806/Bead1/no_charge"
-# cal_path = ["/data/20140806/Bead1/chargelp_cal", "/data/20140806/Bead1/recharge"]
-# noise_path = "/data/20140806/Bead1/plates_terminated"
-# single_charge_fnums = [52, 62]
-# ref_2mbar = "/data/20140806/Bead1/2mbar_zcool_50mV_41Hz.h5"
-# scale_fac = -1./80
-
-# path = "/data/20140807/Bead1/no_charge"
-# cal_path = ["/data/20140807/Bead1/chargelp_cal", "/data/20140807/Bead1/recharge"]
-# noise_path = "/data/20140807/Bead1/plates_terminated"
-# single_charge_fnums = [24, 130]
-# ref_2mbar = "/data/20140807/Bead1/2mbar_zcool_50mV_41Hz.h5"
-# scale_fac = -1.
-
-# path = "/data/20140808/Bead7/no_charge"
-# cal_path = ["/data/20140808/Bead7/chargelp_cal", "/data/20140808/Bead7/recharge"]
-# noise_path = "/data/20140808/Bead7/plates_terminated"
-# single_charge_fnums = [36, 102]
-# ref_2mbar = ""
-# scale_fac = -1.
-
-# path = "/data/20140811/Bead4/chargelp_cal"
-# cal_path = ["/data/20140808/Bead7/chargelp_cal", "/data/20140808/Bead7/recharge"]
-# noise_path = "/data/20140808/Bead7/plates_terminated"
-# single_charge_fnums = [36, 102]
-# ref_2mbar = ""
-# scale_fac = 1.
+path = "/data/20140801/Bead6/no_charge"
+## path to directory containing charge steps, used to calibrate phase and 
+## scaling.  leave empty to use data path
+cal_path = ["/data/20140801/Bead6/chargelp_cal", "/data/20140801/Bead6/recharge"]
+noise_path = "/data/20140801/Bead6/plates_terminated"
+single_charge_fnums = [0, 60]
 
 filestr = "RANDFREQ"
+
+ref_2mbar = "/data/20140801/Bead6/2mbar_zcool_50mV_41Hz.h5"
 
 ## path to save plots and processed files (make it if it doesn't exist)
 outpath = "/home/dcmoore/analysis" + path[5:]
 if( not os.path.isdir( outpath ) ):
     os.makedirs(outpath)
 
-reprocessfile = True
+reprocessfile = False
 plot_angle = False
 plot_phase = False
 remove_laser_noise = False
@@ -107,6 +39,7 @@ ref_file = 0 ## index of file to calculate angle and phase for
 
 file_start = 0
 
+scale_fac = -1./111 * 1.03
 scale_file = 1.
 
 ## These gains should always be left as one as long as
@@ -196,26 +129,11 @@ def getdata(fname, gain, resp_fit, resp_dat, orth_pars):
         st = resp_fit
         ## throw out some frequencies
         Jfreq = np.fft.rfftfreq( len(xdat), 1./fsamp )
-        ##J[Jfreq > 100] = 1e10        
-        ## only count frequencies containing the drive
-        ##J[ np.logical_not(bu.get_drive_bins( Jfreq )) ] = 1e10
+        #J[Jfreq < 180] = 1e10        
         of_fit = np.real(np.sum( np.conj(st) * vt / J)/np.sum( np.abs(st)**2/J ))/drive_amp
 
         st = resp_dat
         of_dat = np.real(np.sum( np.conj(st) * vt / J)/np.sum( np.abs(st)**2/J ))/drive_amp
-
-        ## now y and z directions as well
-        vt = np.fft.rfft( ydat )
-        st = resp_fit
-        of_fit_y = np.real(np.sum( np.conj(st) * vt / J)/np.sum( np.abs(st)**2/J ))/drive_amp
-        st = resp_dat
-        of_dat_y = np.real(np.sum( np.conj(st) * vt / J)/np.sum( np.abs(st)**2/J ))/drive_amp
-
-        vt = np.fft.rfft( zdat )
-        st = resp_fit
-        of_fit_z = np.real(np.sum( np.conj(st) * vt / J)/np.sum( np.abs(st)**2/J ))/drive_amp
-        st = resp_dat
-        of_dat_z = np.real(np.sum( np.conj(st) * vt / J)/np.sum( np.abs(st)**2/J ))/drive_amp
 
         # plt.figure()
         # plt.plot( xdat )
@@ -235,7 +153,7 @@ def getdata(fname, gain, resp_fit, resp_dat, orth_pars):
 
         ## make a dictionary containing the various calculations
         out_dict = {"corr": [corr_fit, corr_dat],
-                    "of": [of_fit, of_dat, of_fit_y, of_dat_y, of_fit_z, of_dat_z],
+                    "of": [of_fit, of_dat],
                     "temps": attribs["temps"],
                     "time": bu.labview_time_to_datetime(ctime),
                     "num_flashes": attribs["num_flashes"],
@@ -275,9 +193,10 @@ if reprocessfile:
   if( noise_path):
       noise_list = glob.glob(noise_path + "/*"+filestr+"*.h5")
       noise_files = sorted( noise_list, key = bu.find_str )
-      J, Jy, Jz = bu.get_avg_noise( noise_files, 0, orth_pars, make_plot = False )
+      J = bu.get_avg_noise( noise_files, 0, orth_pars, make_plot = False )
   else:
-      J, Jy, Jz = bu.get_avg_noise( cal_files, single_charge_fnums[1]+1, orth_pars, make_plot = False )
+      J = bu.get_avg_noise( cal_files, single_charge_fnums[1]+1, orth_pars, make_plot = False )
+
 
   corrs_dict = {}
   for f,gain in files[file_start:]:
@@ -289,9 +208,6 @@ if reprocessfile:
         else:
             corrs_dict[k] = [curr_dict[k],]
     
-  corrs_dict["weight_func_fit"] = tf_fit/J
-  corrs_dict["weight_func_dat"] = tf_dat/J
-
   of = open(os.path.join(outpath, "processed.pkl"), "wb")
   pickle.dump( corrs_dict, of )
   of.close()
@@ -335,110 +251,7 @@ plt.xlabel("Time")
 plt.ylabel("Correlation with drive [e]")
 plt.title("Comparison of correlation calculations")
 
-## check if cut off is defined, for runs where the bead fell out
-try:
-    amp_for_plotting = of_fit[:cut_off_val]
-    dates = dates[:cut_off_val]
-    is_cal = is_cal[:cut_off_val]
-except:  
-    amp_for_plotting = of_fit
-  
-cweight = corrs_dict["weight_func_fit"]
-
-## fit the data
-def gauss_fun(x, A, mu, sig):
-    return A*np.exp( -(x-mu)**2/(2*sig**2) )
-
-of_data_xyz = np.array(corrs_dict["of"])[:,0::2]*scale_fac*sfac_rel[2]
-## get the ratio of the amplitudes in each direction from the noise data
-if( noise_path):
-    noise_list = glob.glob(noise_path + "/*"+filestr+"*.h5")
-    noise_files = sorted( noise_list, key = bu.find_str )
-    amp_corr = bu.get_noise_direction_ratio( noise_files, np.abs(cweight) )
-else:
-    amp_corr = [1.0, 1.0, 1.0]
-
-for i in range(3):
-    of_data_xyz[:,i] /= amp_corr[i]
-
-#amp_for_plotting = np.sqrt(np.sum(of_data_xyz**2, axis=1 ) )
-
-## first figure out the windows for each charge
-plt.figure()
-plt.plot(of_data_xyz[:,0], '.')
-window_bnds = np.argwhere(np.abs(np.diff( of_data_xyz[:,0] ) ) > 0.5)
-yy = plt.ylim()
-window_bnds = np.append(window_bnds, len(of_data_xyz[:,0]) )
-window_bnds = np.append([0], window_bnds)
-for i,w in enumerate(window_bnds[:-1]):
-    plt.plot( [w, w], yy, 'k')
-
-def run_mc( ang_dat, nmc=1e5 ):
-    rand_x = ang_dat[0,0] + np.random.randn(nmc)*ang_dat[0,1]
-    rand_y = ang_dat[1,0] + np.random.randn(nmc)*ang_dat[1,1]
-    rand_z = ang_dat[2,0] + np.random.randn(nmc)*ang_dat[2,1]
-
-    ## first get the sin of the angle
-    cang = np.arccos(rand_x/np.sqrt(rand_x**2 + rand_y**2 + rand_z**2))
-    #cang = np.arctan2( np.sqrt( rand_y**2+rand_z**2 ), rand_x )
-    #cang[ rand_y < 0] *= -1.
-    
-    mu = np.mean( cang )
-    std = np.std( cang )
-    return mu, std
-
-#ang_data_0 =  np.mean(of_data_xyz[good_points,0]/np.sqrt( np.sum( of_data_xyz[good_points,:]**2, axis=1) ))
-of_data_xyz = np.hstack( (of_data_xyz, np.transpose([np.sqrt(np.sum(of_data_xyz**2,axis=1))])) )
-out_arr = []
-for j, w in enumerate(window_bnds[:-1]):
-    good_points = np.zeros_like(of_data_xyz[:,0]) > 1
-    good_points[window_bnds[j]:window_bnds[j+1]] = True
-    if(np.sum(good_points) < 5 ):
-        continue
-    curr_dat = []
-    for i in range(4):
-        mu, std = bu.iterstat( of_data_xyz[good_points,i] )
-
-        nbins = 20
-        while( True ):
-            fit_range = [mu-5*std, mu+5*std] 
-            ha, ba = np.histogram( of_data_xyz[good_points,i], bins=nbins, range=[fit_range[0], fit_range[1]])
-
-            if np.sum(ha > 0 ) < 6 or np.max( ha) > 20:
-                std /= 2.0
-            else:
-                break
-            
-            if( std < 1e-4 ): break
-
-        bac = ba[:-1] + np.diff(ba)/2.0
-        #plt.errorbar(bac, ha, yerr=np.sqrt(ha), fmt='.')
-        try:
-            bp, bc = opt.curve_fit(gauss_fun, bac, ha, p0=[np.sum(ha)/(nbins*np.sqrt(6*std)), mu, std])
-        except:
-            bp = [0,0,0]
-            bc = 0.
-        xx = np.linspace(fit_range[0], fit_range[1], 1e3)
-        #plt.plot(xx, gauss_fun(xx, bp[0], bp[1], bp[2]), 'r')
-        gpts = np.sum( good_points)
-        if( not isinstance(bc, float) ):
-            curr_dat.append([bp[1], np.sqrt( np.abs(bc[1,1])) ])
-        else:
-            curr_dat.append([mu, std/np.sqrt( gpts ) ])
-
-
-
-    curr_dat = np.array(curr_dat)
-    ## now calculate the angle
-    curr_ang, curr_ang_err = run_mc(curr_dat)
-    
-    out_arr.append( [gpts, curr_dat[0,0], curr_ang, curr_ang_err] )
-    
-print out_arr
-np.save(os.path.join(outpath, "resid_data.npy"), out_arr)
-
-#fig = plt.figure()
-#plt.plot_date(dates, ang_data_xyz, '.')
+amp_for_plotting = of_fit
 
 ## now do absolute calibration as well
 if(ref_2mbar):
@@ -453,14 +266,14 @@ if(ref_2mbar):
     corr_abs = np.array(corrs_dict["of"])[:,0]*scale_fac_abs
     fig2 = plt.figure()
     plt.plot(dates, amp_for_plotting, 'r.', label="Step calibration")
-    #plt.plot(dates, corr_abs, 'k.', label="Absolute calibration")
+    plt.plot(dates, corr_abs, 'k.', label="Absolute calibration")
     plt.legend(numpoints=1)
     plt.xlabel("Time")
     plt.ylabel("Correlation with drive [e]")
     plt.title("Comparison of calibrations")
 
 
-plt.close('all')
+
 
 fig1 = plt.figure() 
 plt.subplot(1,2,1)
@@ -477,6 +290,10 @@ ax = plt.gca()
 
 hh, be = np.histogram( resid_data, bins = np.max([30, len(resid_data)/50]), range=yy )
 bc = be[:-1]+np.diff(be)/2.0
+
+## fit the data
+def gauss_fun(x, A, mu, sig):
+    return A*np.exp( -(x-mu)**2/(2*sig**2) )
 
 amp0 = np.sum(hh)/np.sqrt(2*np.pi*cstd)
 bp, bcov = opt.curve_fit( gauss_fun, bc, hh, p0=[amp0, cmu, cstd] )
@@ -495,12 +312,10 @@ if( remove_outliers ):
 
     plt.plot_date(dates[pts_to_use], resid_data[pts_to_use], 'k.', markersize=2, label="Max corr")
     cmu, cstd = np.median(resid_data[pts_to_use]), np.std(resid_data[pts_to_use])
-    hh, be = np.histogram( resid_data[pts_to_use], bins=50, range=[cmu-5*cstd, cmu+5*cstd] )
+    hh, be = np.histogram( resid_data[pts_to_use], bins = np.max([50, len(resid_data[pts_to_use])/50]), range=[cmu-10*cstd, cmu+10*cstd] )
     bc = be[:-1]+np.diff(be)/2.0
     amp0 = np.sum(hh)/np.sqrt(2*np.pi*cstd)
     bp, bcov = opt.curve_fit( gauss_fun, bc, hh, p0=[amp0, cmu, cstd] )
-    plt.ylim( [cmu-5*cstd, cmu+5*cstd] )
-
 
 plt.subplot(1,2,2)
 ax2 = plt.gca()
@@ -508,21 +323,63 @@ ax2.yaxis.set_visible(False)
 ax.set_position(matplotlib.transforms.Bbox(np.array([[0.125,0.1],[0.675,0.9]])))
 ax2.set_position(matplotlib.transforms.Bbox(np.array([[0.725,0.1],[0.9,0.9]])))
 
-yy = [cmu-5*cstd, cmu+5*cstd]
 xx = np.linspace(yy[0], yy[1], 1e3)
 plt.errorbar( hh, bc, xerr=np.sqrt(hh), yerr=0, fmt='k.', linewidth=1.5 )
 plt.plot( gauss_fun(xx, bp[0], bp[1], bp[2]), xx, 'r', linewidth=1.5, label="$\mu$ = %.3e $\pm$ %.3e $e$"%(bp[1], np.sqrt(bcov[1,1])))
 plt.legend()
-plt.ylim( [cmu-5*cstd, cmu+5*cstd] )
-#plt.ylim(yy)
+plt.ylim(yy)
 
 plt.xlabel("Counts")
 
-np.save(os.path.join(outpath, "resid_data_0e.npy"), [bp[1], np.sqrt(bcov[1,1])])
 
-plt.figure()
-#plt.plot_date( dates, amp_for_plotting, '.', markersize=1)
-plt.plot( amp_for_plotting, '.', markersize=1)
+## make the plot for the paper 
+if( True ):
+    plt.close('all')
+    fig = plt.figure()
 
-plt.show()
+    tsec = (dates - dates[0])*24*3600.
+    is_dat = np.logical_not(is_cal)
+    plt.plot( tsec[is_dat], amp_for_plotting[is_dat], 'k.', markersize=2 )
+    plt.plot( tsec[is_cal], amp_for_plotting[is_cal], 'r.', markersize=2 )
+
+    plt.xlabel("Time [s]")
+    plt.ylabel("Response amplitude [$e$]")
+    plt.xlim([0, 75000])
+    plt.ylim([-1.5, 4.5])
+
+    ## now do the inset plot
+    iax = plt.axes([0.3,0.525,0.55,0.4])
+    plt.plot( tsec[is_dat], amp_for_plotting[is_dat]*1e3, 'k.', markersize=2 )
+    crange = [-0.002*1e3, 0.002*1e3]
+    plt.ylim(crange)
+    plt.xlim([10000, 62000])
+    plt.xlabel("Time [s]")
+    plt.ylabel("Response\n[$10^{-3}$ $e$]")
+    plt.xticks([10000, 20000, 30000, 40000, 50000, 60000])
+    plt.yticks([-2, -1, 0, 1, 2])
+    iax.set_xticklabels([10000, 20000, 30000, 40000, 50000, ''])
+
+    iax2 = plt.axes([0.85,0.525,0.1,0.4])
+    iax2.yaxis.set_visible(False)
+    #iax.set_position(matplotlib.transforms.Bbox(np.array([[0.125,0.1],[0.675,0.9]])))
+    hh, be = np.histogram( amp_for_plotting[is_dat]*1e3, bins = 20, range=crange )
+    bc = be[:-1]+np.diff(be)/2.0
+    cmu, cstd = 0, 0.1
+    amp0 = np.sum(hh)/np.sqrt(2*np.pi*cstd)
+    bp, bcov = opt.curve_fit( gauss_fun, bc, hh, p0=[amp0, cmu, cstd] )
+
+    xx = np.linspace(crange[0], crange[1], 1e3)
+
+    plt.errorbar( hh, bc, xerr=np.sqrt(hh), yerr=0, fmt='k.', linewidth=1.5 )
+    plt.plot( gauss_fun(xx, bp[0], bp[1], bp[2]), xx, 'r', linewidth=1.5, label="$\mu$ = %.3e $\pm$ %.3e $e$"%(bp[1], np.sqrt(bcov[1,1])))
+    plt.xlabel("Counts")
+    plt.xticks([0, 25, 50])
+
+    fig.set_size_inches(6, 3)
+    plt.subplots_adjust(top=0.96, right=0.99, bottom=0.15, left=0.075)
+    plt.savefig("resp_vs_time_poster.eps")
+
+    #np.save(os.path.join(outpath, "resid_data_0e.npy"), [bp[1],np.sqrt(bcov[1,1])])
+
+    plt.show()
 

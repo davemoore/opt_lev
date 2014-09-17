@@ -22,15 +22,10 @@ data_columns = [0, 1, 2] ## column to calculate the correlation against
 drive_column = -1
 laser_column = 3
 
-prime_comb = np.loadtxt("../waveforms/rand_wf_primes.txt")
+prime_comb = np.loadtxt("../../waveforms/rand_wf_primes.txt")
 ## normalize the prime_comb to have max = 1
 prime_comb /= np.max( np.abs(prime_comb) )
 
-prime_freqs = [23,29,31,37,41,
-               43,47,53,59,61,67,71, 
-               73,79,83,89,97,101,103,107,109,113, 
-               127,131,137,139,149,151,157,163,167,173, 
-               179,181,191,193,197,199]
 
 def gain_fac( val ):
     ### Return the gain factor corresponding to a given voltage divider
@@ -355,7 +350,6 @@ def get_avg_trans_func( calib_list, fnums, make_plot=False, make_trans_func_plot
         print "Single charge files not defined, doing simple correlation"
         tot_corr = []
         for f in calib_list:
-            if( "recharge" in f ): continue
             dat, attribs, cf = getdata(f)
             if( len(dat) == 0 ): continue
 
@@ -407,8 +401,6 @@ def get_avg_trans_func( calib_list, fnums, make_plot=False, make_trans_func_plot
             else:
                 tot_vec[k] = dat[:,col]
         ntraces += 1.
-
-        cf.close()
 
     for k in dirs:
         tot_vec[k] /= ntraces
@@ -477,17 +469,16 @@ def get_avg_trans_func( calib_list, fnums, make_plot=False, make_trans_func_plot
 
         plt.show()
 
+    cf.close()
 
     return st_fit, st_dat, orth_pars
 
 
-def get_avg_noise( calib_list, fnums, orth_pars, make_plot=False, norm_by_sum=False ):
+def get_avg_noise( calib_list, fnums, orth_pars, make_plot=False ):
 
     print "Making noise spectrum..."
 
-    tot_vec_x = []
-    tot_vec_y = []
-    tot_vec_z = []
+    tot_vec = []
     dirs = ["x","y","z"]
     cols = data_columns+[drive_column,]
 
@@ -504,78 +495,20 @@ def get_avg_noise( calib_list, fnums, orth_pars, make_plot=False, norm_by_sum=Fa
 
         x_orth, y_orth, z_orth = orthogonalize(dat[:,cols[0]],dat[:,cols[1]],dat[:,cols[2]],
                                                orth_pars[0], orth_pars[1], orth_pars[2] )
-
-        if( norm_by_sum ):
-            norm_fac =  np.median( dat[:,7] )
-        else: 
-            norm_fac = 1.0
-
-        if( len(tot_vec_x) == 0 ):
-            tot_vec_x = np.abs( np.fft.rfft( x_orth ) )**2 / norm_fac
-            tot_vec_y = np.abs( np.fft.rfft( y_orth ) )**2 / norm_fac
-            tot_vec_z = np.abs( np.fft.rfft( z_orth ) )**2 / norm_fac
+        if( len(tot_vec) == 0 ):
+            tot_vec = np.abs( np.fft.rfft( x_orth ) )**2
         else:
-            tot_vec_x += np.abs( np.fft.rfft( x_orth ) )**2 / norm_fac
-            tot_vec_y += np.abs( np.fft.rfft( y_orth ) )**2 / norm_fac
-            tot_vec_z += np.abs( np.fft.rfft( z_orth ) )**2 / norm_fac
+            tot_vec += np.abs( np.fft.rfft( x_orth ) )**2
         
         ntraces += 1.
 
-    J = tot_vec_x/ntraces
-    J_y = tot_vec_y/ntraces
-    J_z = tot_vec_z/ntraces
+    J = tot_vec/ntraces
 
     if( make_plot ):
         Jfreqs = np.fft.rfftfreq( len(x_orth), 1/fsamp )
         fig = plt.figure()
         plt.loglog( Jfreqs, J )
-        plt.loglog( Jfreqs, J_y )
-        plt.loglog( Jfreqs, J_z )
         plt.show()
 
-    return J, J_y, J_z
+    return J
         
-def iterstat( data, nsig=2. ):
-
-    good_data = np.ones_like(data) > 0
-    last_std = np.std(data)
-    cmu, cstd = np.median(data[good_data]), np.std(data[good_data])
-
-    while( np.sum(good_data) > 5 ):
-        
-        cmu, cstd = np.median(data[good_data]), np.std(data[good_data])
-        if( np.abs( (cstd - last_std)/cstd ) < 0.05 ):
-            break
-
-        good_data = inrange( data, cmu-nsig*cstd, cmu+nsig*cstd )
-        last_std = cstd
-
-    return cmu, cstd
-
-def get_drive_bins( fvec ):
-    """ return the bin numbers corresponding to the drive frequencies
-        for the input vector fvec """
-
-    bin_list = []
-    [bin_list.append( np.argmin( np.abs( fvec - p ) ) ) for p in prime_freqs]
-
-    out_vec = np.zeros_like(fvec) > 1
-    out_vec[bin_list] = True
-
-    return out_vec
-
-def get_noise_direction_ratio( noise_list, weight_func ):
-    """ take a list of noise files and get the relative amplitude of the spectra
-        in the X, Y, and Z directions.  This is used to calibrate the relative
-        channel gains """
-
-    Jx, Jy, Jz = get_avg_noise( noise_list, 0, [0,0,0], make_plot=False )
-    
-    ## now find the weighted average over the frequencies in the drive
-    rat_y = np.sum( Jy/Jx * weight_func )/np.sum( weight_func )
-    rat_z = np.sum( Jz/Jx * weight_func )/np.sum( weight_func )
-    rat_out = [1., rat_y, rat_z]
-
-    print rat_out
-
-    return rat_out
