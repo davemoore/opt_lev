@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 
 
 t = np.linspace(0, 1, 16000)
-wfm = scipy.signal.chirp(t, f0 = 1, f1 = 100, t1 = 1, method = 'linear', phi = 90)
+wfm = scipy.signal.chirp(t, f0 = 10, f1 = 200, t1 = 1, method = 'linear', phi = 90)
 
-np.savetxt('wfm.awesome', wfm)
+np.savetxt('awesome.wfm', wfm)
 
 plt.plot(t, wfm)
 
