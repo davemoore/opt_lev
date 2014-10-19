@@ -5,10 +5,10 @@ import os
 import scipy.signal as sp
 
 
-refname = r"5mbar_ydrive_2000_f_1.5e-7_nocool_2500mV_no_synth.h5"
+refname = r"2mbar_axcool_2500mV_no_synth.h5"
 #fname0 =  r"2mbar_xyzcool_50mV_41Hz.h5"
 fname0 = r""
-path = r"D:\Data\20141015\Bead2\cooling_test"
+path = r"D:\Data\20141017\Bead1\cooling_test"
 d2plt = 1
 if fname0 == "":
 	filelist = os.listdir(path)
@@ -27,7 +27,7 @@ if fname0 == "":
 		 
 
 Fs = 5e3  ## this is ignored with HDF5 files
-NFFT = 2**16
+NFFT = 2**11
 def getdata(fname):
 	print "Opening file: ", fname
 	## guess at file type from extension
