@@ -342,24 +342,24 @@ if( True ):
     plt.plot( tsec[is_dat], amp_for_plotting[is_dat], 'k.', markersize=2 )
     plt.plot( tsec[is_cal], amp_for_plotting[is_cal], 'r.', markersize=2 )
 
-    plt.xlabel("Time [s]")
+    plt.xlabel("Time [s]", labelpad=0.5)
     plt.ylabel("Response amplitude [$e$]")
     plt.xlim([0, 75000])
     plt.ylim([-1.5, 4.5])
 
     ## now do the inset plot
-    iax = plt.axes([0.3,0.545,0.55,0.39])
+    iax = plt.axes([0.3,0.56,0.55,0.39])
     plt.plot( tsec[is_dat], amp_for_plotting[is_dat]*1e3, 'k.', markersize=2 )
     crange = [-0.002*1e3, 0.002*1e3]
     plt.ylim(crange)
     plt.xlim([10000, 62000])
-    plt.xlabel("Time [s]")
+    plt.xlabel("Time [s]", labelpad=-0.1)
     plt.ylabel("Response\n[$10^{-3}$ $e$]")
     plt.xticks([10000, 20000, 30000, 40000, 50000, 60000])
     plt.yticks([-2, -1, 0, 1, 2])
     iax.set_xticklabels([10000, 20000, 30000, 40000, 50000, ''])
 
-    iax2 = plt.axes([0.85,0.545,0.1,0.39])
+    iax2 = plt.axes([0.85,0.56,0.1,0.39])
     iax2.yaxis.set_visible(False)
     #iax.set_position(matplotlib.transforms.Bbox(np.array([[0.125,0.1],[0.675,0.9]])))
     hh, be = np.histogram( amp_for_plotting[is_dat]*1e3, bins = 20, range=crange )
@@ -372,11 +372,11 @@ if( True ):
 
     plt.errorbar( hh, bc, xerr=np.sqrt(hh), yerr=0, fmt='k.', linewidth=1.5 )
     plt.plot( gauss_fun(xx, bp[0], bp[1], bp[2]), xx, 'b', linewidth=1.5, label="$\mu$ = %.3e $\pm$ %.3e $e$"%(bp[1], np.sqrt(bcov[1,1])))
-    plt.xlabel("Counts")
+    plt.xlabel("Counts", labelpad=-0.1)
     plt.xticks([0, 25, 50])
 
-    fig.set_size_inches(9.5, 2.75)
-    plt.subplots_adjust(top=0.98, right=0.99, bottom=0.16, left=0.075)
+    fig.set_size_inches(10, 2.42)
+    plt.subplots_adjust(top=0.995, right=0.99, bottom=0.16, left=0.075)
     plt.savefig("resp_vs_time.eps")
 
     np.save(os.path.join(outpath, "resid_data_0e.npy"), [bp[1],np.sqrt(bcov[1,1])])
