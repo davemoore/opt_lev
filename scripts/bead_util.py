@@ -147,8 +147,9 @@ def get_calibration(refname, fit_freqs, make_plot=False,
 
     print bp
 
-    print attribs["temps"][0]+273
-    norm_rat = (2*kb*(attribs["temps"][0]+273)/(bead_mass)) * 1/bp[0]
+    #print attribs["temps"][0]+273
+    #norm_rat = (2*kb*(attribs["temps"][0]+273)/(bead_mass)) * 1/bp[0]
+    norm_rat = (2*kb*293)/(bead_mass) * 1/bp[0]
 
     if(make_plot):
         fig = plt.figure()
@@ -235,7 +236,8 @@ def corr_func(drive, response, fsamp, fdrive, good_pts = [], filt = False, band_
         lentrace = np.sum(good_pts)    
 
 
-    corr_full = good_corr(drive, response, fsamp, fdrive)/lentrace
+    corr_full = good_corr(drive, response, fsamp, fdrive)/(lentrace*drive_amp**2)
+    #corr_full = good_corr(drive, response, fsamp, fdrive)/(lentrace)
     return corr_full
 
 def corr_blocks(drive, response, fsamp, fdrive, good_pts = [], filt = False, band_width = 1, N_blocks = 20):
@@ -494,8 +496,10 @@ def get_avg_noise( calib_list, fnums, orth_pars, make_plot=False, norm_by_sum=Fa
     ntraces = 0.
     fsamp = None
     for f in calib_list:
-        fnum = int(re.findall("\d+.h5",f)[0][:-3])
-        if( fnum < fnums ): continue
+        fnum = re.findall("\d+.h5",f)
+        if( len(fnum)>0 ):
+            fnum = int(fnum[0][:-3])
+            if( fnum < fnums ): continue
         print "Noise trace: ", f
         dat, attribs, cf = getdata(f)
         if( len(dat) == 0 ): continue
@@ -510,14 +514,31 @@ def get_avg_noise( calib_list, fnums, orth_pars, make_plot=False, norm_by_sum=Fa
         else: 
             norm_fac = 1.0
 
-        if( len(tot_vec_x) == 0 ):
-            tot_vec_x = np.abs( np.fft.rfft( x_orth ) )**2 / norm_fac
-            tot_vec_y = np.abs( np.fft.rfft( y_orth ) )**2 / norm_fac
-            tot_vec_z = np.abs( np.fft.rfft( z_orth ) )**2 / norm_fac
+        # if( len(tot_vec_x) == 0 ):
+        #     tot_vec_x = np.abs( np.fft.rfft( x_orth ) )**2 / norm_fac
+        #     tot_vec_y = np.abs( np.fft.rfft( y_orth ) )**2 / norm_fac
+        #     tot_vec_z = np.abs( np.fft.rfft( z_orth ) )**2 / norm_fac
+        # else:
+        #     tot_vec_x += np.abs( np.fft.rfft( x_orth ) )**2 / norm_fac
+        #     tot_vec_y += np.abs( np.fft.rfft( y_orth ) )**2 / norm_fac
+        #     tot_vec_z += np.abs( np.fft.rfft( z_orth ) )**2 / norm_fac
+
+        if(len(calib_list) < 10 ):
+            nfft = 2**13
         else:
-            tot_vec_x += np.abs( np.fft.rfft( x_orth ) )**2 / norm_fac
-            tot_vec_y += np.abs( np.fft.rfft( y_orth ) )**2 / norm_fac
-            tot_vec_z += np.abs( np.fft.rfft( z_orth ) )**2 / norm_fac
+            nfft = 2**16
+
+        xpsd, freqs = matplotlib.mlab.psd(x_orth, Fs = fsamp, NFFT = nfft) 
+        ypsd, freqs = matplotlib.mlab.psd(y_orth, Fs = fsamp, NFFT = nfft) 
+        zpsd, freqs = matplotlib.mlab.psd(z_orth, Fs = fsamp, NFFT = nfft) 
+        if( len(tot_vec_x) == 0 ):
+            tot_vec_x = xpsd
+            tot_vec_y = ypsd
+            tot_vec_z = zpsd
+        else:
+            tot_vec_x += xpsd
+            tot_vec_y += ypsd
+            tot_vec_z += zpsd
         
         ntraces += 1.
 
@@ -525,15 +546,16 @@ def get_avg_noise( calib_list, fnums, orth_pars, make_plot=False, norm_by_sum=Fa
     J_y = tot_vec_y/ntraces
     J_z = tot_vec_z/ntraces
 
+    Jfreqs = freqs ##np.fft.rfftfreq( len(x_orth), 1/fsamp )
+
     if( make_plot ):
-        Jfreqs = np.fft.rfftfreq( len(x_orth), 1/fsamp )
         fig = plt.figure()
         plt.loglog( Jfreqs, J )
         plt.loglog( Jfreqs, J_y )
         plt.loglog( Jfreqs, J_z )
         plt.show()
 
-    return J, J_y, J_z
+    return J, J_y, J_z, Jfreqs
         
 def iterstat( data, nsig=2. ):
 
