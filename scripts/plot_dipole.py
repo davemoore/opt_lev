@@ -123,9 +123,9 @@ dvals = np.array(dlist)*5/0.125
 slope_list = np.array(slope_list)
 plt.figure()
 
-px2,_ = sp.curve_fit(qfun, dvals, slope_list[:,0], p0=-1e4, sigma=(slope_list[:,0]*0.1))
-px3,_ = sp.curve_fit(cfun, dvals, slope_list[:,0], p0=-1e6, sigma=(slope_list[:,0]*0.1))
-px4,_ = sp.curve_fit(qcfun, dvals, slope_list[:,0], p0=[px2,px3], sigma=(slope_list[:,0]*0.1))
+px2,_ = sp.curve_fit(qfun, dvals, slope_list[:,0], p0=-1e4)
+px3,_ = sp.curve_fit(cfun, dvals, slope_list[:,0], p0=-1e6)
+px4,_ = sp.curve_fit(qcfun, dvals, slope_list[:,0], p0=[px2,px3])
 
 xx = np.linspace(14, 200, 1e3)
 plt.plot(dvals, slope_list[:,0], 'ko')
