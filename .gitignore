@@ -3,3 +3,6 @@
 *~
 processed.pkl
 !/.gitignore
+
+*.script
+*.script.*
