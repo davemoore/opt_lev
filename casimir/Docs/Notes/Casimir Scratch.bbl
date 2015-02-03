@@ -1,0 +1,48 @@
+\begin{thebibliography}{5}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[{Bimonte} et~al.(2012){Bimonte}, {Emig}, {Jaffe}, and
+  {Kardar}]{BeyondPFA}
+G.~{Bimonte}, T.~{Emig}, R.~L. {Jaffe}, and M.~{Kardar}.
+\newblock {Casimir forces beyond the proximity approximation}.
+\newblock \emph{EPL (Europhysics Letters)}, 97:\penalty0 50001, March 2012.
+\newblock \doi{10.1209/0295-5075/97/50001}.
+
+\bibitem[Bulgac et~al.(2006)Bulgac, Magierski, and Wirzba]{Bulgac}
+Aurel Bulgac, Piotr Magierski, and Andreas Wirzba.
+\newblock Scalar casimir effect between dirichlet spheres or a plate and a
+  sphere.
+\newblock \emph{Phys. Rev. D}, 73:\penalty0 025007, Jan 2006.
+\newblock \doi{10.1103/PhysRevD.73.025007}.
+\newblock URL \url{http://link.aps.org/doi/10.1103/PhysRevD.73.025007}.
+
+\bibitem[Canaguier-Durand et~al.(2012)Canaguier-Durand, Guerot, Maia~Neto,
+  Lambrecht, and Reynaud]{Durand}
+Antoine Canaguier-Durand, Romain Guerot, Paulo~A. Maia~Neto, Astrid Lambrecht,
+  and Serge Reynaud.
+\newblock The casimir effect in the sphere-plane geometry.
+\newblock \emph{International Journal of Modern Physics: Conference Series},
+  14:\penalty0 250--259, 2012.
+\newblock \doi{10.1142/S2010194512007374}.
+\newblock URL
+  \url{http://www.worldscientific.com/doi/abs/10.1142/S2010194512007374}.
+
+\bibitem[Fosco et~al.(2011)Fosco, Lombardo, and Mazzitelli]{Dexp}
+C\'esar~D. Fosco, Fernando~C. Lombardo, and Francisco~D. Mazzitelli.
+\newblock Proximity force approximation for the casimir energy as a derivative
+  expansion.
+\newblock \emph{Phys. Rev. D}, 84:\penalty0 105031, Nov 2011.
+\newblock \doi{10.1103/PhysRevD.84.105031}.
+\newblock URL \url{http://link.aps.org/doi/10.1103/PhysRevD.84.105031}.
+
+\bibitem[{Lambrecht} and {Reynaud}(2000)]{Lambrecht}
+A.~{Lambrecht} and S.~{Reynaud}.
+\newblock {Casimir force between metallic mirrors}.
+\newblock \emph{European Physical Journal D}, 8:\penalty0 309--318, July 2000.
+\newblock \doi{10.1007/s100530050041}.
+
+\end{thebibliography}
