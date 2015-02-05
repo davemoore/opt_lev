@@ -3,7 +3,7 @@
 minlLog=-1
 maxlLog=1
 dlLog=0.1
-command="scuff-cas3D-wtrans.sh"
+command="./scuff-cas3D-wtrans.sh"
 
 if [ $# -gt 0 ]
 then
@@ -19,6 +19,5 @@ do
     L=$(awk 'BEGIN { print 10.0^'$LLog' }')
     scriptname="run-cas3D-L"$L$".script"
     echo "Submitting $command L="$L
-    echo "$command "$L" "$gamma > $scriptname
-    qsub -cwd $scriptname &
+    bsub -q long $command $L
 done

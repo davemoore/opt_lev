@@ -1,6 +1,6 @@
 #!/bin/bash
 
-filedir="/afs/.ir/users/k/u/kurinsky/Research/Scuff/"
+filedir="../../"
 geofile="Bead.scuffgeo"
 meshfiles="Sphere.msh Surface.msh"
 
