@@ -5,10 +5,11 @@ import os
 import scipy.signal as sp
 
 
-refname = r"2mbar_axcool_2500mV_no_synth.h5"
-#fname0 =  r"2mbar_xyzcool_50mV_41Hz.h5"
-fname0 = r""
-path = r"D:\Data\20141017\Bead1\cooling_test"
+refname = r"nobead_vcos_1000mV_100Hz.h5"
+#fname0 =  r"nobead_original_grounds_1000mV_100Hz.h5"
+fname0=""
+#fname0 = r"2mbar_zcool_5000mV_35Hz_10.h5"
+path = r"D:\Data\20150303\tests"
 d2plt = 1
 if fname0 == "":
 	filelist = os.listdir(path)
@@ -27,7 +28,7 @@ if fname0 == "":
 		 
 
 Fs = 5e3  ## this is ignored with HDF5 files
-NFFT = 2**11
+NFFT = 2**12
 def getdata(fname):
 	print "Opening file: ", fname
 	## guess at file type from extension
@@ -45,9 +46,9 @@ def getdata(fname):
 	else:
 		dat = numpy.loadtxt(fname, skiprows = 5, usecols = [2, 3, 4, 5] )
 
-	xpsd, freqs = matplotlib.mlab.psd(dat[:, 0], Fs = Fs, NFFT = NFFT) 
-	ypsd, freqs = matplotlib.mlab.psd(dat[:, 1], Fs = Fs, NFFT = NFFT)
-        zpsd, freqs = matplotlib.mlab.psd(dat[:, 2], Fs = Fs, NFFT = NFFT)
+	xpsd, freqs = matplotlib.mlab.psd(dat[:, 0]-numpy.mean(dat[:, 0]), Fs = Fs, NFFT = NFFT) 
+	ypsd, freqs = matplotlib.mlab.psd(dat[:, 1]-numpy.mean(dat[:, 1]), Fs = Fs, NFFT = NFFT)
+        zpsd, freqs = matplotlib.mlab.psd(dat[:, 2]-numpy.mean(dat[:, 2]), Fs = Fs, NFFT = NFFT)
 	norm = numpy.median(dat[:, 2])
         #for h in [xpsd, ypsd, zpsd]:
         #        h /= numpy.median(dat[:,2])**2
@@ -74,7 +75,7 @@ if d2plt:
         #plt.plot(rotated[1])
         plt.plot(rotated[0], label = 'x')
         plt.plot(rotated[1], label = 'y')
-        plt.plot(data0[3][:, 2], label = 'z')
+        plt.plot(data0[3][:, -1], label = 'z')
         #plt.plot(data0[3][:, -1])
         #plt.plot(data0[3][:, 3], label = 'fucking laser')
         plt.legend()

@@ -52,13 +52,13 @@ def getdata(fname):
 
             ## correct the drive amplitude for the voltage divider. 
             ## this assumes the drive is the last column in the dset
-            vd = attribs['volt_div'] if 'volt_div' in attribs else 1.0
+            vd = 1. #vd = attribs['volt_div'] if 'volt_div' in attribs else 1.0
             curr_gain = gain_fac(vd)
             dat[:,-1] *= curr_gain
 
             ## now double check that the rescaled drive amp seems reasonable
             ## and warn the user if not
-            offset_frac = np.abs(np.sqrt(2)*np.std( dat[:,-1] )/(200.0 * attribs['drive_amplitude'] )-1.0)
+            offset_frac = 0.#offset_frac = np.abs(np.sqrt(2)*np.std( dat[:,-1] )/(200.0 * attribs['drive_amplitude'] )-1.0)
             if( curr_gain != 1.0 and offset_frac > 0.1):
                 print "Warning, voltage_div setting doesn't appear to match the expected gain for ", fname
 
@@ -204,8 +204,8 @@ def corr_func(drive, response, fsamp, fdrive, good_pts = [], filt = False, band_
     #gives the correlation over a cycle of drive between drive and response.
 
     #First subtract of mean of signals to avoid correlating dc
-    drive = drive-np.mean(drive)
-    response  = response - np.mean(response)
+    drive = drive-np.median(drive)
+    response  = response - np.median(response)
 
     #bandpass filter around drive frequency if desired.
     if filt:

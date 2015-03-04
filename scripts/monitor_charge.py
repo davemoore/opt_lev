@@ -10,10 +10,10 @@ import scipy.signal as sp
 import scipy.optimize as opt
 import cPickle as pickle
 
-path = r"D:\Data\20140813\Bead10\chargehp"
+path = r"D:\Data\20150209\Bead1\chargehp"
 ts = 10.
 
-fdrive = 2500.
+fdrive = 35.
 make_plot = True
 
 data_columns = [0, 1] ## column to calculate the correlation against
@@ -47,19 +47,16 @@ def getdata(fname, maxv):
 
         lentrace = len(xdat)
         ## zero pad one cycle
-        xdat = np.append(xdat, np.zeros( fsamp/fdrive ))
-        corr_full = np.correlate( xdat, dat[:,drive_column])/lentrace
-        curr_max = np.argmax(corr_full)
-        corr = corr_full[ maxv ]
-        corr_max = corr_full[ curr_max ]        
+        corr_full = bu.corr_func( dat[:,drive_column], xdat, fsamp, fdrive)
+        
 
-        return corr, corr_max
+        return corr_full[0], np.max(corr_full) 
 
 def get_most_recent_file(p):
 
     ## only consider single frequency files, not chirps
     filelist = glob.glob(os.path.join(p,"*Hz*.h5"))  ##os.listdir(p)
-    
+    #filelist = [filelist[0]]
     mtime = 0
     mrf = ""
     for fin in filelist:
@@ -68,9 +65,10 @@ def get_most_recent_file(p):
         f = os.path.join(path, fin) 
         if os.path.getmtime(f)>mtime:
             mrf = f
-            mtime = os.path.getmtime(f)     
-
-    return mrf
+            mtime = os.path.getmtime(f)
+    
+    fnum = re.findall('\d+.h5', mrf)[0][:-3]
+    return mrf#.replace(fnum, str(int(fnum)-1))
 
 
 best_phase = None
@@ -87,7 +85,8 @@ while( True ):
     cfile = get_most_recent_file( path )
     
     ## wait a sufficient amount of time to ensure the file is closed
-    time.sleep(5)
+    print cfile
+    time.sleep(1)
 
     if( cfile == last_file ): 
         continue
