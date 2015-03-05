@@ -55,7 +55,7 @@ For information on moving this example to another FPGA target, refer to ni.com/i
 		<Property Name="server.vi.callsEnabled" Type="Bool">true</Property>
 		<Property Name="server.vi.propertiesEnabled" Type="Bool">true</Property>
 		<Property Name="specify.custom.address" Type="Bool">false</Property>
-		<Item Name="MultiChannelFeedbackCooling(Host).vi" Type="VI" URL="../MultiChannelFeedbackCooling(Host).vi"/>
+		<Item Name="MultiChannelFeedbackCooling_aod_feedback(Host).vi" Type="VI" URL="../MultiChannelFeedbackCooling_aod_feedback(Host).vi"/>
 		<Item Name="FPGA Target 2" Type="FPGA Target">
 			<Property Name="AutoRun" Type="Bool">false</Property>
 			<Property Name="configString.guid" Type="Str">{2BF25492-8F4C-44D1-90A1-848A23D223AA}Arbitration=AlwaysArbitrate;resource=/Connector0/AI2;0;ReadMethodType=I16{2DD24952-38DE-434E-971A-37F07AAA589C}Arbitration=AlwaysArbitrate;resource=/Connector0/AI5;0;ReadMethodType=I16{2F798544-5F1B-40C3-BA3E-77D97EA7CFBA}Arbitration=AlwaysArbitrate;resource=/Connector0/AI0;0;ReadMethodType=I16{50ECCBA0-FD0C-4A89-92A5-6564A5AE3480}Arbitration=AlwaysArbitrate;resource=/Connector0/AO5;0;WriteMethodType=I16{64ED8ECE-32CA-4C9E-BDED-0338ACCD5689}Arbitration=AlwaysArbitrate;resource=/Connector0/AO1;0;WriteMethodType=I16{6CDBABFA-FD16-4D0F-A505-9BB37202E2F0}Arbitration=AlwaysArbitrate;resource=/Connector0/AI3;0;ReadMethodType=I16{72D18DB7-C5E7-4D91-8D81-C78E7AC13B37}Actual Number of Elements=16384;ReadArbs=1;WriteArbs=1;Implementation=2;DataType=100080000000000100094002000349313600010000000000000000;InitDataHash=DEC1BF27675EB98B06230C83EF2CD42C;DRAM Selection=;DRAM Max Outstanding Requests=32;DRAM Include Byte Enables=FALSE;DRAM Grant Time=50;Interface Configuration=Read A-Write B;Multiple Clock Domains=FALSE{757C2DE6-F834-4D06-BC0B-5366788A5350}Arbitration=AlwaysArbitrate;resource=/Connector0/AI1;0;ReadMethodType=I16{78BAFF8E-60D1-4892-9D9A-C8077839F3CA}Arbitration=AlwaysArbitrate;resource=/Connector0/AO2;0;WriteMethodType=I16{8A522409-9A88-4599-A1F0-16E7A20D343E}Arbitration=AlwaysArbitrate;resource=/Connector0/AO4;0;WriteMethodType=I16{AEE1C408-6AAB-4CE3-8D0B-33DAA5CB703A}ResourceName=40 MHz Onboard Clock;TopSignalConnect=Clk40;ClockSignalName=Clk40;MinFreq=40000000.000000;MaxFreq=40000000.000000;VariableFreq=0;NomFreq=40000000.000000;PeakPeriodJitter=250.000000;MinDutyCycle=50.000000;MaxDutyCycle=50.000000;Accuracy=100.000000;RunTime=0;SpreadSpectrum=0;GenericDataHash=D41D8CD98F00B204E9800998ECF8427E{B2278CB4-5A3F-4C9F-9144-90EC1DA79CEA}Arbitration=AlwaysArbitrate;resource=/Connector0/AO3;0;WriteMethodType=I16{C2CC77DD-1D0C-4F4C-A647-B52B0FBE1030}Arbitration=AlwaysArbitrate;resource=/Connector0/AO0;0;WriteMethodType=I16{D475A398-3F80-45D0-B0D4-AEE43AE13CCB}Actual Number of Elements=16384;ReadArbs=1;WriteArbs=1;Implementation=2;DataType=100080000000000100094002000349313600010000000000000000;InitDataHash=DEC1BF27675EB98B06230C83EF2CD42C;DRAM Selection=;DRAM Max Outstanding Requests=32;DRAM Include Byte Enables=FALSE;DRAM Grant Time=50;Interface Configuration=Read A-Write B;Multiple Clock Domains=FALSE{D5C52813-336B-40CC-8C64-7DDA8002CB9C}Arbitration=AlwaysArbitrate;resource=/Connector0/AI4;0;ReadMethodType=I16PCIe-7841R/Clk40/falsefalseFPGA_EXECUTION_MODEFPGA_TARGETFPGA_TARGET_CLASSPCIE_7841RFPGA_TARGET_FAMILYVIRTEX5TARGET_TYPEFPGA/[rSeriesConfig.Begin][rSeriesConfig.End]</Property>
@@ -307,6 +307,7 @@ For information on moving this example to another FPGA target, refer to ni.com/i
 				<Item Name="vi.lib" Type="Folder">
 					<Item Name="niLvFPGAUserSpecifiedEmulationVISupport.lvclass" Type="LVClass" URL="/&lt;vilib&gt;/rvi/customViForEmulation/niLvFPGAUserSpecifiedEmulationVISupport.lvclass"/>
 					<Item Name="Clear Errors.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Clear Errors.vi"/>
+					<Item Name="lvSimController.dll" Type="Document" URL="/&lt;vilib&gt;/rvi/Simulation/lvSimController.dll"/>
 				</Item>
 				<Item Name="niFpgaExecutionStage.ctl" Type="VI" URL="/&lt;vilib&gt;/rvi/eio/common/niFpgaExecutionStage.ctl"/>
 				<Item Name="nirviEmuClasses.ctl" Type="VI" URL="/&lt;vilib&gt;/rvi/eio/common/nirviEmuClasses.ctl"/>
@@ -341,34 +342,6 @@ For information on moving this example to another FPGA target, refer to ni.com/i
 				<Item Name="nirvififoEmulationCreateLock.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/FIFO/Fifo_Resource/nirvififoEmulationCreateLock.vi"/>
 				<Item Name="nirviWaitOnOccurrenceBase.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/occurrence/nirviWaitOnOccurrenceBase.vi"/>
 				<Item Name="niFpgaEmulationVisToLoad.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/Emulation/niFpgaEmulationVisToLoad.vi"/>
-				<Item Name="niFpgaMemoryEmulationWriteToVariant.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/Memory/Memory_Emulation/niFpgaMemoryEmulationWriteToVariant.vi"/>
-				<Item Name="nirvimemoryEmulationManagerCache_Operations.ctl" Type="VI" URL="/&lt;vilib&gt;/rvi/Memory/Memory_Emulation/nirvimemoryEmulationManagerCache_Operations.ctl"/>
-				<Item Name="nirvimemoryEmulationManagerCache.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/Memory/Memory_Emulation/nirvimemoryEmulationManagerCache.vi"/>
-				<Item Name="nirvimemoryEmulationManagerCache_SetValue.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/Memory/Memory_Emulation/nirvimemoryEmulationManagerCache_SetValue.vi"/>
-				<Item Name="niFpgaSctlEmulationFifoFullMgr.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/Emulation/niFpgaSctlEmulationFifoFullMgr.vi"/>
-				<Item Name="niFpgaSctlEmulationSharedResTypes.ctl" Type="VI" URL="/&lt;vilib&gt;/rvi/Emulation/niFpgaSctlEmulationSharedResTypes.ctl"/>
-				<Item Name="niFpgaSctlEmulationSharedResource.ctl" Type="VI" URL="/&lt;vilib&gt;/rvi/Emulation/niFpgaSctlEmulationSharedResource.ctl"/>
-				<Item Name="niFpgaSctlEmulationSharedResMgrCmd.ctl" Type="VI" URL="/&lt;vilib&gt;/rvi/Emulation/niFpgaSctlEmulationSharedResMgrCmd.ctl"/>
-				<Item Name="niFpgaSctlEmulationResourceMgr.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/Emulation/niFpgaSctlEmulationResourceMgr.vi"/>
-				<Item Name="nirvimemoryFastEmulationFpgaImpl.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/Memory/Memory_Emulation/nirvimemoryFastEmulationFpgaImpl.vi"/>
-				<Item Name="nirvimemoryEmulationManagerCache_GetValue.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/Memory/Memory_Emulation/nirvimemoryEmulationManagerCache_GetValue.vi"/>
-				<Item Name="nirvimemoryEmulationManagerCache_InsertValue.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/Memory/Memory_Emulation/nirvimemoryEmulationManagerCache_InsertValue.vi"/>
-				<Item Name="nirvimemoryEmulationManagerCacheLock_Operations.ctl" Type="VI" URL="/&lt;vilib&gt;/rvi/Memory/Memory_Emulation/nirvimemoryEmulationManagerCacheLock_Operations.ctl"/>
-				<Item Name="nirvimemoryEmulationManagerCacheLock.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/Memory/Memory_Emulation/nirvimemoryEmulationManagerCacheLock.vi"/>
-				<Item Name="nirvimemoryEmulationManagerCache_ReleaseExclusive.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/Memory/Memory_Emulation/nirvimemoryEmulationManagerCache_ReleaseExclusive.vi"/>
-				<Item Name="nirvimemoryEmulationManagerCache_Clear.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/Memory/Memory_Emulation/nirvimemoryEmulationManagerCache_Clear.vi"/>
-				<Item Name="niFpgaMemoryEmulationValidateCache.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/Memory/Memory_Emulation/niFpgaMemoryEmulationValidateCache.vi"/>
-				<Item Name="nirvimemoryEmulationManagerCache_MakeExclusive.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/Memory/Memory_Emulation/nirvimemoryEmulationManagerCache_MakeExclusive.vi"/>
-				<Item Name="niFpgaMemoryEmulationCacheClearOnFirstRun.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/Memory/Memory_Emulation/niFpgaMemoryEmulationCacheClearOnFirstRun.vi"/>
-				<Item Name="niFpgaContainerEmuAddTargetNameIfNeeded.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/DataTransferAndStorage/Container/Common/niFpgaContainerEmuAddTargetNameIfNeeded.vi"/>
-				<Item Name="niFpgaContainerGetUniqueNameForEmu.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/DataTransferAndStorage/Container/Common/niFpgaContainerGetUniqueNameForEmu.vi"/>
-				<Item Name="nirvimemoryFastEmulationFpgaImpl_5FBAB50466BC4C939F684F8805638BFC_000.vi" Type="VI" URL="/&lt;instcachedir&gt;/0/nirvimemoryFastEmulationFpgaImpl_5FBAB50466BC4C939F684F8805638BFC.lvgen/nirvimemoryFastEmulationFpgaImpl_5FBAB50466BC4C939F684F8805638BFC_000.vi"/>
-				<Item Name="nirvimemoryFastEmulation.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/Memory/Memory_Emulation/nirvimemoryFastEmulation.vi"/>
-				<Item Name="nirvimemoryEmulation.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/Memory/Memory_Emulation/nirvimemoryEmulation.vi"/>
-				<Item Name="nirviEmuTemplateMethod_errors.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/eio/common/nirviEmuTemplateMethod_errors.vi"/>
-				<Item Name="nirviLSCWaitTime.vi" Type="VI" URL="/&lt;vilib&gt;/express/rvi/timingcommon/nirviLSCWaitTime.vi"/>
-				<Item Name="nirviCommon.vi" Type="VI" URL="/&lt;vilib&gt;/express/rvi/timingcommon/nirviCommon.vi"/>
-				<Item Name="nirvimemoryFastEmulationFpgaImpl_5FBAB50466BC4C939F684F8805638BFC_003.vi" Type="VI" URL="/&lt;instcachedir&gt;/0/nirvimemoryFastEmulationFpgaImpl_5FBAB50466BC4C939F684F8805638BFC.lvgen/nirvimemoryFastEmulationFpgaImpl_5FBAB50466BC4C939F684F8805638BFC_003.vi"/>
 			</Item>
 			<Item Name="Build Specifications" Type="Build">
 				<Item Name="MultiChannelfFeedbackCooling (FPGA)" Type="{F4C5E96F-7410-48A5-BB87-3559BC9B167F}">
@@ -690,7 +663,6 @@ For information on moving this example to another FPGA target, refer to ni.com/i
 			<Item Name="NiFpgaLv.dll" Type="Document" URL="NiFpgaLv.dll">
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
 			</Item>
-			<Item Name="MultiChannelFeed_FPGATarget2_MultiChannelfFee_lERQoxjCHp8.lvbitx" Type="Document" URL="../FPGA Bitfiles/MultiChannelFeed_FPGATarget2_MultiChannelfFee_lERQoxjCHp8.lvbitx"/>
 			<Item Name="nilvaiu.dll" Type="Document" URL="nilvaiu.dll">
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
 			</Item>
@@ -704,6 +676,7 @@ For information on moving this example to another FPGA target, refer to ni.com/i
 			<Item Name="threshold_stop(SubVI).vi" Type="VI" URL="../../threshold_stop(SubVI).vi"/>
 			<Item Name="synth_set(SubVI).vi" Type="VI" URL="../../synth_set(SubVI).vi"/>
 			<Item Name="Get Full Terminal Name.vi" Type="VI" URL="../../datatakersync_unfucked/C/Users/Beads/Downloads/Get Full Terminal Name.vi"/>
+			<Item Name="MultiChannelFeed_FPGATarget2_MultiChannelfFee_lERQoxjCHp8.lvbitx" Type="Document" URL="../FPGA Bitfiles/MultiChannelFeed_FPGATarget2_MultiChannelfFee_lERQoxjCHp8.lvbitx"/>
 			<Item Name="niFpgaExecutionStage.ctl" Type="VI" URL="/&lt;vilib&gt;/rvi/eio/common/niFpgaExecutionStage.ctl"/>
 			<Item Name="nirviEmuClasses.ctl" Type="VI" URL="/&lt;vilib&gt;/rvi/eio/common/nirviEmuClasses.ctl"/>
 			<Item Name="EIO_ResourceConfig.ctl" Type="VI" URL="/&lt;vilib&gt;/eio/EIO_ResourceConfig.ctl"/>
@@ -718,6 +691,16 @@ For information on moving this example to another FPGA target, refer to ni.com/i
 			<Item Name="nirviReportUnexpectedCaseInternalError.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/errors/nirviReportUnexpectedCaseInternalError.vi"/>
 			<Item Name="niLvFpgaErrorClusterFromErrorCode.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/errors/niLvFpgaErrorClusterFromErrorCode.vi"/>
 			<Item Name="niLvFPGAUserSpecifiedEmulationVISupport.ctl" Type="VI" URL="/&lt;vilib&gt;/rvi/customViForEmulation/niLvFPGAUserSpecifiedEmulationVISupport.ctl"/>
+			<Item Name="niFpgaWaitOnOcc.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/interface/common/niFpgaWaitOnOcc.vi"/>
+			<Item Name="niLvFpga_Close_PCIe-7841R.vi" Type="VI" URL="/&lt;vilib&gt;/FPGAPlugInAG/PCIe-7841R/niLvFpga_Close_PCIe-7841R.vi"/>
+			<Item Name="niLvFpgaWhatHappensToTopLevelVI.ctl" Type="VI" URL="/&lt;vilib&gt;/rvi/errors/niLvFpgaWhatHappensToTopLevelVI.ctl"/>
+			<Item Name="niFpgaNodeNameForErrorReporting.ctl" Type="VI" URL="/&lt;vilib&gt;/rvi/interface/common/niFpgaNodeNameForErrorReporting.ctl"/>
+			<Item Name="niLvFpgaAdjustHostInterfaceError.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/errors/niLvFpgaAdjustHostInterfaceError.vi"/>
+			<Item Name="niLvFpga_Run_PCIe-7841R.vi" Type="VI" URL="/&lt;vilib&gt;/FPGAPlugInAG/PCIe-7841R/niLvFpga_Run_PCIe-7841R.vi"/>
+			<Item Name="nirviErrorClusterFromErrorCode.vi" Type="VI" URL="/&lt;vilib&gt;/RVI Host/nirviSupport.llb/nirviErrorClusterFromErrorCode.vi"/>
+			<Item Name="nirviWhatTheDeviceIsDoing.ctl" Type="VI" URL="/&lt;vilib&gt;/rvi/ClientSDK/nirviWhatTheDeviceIsDoing.ctl"/>
+			<Item Name="nirio_resource_hc.ctl" Type="VI" URL="/&lt;vilib&gt;/userdefined/High Color/nirio_resource_hc.ctl"/>
+			<Item Name="niLvFpga_Open_PCIe-7841R.vi" Type="VI" URL="/&lt;vilib&gt;/FPGAPlugInAG/PCIe-7841R/niLvFpga_Open_PCIe-7841R.vi"/>
 		</Item>
 		<Item Name="Build Specifications" Type="Build"/>
 	</Item>
