@@ -3,8 +3,8 @@
         MATERIAL PEC
  ENDOBJECT 
 
- OBJECT Surface
- MESHFILE Surface.msh
+ OBJECT Cube
+ MESHFILE Cube.msh
         MATERIAL PEC
  ENDOBJECT 
 
