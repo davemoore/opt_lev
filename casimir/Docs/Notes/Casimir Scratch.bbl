@@ -1,4 +1,4 @@
-\begin{thebibliography}{5}
+\begin{thebibliography}{9}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -31,6 +31,11 @@ Antoine Canaguier-Durand, Romain Guerot, Paulo~A. Maia~Neto, Astrid Lambrecht,
 \newblock URL
   \url{http://www.worldscientific.com/doi/abs/10.1142/S2010194512007374}.
 
+\bibitem[Casimir(1948)]{Casimir}
+H.B.G. Casimir.
+\newblock {On the Attraction Between Two Perfectly Conducting Plates}.
+\newblock \emph{Indag.Math.}, 10:\penalty0 261--263, 1948.
+
 \bibitem[Fosco et~al.(2011)Fosco, Lombardo, and Mazzitelli]{Dexp}
 C\'esar~D. Fosco, Fernando~C. Lombardo, and Francisco~D. Mazzitelli.
 \newblock Proximity force approximation for the casimir energy as a derivative
@@ -44,5 +49,26 @@ A.~{Lambrecht} and S.~{Reynaud}.
 \newblock {Casimir force between metallic mirrors}.
 \newblock \emph{European Physical Journal D}, 8:\penalty0 309--318, July 2000.
 \newblock \doi{10.1007/s100530050041}.
+
+\bibitem[{Lambrecht} et~al.(2006){Lambrecht}, {Neto}, and
+  {Reynaud}]{ScatteringTheory}
+A.~{Lambrecht}, P.~A.~M. {Neto}, and S.~{Reynaud}.
+\newblock {The Casimir effect within scattering theory}.
+\newblock \emph{New Journal of Physics}, 8:\penalty0 243, October 2006.
+\newblock \doi{10.1088/1367-2630/8/10/243}.
+
+\bibitem[Lamoreaux(1997)]{Lamoreaux}
+S.~K. Lamoreaux.
+\newblock Demonstration of the casimir force in the 0.6 to 6$\mu$ m range.
+\newblock \emph{Phys. Rev. Lett.}, 78:\penalty0 5--8, Jan 1997.
+\newblock \doi{10.1103/PhysRevLett.78.5}.
+\newblock URL \url{http://link.aps.org/doi/10.1103/PhysRevLett.78.5}.
+
+\bibitem[Rahi et~al.(2009)Rahi, Emig, Graham, Jaffe, and Kardar]{Rahi}
+Sahand~Jamal Rahi, Thorsten Emig, Noah Graham, Robert~L. Jaffe, and Mehran
+  Kardar.
+\newblock Scattering theory approach to electrodynamic casimir forces.
+\newblock \emph{Physical Review D}, 80\penalty0 (8), 2009.
+\newblock \doi{10.1103/PhysRevD.80.085021}.
 
 \end{thebibliography}

@@ -8,14 +8,41 @@
 \usepackage[round]{natbib}
 \DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
 
-\title{Casimir Force in Microgravity Experiment}
+\newcommand{\E}{\mathcal{E}}
+ 
+\title{Internal Note: The Casimir Force in a Micron-Scale Optical Trap Geometry}
 \author{Noah Kurinsky}
 %\date{}                                  
 
 \begin{document}
 \maketitle
 
-\section{Expanded Proximity Force Approximation}
+\section{Background}
+
+The Casimir effect rises from``zero-point energy" fluctuations between conducting surfaces, which can be thought of as a result of positive feedback between stochastic deviations from the nominally non-polarized state. The nominal quantity computed in analysis of this effect is the casimir energy as a function of separation between metallic reflectors. In Casimir's classical result \citep{Casimir} the energy between two parallel perfectly conducting plates was calculated exactly to be \citep{ScatteringTheory}
+$$
+\E=-\frac{hc\pi^2A}{720L^3}
+$$
+which of course makes the Casimir pressure between the two plates
+$$
+P=\frac{1}{A}\frac{d\E}{dL}=\frac{hc\pi^2}{240L^4}
+$$
+and thus in vacuum, two perfectly conducting plates at $T=0K$ will attract each other with a pressure independent of plate area. This geometry has since been studied in various limits, including most notably finite conductivity and temperature \citep[][ and references therein]{ScatteringTheory} but also finite extent and non-planar geometries \citep[][ and references therein]{Rahi}.
+
+Despite the theoretical interest, the difficulty inherent in measuring the Casimir force prevented precise measurement until the landmark work of \citet{Lamoreaux}, who measured the force between a plate and a curved surface, to confirm the theory based on small approximations to the classical model. In this geometry, the Casimir force became an attraction with a magnitude of tens of micro dynes at separations of a few micrometers, for a plate and a small curved surface with radius of curvature of about 10cm. This work helped to solidify the theory behind finite-conductivity corrections, thermal corrections, and verify a long-used approximation called the Proximity Force Approximation (PFA, see next section) which has been used to calculate the casimir force in nearly parallel geometries.
+
+In geometries which deviate from the non-ideal case, the calculation of the Casimir force becomes highly non-trivial. The PFA, for example, assumes that in the nearly planar limit, the Casimir force can be computed as the superposition of forces from all sets of nearly parallel subsections of the curved surface directly opposite the planar surface. It is widely known that this approximation only holds in the the limit of large curvature compared to distance, and thus for a sphere with curvature radius equal to or less than the separation between surfaces, the only analytical expression for this force is no longer strictly valid.
+
+In the context of this experiment, this is the main barrier preventing us from producing a quick prediction for the Casimir force. Our geometry is neither spherically nor cylindrically symmetric, as the cantilever we use as a force probe has a rectangular cross-section with one dimension much longer than the other, and the sphere is much smaller than typical separations. In addition, our cantilever is silicon coated in gold, and our bead is made of silica, whereas the normal materials dealt with are conductors thick enough that only one material correction needs to be made. Finally, we operate the bead at non-zero temperature, which requires temperature corrections which are non-trivial in the non-parallel geometry. Despite the barrier to computation of the force, it should in principle be easy to measure if we can understand the systematic effects inherent to our geometry; this is the motivation behind this note. In addition, it will most likely represent the main background we must compensate for in the measurement of other sub micron forces, namely non-newtonian gravitational corrections and chameleon models of dark energy.
+
+In this note, I will outline the steps taken in attempting to predict the magnitude of the Casimir force we expect to measure in our experiment, beginning with the PFA, expansions to the PFA, and other simple analytical solutions. I will then cover the finite conductivity and temperature corrections, and then discuss the exact analytic and numerical solutions which exist to compensate for these non-idealities. I will present predictions, and discuss other approaches we have attempted and potential limitations of the calculations. The idea will be that it is left up to those more theoretically inclined to compute the exact theoretical prediction to our model, but that we should be able to come up with a prediction to within 10-20\% of the true Casimir force as a function of distance. I will conclude by discussing the reason for the limitations and assumptions.
+
+\section{Analytical Spherical Solutions}
+
+The geometry 
+
+\subsection{Proximity Force Approximation (PFA)}
+\subsection{Expanded Proximity Force Approximation}
 Most of this section taken from \citet{Dexp}
 
 Normal energy of Casimir Effect:
@@ -58,6 +85,7 @@ we can see that the derivative is undefined if we integrate to $R$, so as long a
 
 \citet{Bulgac} calculate the force between plane and sphere exactly, and compare to PFA. \citet{Durand} explore various temperature and geometry effects as a function of radius and separation. 
 
+\section{Finite Conductivity Corrections}
 \subsection{Dielectric Correction}
 \citet{BeyondPFA,Lambrecht}: dielectric effects, non-perfect conductivity. The following mostly from \citet{Lambrecht}
 

@@ -1,5 +1,5 @@
 radius = DefineNumber[ 2.5, Name "Parameters/radius" ];
-grid = DefineNumber[ 1.0, Name "Parameters/grid" ];
+grid = DefineNumber[ 0.3, Name "Parameters/grid" ];
 Point(1) = {0, 0, radius, grid};
 Point(2) = {radius, 0, radius, grid};
 Point(3) = {0, radius, radius, grid};

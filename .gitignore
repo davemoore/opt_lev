@@ -6,3 +6,5 @@ processed.pkl
 
 *.script
 *.script.*
+
+casimir/scuffCode/*.log

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2014.5.25)  22 JAN 2015 01:39
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2014.5.25)  27 FEB 2015 16:52
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -209,18 +209,18 @@ LaTeX Info: Redefining \cite on input line 694.
 (./Casimir Scratch.aux)
 \openout1 = `"Casimir Scratch.aux"'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 15.
-LaTeX Font Info:    ... okay on input line 15.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 15.
-LaTeX Font Info:    ... okay on input line 15.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 15.
-LaTeX Font Info:    ... okay on input line 15.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 15.
-LaTeX Font Info:    ... okay on input line 15.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 15.
-LaTeX Font Info:    ... okay on input line 15.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 15.
-LaTeX Font Info:    ... okay on input line 15.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -270,43 +270,59 @@ LaTeX Font Info:    ... okay on input line 15.
 \makeMPintoPDFobject=\count109
 \everyMPtoPDFconversion=\toks23
 )
-LaTeX Font Info:    Try loading font information for U+msa on input line 16.
+LaTeX Font Info:    Try loading font information for U+msa on input line 18.
  (/usr/local/texlive/2014/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 16.
+LaTeX Font Info:    Try loading font information for U+msb on input line 18.
 
 (/usr/local/texlive/2014/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) [1
 
-{/usr/local/texlive/2014/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+{/usr/local/texlive/2014/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] [2]
 <PFAExpansion.pdf, id=17, 509.905pt x 305.14pt>
 File: PFAExpansion.pdf Graphic file (type pdf)
  <use PFAExpansion.pdf>
-Package pdftex.def Info: PFAExpansion.pdf used on input line 55.
+Package pdftex.def Info: PFAExpansion.pdf used on input line 79.
 (pdftex.def)             Requested size: 361.34999pt x 216.25047pt.
- [2 <./PFAExpansion.pdf>] [3] (./Casimir Scratch.bbl
-Underfull \hbox (badness 2644) in paragraph at lines 35--41
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[3] [4 <./PFAExpansion.pdf>] [5] (./Casimir Scratch.bbl
+Underfull \hbox (badness 1648) in paragraph at lines 35--38
+[]\OT1/cmr/m/n/10.95 H.B.G. Casimir.  On the At-trac-tion Be-tween Two Per-fect
+ly Con-duct-ing Plates.
+ []
+
+
+Underfull \hbox (badness 2644) in paragraph at lines 40--46
 []\OT1/cmr/m/n/10.95 C^^Sesar D. Fosco, Fer-nando C. Lom-bardo, and Fran-cisco 
 D. Mazz-itelli.  Prox-
  []
 
 
-Underfull \hbox (badness 3449) in paragraph at lines 35--41
+Underfull \hbox (badness 3449) in paragraph at lines 40--46
 \OT1/cmr/m/n/10.95 im-ity force ap-prox-i-ma-tion for the casimir en-ergy as a 
 deriva-tive ex-pan-sion.
  []
 
-) [4] (./Casimir Scratch.aux) ) 
+
+Underfull \hbox (badness 2205) in paragraph at lines 61--66
+\OT1/cmr/m/it/10.95 Phys. Rev. Lett.\OT1/cmr/m/n/10.95 , 78:5--8, Jan 1997.  do
+i: 10.1103/Phys-RevLett.78.5.  URL
+ []
+
+) [6] (./Casimir Scratch.aux) ) 
 Here is how much of TeX's memory you used:
- 3228 strings out of 493117
- 43179 string characters out of 6135433
- 112892 words of memory out of 5000000
- 6643 multiletter control sequences out of 15000+600000
+ 3240 strings out of 493117
+ 43383 string characters out of 6135433
+ 114122 words of memory out of 5000000
+ 6655 multiletter control sequences out of 15000+600000
  12487 words of font info for 47 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 42i,9n,26p,470b,224s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 42i,9n,26p,1168b,224s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/local/texlive/2014/texmf-dist/fonts/type1/
 public/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/p
 ublic/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/pu
@@ -323,10 +339,10 @@ cmsy8.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cm
 ti10.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmt
 t10.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/symbols
 /msbm10.pfb>
-Output written on "Casimir Scratch.pdf" (4 pages, 204917 bytes).
+Output written on "Casimir Scratch.pdf" (6 pages, 216004 bytes).
 PDF statistics:
- 123 PDF objects out of 1000 (max. 8388607)
- 86 compressed objects within 1 object stream
+ 129 PDF objects out of 1000 (max. 8388607)
+ 90 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  6 words of extra memory for PDF output out of 10000 (max. 10000000)
 

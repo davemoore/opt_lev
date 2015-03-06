@@ -16,8 +16,8 @@
         MATERIAL SILICA
  ENDOBJECT 
 
- OBJECT Surface
- MESHFILE Surface.msh
+ OBJECT Cube
+ MESHFILE Cube.msh
         MATERIAL GOLD
  ENDOBJECT 
 
