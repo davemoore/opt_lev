@@ -8,3 +8,6 @@ processed.pkl
 *.script.*
 
 casimir/scuffCode/*.log
+casimir/scuffCode/PEC_calculation/BeadPEC*
+casimir/scuffCode/PEC_Temp/BeadPEC*
+casimir/scuffCode/CubeSphere/BeadCube*
