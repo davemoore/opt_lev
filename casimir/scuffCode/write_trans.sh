@@ -4,9 +4,9 @@
 file="Bead.trans"
 
 #translation range/step in microns
-minimum=0.5
+minimum=1
 maximum=20.0
-step=0.5
+step=5
 
 if [ -f $file ]
 then
