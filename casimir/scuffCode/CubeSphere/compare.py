@@ -26,6 +26,18 @@ d2=d2[inds]
 f2=f2[inds]
 g2=g2[inds]
 
+d3,e3,ee3,f3,ef3=numpy.loadtxt("../Comparison/full.txt",unpack=True)
+f3=-f3*31.6e-15
+inds=argsort(d3)
+d3=d3[inds]
+f3=f3[inds]
+
+d4,e4,ee4,f4,ef4=numpy.loadtxt("../Comparison/PEC.txt",unpack=True)
+f4=-f4*31.6e-15
+inds=argsort(d4)
+d4=d4[inds]
+f4=f4[inds]
+
 print(f1)
 print(f2)
 
@@ -41,6 +53,8 @@ plot(d1[inds],f1[inds],'--',label="PEC, grid="+str(gs),color="black")
 gs=numpy.min(g2)
 inds = numpy.where(g2 == gs)
 plot(d2[inds],f2[inds],'--',label="FEC, grid="+str(gs),color="green")
+plot(d4,f4,':',label="PEC, Large Cantilever",color="black")
+plot(d3,f3,':',label="FEC, Large Cantilever",color="green")
 plot(dist,fpfa,label="PFA",linestyle='-',color="black")
 plot(dist,fright,label="SiO2/Au",linestyle='-',color="green")
 plot(dist,ftemp,label="SiO2/Au T=300",linestyle='-',color="red")
