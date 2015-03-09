@@ -1,12 +1,12 @@
 radius = DefineNumber[ 2.5, Name "Parameters/radius" ];
 grid = DefineNumber[ 0.2, Name "Parameters/grid" ];
 Point(1) = {0, 0, radius, grid};
-Point(2) = {radius, 0, radius, grid};
-Point(3) = {0, radius, radius, grid};
-Point(4) = {0, 0, 2*radius, grid};
+Point(2) = {radius, 0, radius, 2*grid};
+Point(3) = {0, radius, radius, 2*grid};
+Point(4) = {0, 0, 2*radius, 10*grid};
 Point(5) = {0, 0, 0, grid};
-Point(6) = {0, -radius, radius, grid};
-Point(7) = {-radius, 0, radius, grid};
+Point(6) = {0, -radius, radius, 2*grid};
+Point(7) = {-radius, 0, radius, 2*grid};
 Circle(1) = {6, 1, 3};
 Circle(2) = {3, 1, 6};
 

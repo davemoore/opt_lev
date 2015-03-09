@@ -21,8 +21,8 @@ Mesh.CharacteristicLengthFactor=1.3;
 // to make the meshing more coarse or more fine in
 // particular regions of the object 
 //////////////////////////////////////////////////
-grid = DefineNumber[ 0.1, Name "Parameters/grid" ];
-lCoarse =  grid*3;
+grid = DefineNumber[ 0.2, Name "Parameters/grid" ];
+lCoarse =  grid*30;
 lFine   =  grid;
 
 //////////////////////////////////////////////////
@@ -44,3 +44,4 @@ Plane Surface(2)={1};
 out[]=Extrude{0,L/2,0} {Surface{2};};
 
 Physical Surface(1)={2, 50, 54, 58, 62, 63};
+
