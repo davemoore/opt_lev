@@ -4,8 +4,8 @@ minlLog=-1
 maxlLog=1
 dlLog=0.25
 
-minG=0.2
-maxG=1
+minG=0.3
+maxG=0.3
 dG=0.2
 
 commands="./scuff-cas3d-PECtrans.sh ./scuff-cas3d-trans.sh"

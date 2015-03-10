@@ -1,9 +1,9 @@
- OBJECT Sphere
- MESHFILE Sphere.msh
+ OBJECT SphereSG
+ MESHFILE SphereSG.msh
         MATERIAL PEC
  ENDOBJECT 
 
- OBJECT Cube
+ OBJECT CubeSG
  MESHFILE CubeSG.msh
         MATERIAL PEC
  ENDOBJECT 

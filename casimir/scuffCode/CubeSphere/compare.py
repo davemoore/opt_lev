@@ -46,10 +46,13 @@ PFA_datafile="../../Mathematica/calculated_pfa_vals.tsv"
 dist,fpfa,fnaive,fright,ftemp=numpy.loadtxt(PFA_datafile,unpack=True)
 dist=dist*1e6
 
+figure(figsize=(12,8))
 gs=numpy.min(g1)
 #for i in range(0,len(gs)):
 inds = numpy.where(g1 == gs)
 plot(d1[inds],f1[inds],'--',label="PEC, grid="+str(gs),color="black")
+inds = numpy.where(g1 == 0.4)
+plot(d1[inds],f1[inds],'-.',label="PEC, grid="+str(0.4),color="black")
 gs=numpy.min(g2)
 inds = numpy.where(g2 == gs)
 plot(d2[inds],f2[inds],'--',label="FEC, grid="+str(gs),color="green")
@@ -63,7 +66,7 @@ yscale('log')
 xlabel('Distance (microns)')
 ylabel('Force (N)')
 title('Analytical (Dashed) v Numerical (Solid) Calculations')
-legend()
+legend(loc="lower left",ncol=2)
 savefig('analytic_v_numerical')
 #show()
 
@@ -99,10 +102,29 @@ for i in range(0,len(ds)):
     plot(g1[inds],f1[inds]/f1[inds[0][0]],'--',label=str(ds[i]),alpha=.9)
 plot([0.1,1.2],[1,1],linestyle=':',color='black')
 ylim(0.2,1.1)
-xlim(0.4,1)
+xlim(0.3,1)
 xscale('log')
 xlabel('Grid Scale Length')
 ylabel('Force/Force(smallest gridding)')
 title("Convergence in Grid Spacing")
 legend(loc='lower left',title="Separation")
 savefig("pfa_convergence.png")
+
+clf()
+inds=argsort(g1)
+d1=d1[inds]
+f1=f1[inds]
+g1=g1[inds]
+ds=numpy.unique(d1)
+for i in range(0,len(ds)):
+    inds=numpy.where(d1 == ds[i])
+    plot(g1[inds],f1[inds]/f1[inds[0][0]],'--',label=str(ds[i]),alpha=.9)
+plot([0.1,1.2],[1,1],linestyle=':',color='black')
+ylim(0.8,1.1)
+xlim(0.3,1)
+xscale('log')
+xlabel('Grid Scale Length')
+ylabel('Force/Force(smallest gridding)')
+title("Convergence in Grid Spacing")
+legend(loc='lower left',title="Separation")
+savefig("pfa_convergence_zoom.png")

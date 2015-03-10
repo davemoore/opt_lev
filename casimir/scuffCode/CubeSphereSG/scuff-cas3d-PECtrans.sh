@@ -27,7 +27,7 @@ then
         rm -rv $file
     fi
 
-    echo "TRANS" $1 OBJECT Sphere DISP 0.0 0.0 $L >> $file
+    echo "TRANS" $1 OBJECT SphereSG DISP 0.0 0.0 $L >> $file
     cp $filedir/$geofile ./
     for mshfile in $meshfiles
     do
@@ -41,7 +41,11 @@ then
     rm -v *.msh
     rm -v *.geo
 
-    tail -n 1 *.out >> ../PECresults.txt
+    tail -n 1 *.out
+    if [ $? -eq0 ]
+    then
+        tail -n 1 *.out >> ../results.txt
+    fi
 
 else
     echo "Not enough arguments"
