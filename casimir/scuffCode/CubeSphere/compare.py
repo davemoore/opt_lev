@@ -71,8 +71,8 @@ savefig('analytic_v_numerical')
 #show()
 
 #data points computed (through similar method) for correction due to aspect ratio L/R from PFA (Canaguier-Durand 2012)
-cdx=[0,0.05,.07,0.1,0.15,0.2]
-cdy=[1.0,.94,.92,.89,.85,.8]
+cdx=[0,0.1,.2,0.4,0.6,0.8,1]
+cdy=[1.0,.98,.95,.86,.78,.72,.68]
 
 clf()
 iPFA = interp1d(dist,fpfa)
