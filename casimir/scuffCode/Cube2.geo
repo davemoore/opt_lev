@@ -35,15 +35,10 @@ Point(2) = {-L/2, -H/2, -D, lCoarse};
 Point(3) = {-L/2, -H/2,  0, lFine};
 Point(4) = { L/2, -H/2,  0, lFine};
 
-Line(12) = {1,2};
-Line(23) = {2,3};
-Line(34) = {3,4};
-Line(41) = {4,1};
+Point(5) = { 0, -H/2, 0, grid};
+Point(6) = { 0, H/2, 0, grid};
 
-Line Loop(1)={12, 23, 34, 41};
-Plane Surface(2)={1};
-
-out[]=Extrude{0,L/2,0} {Surface{2};};
-
-Physical Surface(1)={2, 50, 54, 58, 62, 63};
-
+Point(7) = { L/2, -H/2, -D, lCoarse};
+Point(8) = {-L/2, -H/2, -D, lCoarse};
+Point(9) = {-L/2, -H/2,  0, lFine};
+Point(10) = { L/2, -H/2,  0, lFine};

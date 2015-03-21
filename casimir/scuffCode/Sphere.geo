@@ -1,9 +1,9 @@
 radius = DefineNumber[ 2.5, Name "Parameters/radius" ];
-grid = DefineNumber[ 0.3, Name "Parameters/grid" ];
+grid = DefineNumber[ 0.2, Name "Parameters/grid" ];
 Point(1) = {0, 0, radius, grid};
 Point(2) = {radius, 0, radius, grid};
 Point(3) = {0, radius, radius, grid};
-Point(4) = {0, 0, 2*radius, grid};
+Point(4) = {0, 0, 2*radius, grid*4};
 Point(5) = {0, 0, 0, grid};
 Point(6) = {0, -radius, radius, grid};
 Point(7) = {-radius, 0, radius, grid};
