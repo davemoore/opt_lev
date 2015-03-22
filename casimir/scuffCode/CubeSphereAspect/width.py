@@ -31,17 +31,18 @@ a2=a2[inds]
 g2=g2[inds]
 
 figure(figsize=(12,8))
-gs=numpy.where(g1 == 0.3)
+#gs=numpy.unique(g1)
 
-for j in range(0,len(gs)):
-    inds = numpy.where(g1 == gs[j])
-    xd1=d1[inds]
-    yf1=f1[inds]
-    asp=a1[inds]
-    asps=numpy.unique(asp)
-    for i in range(0,len(asps)):
-        gpts=numpy.where(asps[i] == asp)
-        plot(xd1[gpts],yf1[gpts],'-o',label="PEC, grid="+str(gs[j])+" asp="+str(asps[i]))
+#for j in range(0,len(gs)):
+gs=0.3
+inds = numpy.where(g1 == gs)
+xd1=d1[inds]
+yf1=f1[inds]
+asp=a1[inds]
+asps=numpy.unique(asp)
+for i in range(0,len(asps)):
+    gpts=numpy.where(asps[i] == asp)
+    plot(xd1[gpts],yf1[gpts],'-o',label="PEC, grid="+str(gs)+" asp="+str(asps[i]))
 
 #gs=numpy.min(g2)
 #inds = numpy.where(g2 == gs)
@@ -57,20 +58,19 @@ savefig('analytic_v_numerical')
 #show()
 
 clf()
-gs=numpy.where(g1 == 0.3)
-
-for j in range(0,len(gs)):
-    inds = numpy.where(g1 == gs[j])
-    xd1=d1[inds]
-    yf1=f1[inds]
-    asp=a1[inds]
-    lens=numpy.unique(xd1)
-    for i in range(0,len(lens)):
-        gpts=numpy.where(lens[i] == xd1)
-        x=asp[gpts]
-        y=yf1[gpts]/numpy.min(yf1[gpts])
-        sinds=numpy.argsort(x)
-        plot(x[sinds],y[sinds],'-o',label="g="+str(gs[j])+" l="+str(lens[i]))
+gs=0.3
+#for j in range(0,len(gs)):
+inds = numpy.where(g1 == gs)
+xd1=d1[inds]
+yf1=f1[inds]
+asp=a1[inds]
+lens=numpy.unique(xd1)
+for i in range(0,len(lens)):
+    gpts=numpy.where(lens[i] == xd1)
+    x=asp[gpts]
+    y=yf1[gpts]/numpy.min(yf1[gpts])
+    sinds=numpy.argsort(x)
+    plot(x[sinds],y[sinds],'-o',label="g="+str(gs)+" l="+str(lens[i]))
 
 xlabel('Aspect Ratio (W/H)')
 ylabel('Force(Aspect)/Force(Aspect=2)')
