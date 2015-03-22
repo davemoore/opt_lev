@@ -14,18 +14,6 @@ d1=d1[inds]
 f1=f1[inds]
 g1=g1[inds]
 
-d1t,g1t,e1t,ee1t,f1t,ef1t,st=numpy.loadtxt("PEC_combined_results_temp.txt",unpack=True,skiprows=1)
-f1t=-f1t*31.6e-15
-inds=argsort(d1t)
-d1t=d1t[inds]
-f1t=f1t[inds]
-g1t=g1t[inds]
-st=st[inds]
-inds=numpy.where(st == 0)
-d1t=d1t[inds]
-f1t=f1t[inds]
-g1t=g1t[inds]
-
 d2,g2,e2,ee2,f2,ef2,s2=numpy.loadtxt("combined_results.txt",unpack=True,skiprows=1)
 f2=-f2*31.6e-15
 inds=argsort(d2)
@@ -65,13 +53,6 @@ inds = numpy.where(g1 == gs)
 plot(d1[inds],f1[inds],'--',label="PEC, grid="+str(gs),color="black")
 inds = numpy.where(g1 == 0.4)
 plot(d1[inds],f1[inds],'-.',label="PEC, grid="+str(0.4),color="black")
-
-gst=numpy.min(g1t)
-inds = numpy.where(g1t == gst)
-plot(d1t[inds],f1t[inds],'--',label="PEC 300K, grid="+str(gst),color="black")
-inds = numpy.where(g1t == 0.4)
-plot(d1t[inds],f1t[inds],'-.',label="PEC 300K, grid="+str(0.4),color="black")
-
 gs=numpy.min(g2)
 inds = numpy.where(g2 == gs)
 plot(d2[inds],f2[inds],'--',label="FEC, grid="+str(gs),color="green")

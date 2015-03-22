@@ -2,7 +2,7 @@
 
 filedir="/u/ki/kurinsky/GrattaGroup/opt_lev/casimir/scuffCode/"
 geofile="Bead.scuffgeo"
-meshfiles="Sphere.geo Cube_Aspect.geo"
+meshfiles="Sphere.geo Cube.geo"
 
 filestr="BeadCube"
 
