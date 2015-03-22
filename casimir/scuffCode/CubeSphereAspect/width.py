@@ -31,7 +31,7 @@ a2=a2[inds]
 g2=g2[inds]
 
 figure(figsize=(12,8))
-gs=numpy.unique(g1)
+gs=numpy.where(g1 == 0.3)
 
 for j in range(0,len(gs)):
     inds = numpy.where(g1 == gs[j])
@@ -57,7 +57,7 @@ savefig('analytic_v_numerical')
 #show()
 
 clf()
-gs=numpy.unique(g1)
+gs=numpy.where(g1 == 0.3)
 
 for j in range(0,len(gs)):
     inds = numpy.where(g1 == gs[j])
@@ -67,12 +67,15 @@ for j in range(0,len(gs)):
     lens=numpy.unique(xd1)
     for i in range(0,len(lens)):
         gpts=numpy.where(lens[i] == xd1)
-        plot(asp[gpts],yf1[gpts]/numpy.min(yf1[gpts]),'-o',label="g="+str(gs[j])+" l="+str(lens[i]))
+        x=asp[gpts]
+        y=yf1[gpts]/numpy.min(yf1[gpts])
+        sinds=numpy.argsort(x)
+        plot(x[sinds],y[sinds],'-o',label="g="+str(gs[j])+" l="+str(lens[i]))
 
-xlabel('Aspect')
-ylabel('Force (N)')
+xlabel('Aspect Ratio (W/H)')
+ylabel('Force(Aspect)/Force(Aspect=2)')
 title('Aspect v Force Numerical Calculations')
-legend(loc="lower left",ncol=3)
-ylim(0.75,1.5)
+legend(loc="lower left",ncol=4)
+ylim(0,3.0)
 savefig('aspect_correction.png')
 #show()

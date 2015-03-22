@@ -68,9 +68,9 @@ plot(d1[inds],f1[inds],'-.',label="PEC, grid="+str(0.4),color="black")
 
 gst=numpy.min(g1t)
 inds = numpy.where(g1t == gst)
-plot(d1t[inds],f1t[inds],'--',label="PEC 300K, grid="+str(gst),color="black")
+plot(d1t[inds],f1t[inds],'--',label="PEC 300K, grid="+str(gst),color="orange")
 inds = numpy.where(g1t == 0.4)
-plot(d1t[inds],f1t[inds],'-.',label="PEC 300K, grid="+str(0.4),color="black")
+plot(d1t[inds],f1t[inds],'-.',label="PEC 300K, grid="+str(0.4),color="orange")
 
 gs=numpy.min(g2)
 inds = numpy.where(g2 == gs)

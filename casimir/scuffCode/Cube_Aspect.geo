@@ -23,7 +23,7 @@ Mesh.CharacteristicLengthFactor=1.3;
 // to make the meshing more coarse or more fine in
 // particular regions of the object 
 //////////////////////////////////////////////////
-grid = DefineNumber[ 0.2, Name "Parameters/grid" ];
+grid = DefineNumber[ 0.3, Name "Parameters/grid" ];
 lCoarse =  grid*30;
 lFine   =  grid*aspect;
 

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2014.5.25)  21 MAR 2015 13:51
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2014.5.25)  21 MAR 2015 20:20
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -297,35 +297,53 @@ File: PFAExpansion.pdf Graphic file (type pdf)
 Package pdftex.def Info: PFAExpansion.pdf used on input line 86.
 (pdftex.def)             Requested size: 361.34999pt x 216.25047pt.
  [4 <./PFAExpansion.pdf>] [5] [6] (./Casimir Scratch.bbl
-Underfull \hbox (badness 1648) in paragraph at lines 35--38
+Underfull \hbox (badness 2173) in paragraph at lines 16--24
+[]\OT1/cmr/m/n/10.95 Giuseppe Bi-monte, Thorsten Emig, and Mehran Kar-dar.  Ma-
+te-rial de-pen-dence
+ []
+
+
+Underfull \hbox (badness 1067) in paragraph at lines 16--24
+\OT1/cmr/m/n/10.95 of casimir forces: Gra-di-ent ex-pan-sion be-yond prox-im-it
+y.  \OT1/cmr/m/it/10.95 Ap-plied Physics Let-
+ []
+
+
+Underfull \hbox (badness 3492) in paragraph at lines 16--24
+\OT1/cmr/m/it/10.95 ters\OT1/cmr/m/n/10.95 , 100(7):074110, 2012.  doi: http://
+dx.doi.org/10.1063/1.3686903.  URL
+ []
+
+
+Underfull \hbox (badness 1648) in paragraph at lines 45--48
 []\OT1/cmr/m/n/10.95 H.B.G. Casimir.  On the At-trac-tion Be-tween Two Per-fect
 ly Con-duct-ing Plates.
  []
 
 
-Underfull \hbox (badness 2644) in paragraph at lines 40--46
+Underfull \hbox (badness 2644) in paragraph at lines 50--56
 []\OT1/cmr/m/n/10.95 C^^Sesar D. Fosco, Fer-nando C. Lom-bardo, and Fran-cisco 
 D. Mazz-itelli.  Prox-
  []
 
 
-Underfull \hbox (badness 3449) in paragraph at lines 40--46
+Underfull \hbox (badness 3449) in paragraph at lines 50--56
 \OT1/cmr/m/n/10.95 im-ity force ap-prox-i-ma-tion for the casimir en-ergy as a 
 deriva-tive ex-pan-sion.
  []
 
 
-Underfull \hbox (badness 2205) in paragraph at lines 61--66
+Underfull \hbox (badness 2205) in paragraph at lines 71--76
 \OT1/cmr/m/it/10.95 Phys. Rev. Lett.\OT1/cmr/m/n/10.95 , 78:5--8, Jan 1997.  do
 i: 10.1103/Phys-RevLett.78.5.  URL
  []
 
 ) [7] (./Casimir Scratch.aux) ) 
 Here is how much of TeX's memory you used:
- 3245 strings out of 493117
- 43463 string characters out of 6135433
- 113139 words of memory out of 5000000
- 6660 multiletter control sequences out of 15000+600000
+ 3248 strings out of 493117
+ 43514 string characters out of 6135433
+ 113198 words of memory out of 5000000
+ 6663 multiletter control sequences out of 15000+600000
  12487 words of font info for 47 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  42i,9n,26p,1168b,230s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -345,7 +363,7 @@ cmsy8.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cm
 ti10.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmt
 t10.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/symbols
 /msbm10.pfb>
-Output written on "Casimir Scratch.pdf" (7 pages, 248411 bytes).
+Output written on "Casimir Scratch.pdf" (7 pages, 249608 bytes).
 PDF statistics:
  135 PDF objects out of 1000 (max. 8388607)
  94 compressed objects within 1 object stream
