@@ -2,9 +2,11 @@
 
 filedir="/u/ki/kurinsky/GrattaGroup/opt_lev/casimir/scuffCode/"
 geofile="Bead.scuffgeo"
-meshfiles="Sphere.geo Cube.geo"
+meshfiles="Sphere.geo Cube_Aspect.geo"
+oldcubefile="Cube_Aspect.msh"
+newcubefile="Cube.msh"
 
-filestr="BeadCube"
+filestr="AspectBeadCube"
 
 if [ $# -gt 3 ]
 then
@@ -34,10 +36,12 @@ then
     cp $filedir/$geofile ./
     for mshfile in $meshfiles
     do
-	cat $filedir/$mshfile | grep -v "grid =" | sed 's/grid/'$gridding'/' > ./$mshfile
-	cat $filedir/$mshfile | grep -v "aspect =" | sed 's/aspect/'$aspect'/' > ./$mshfile
-	gmsh -2 $mshfile
+        cat $filedir/$mshfile | grep -v "grid =" | sed 's/grid/'$gridding'/' | grep -v "aspect =" | sed 's/aspect/'$aspect'/'
+        cat $filedir/$mshfile | grep -v "grid =" | sed 's/grid/'$gridding'/' | grep -v "aspect =" | sed 's/aspect/'$aspect'/' > ./$mshfile
+        gmsh -2 $mshfile
     done
+
+    mv $oldcubefile $newcubefile
 
     echo "scuff-cas3D --geometry $geofile --transfile $file --FileBase $filebase --energy --zforce"
     scuff-analyze --geometry $geofile --transfile $file

@@ -9,7 +9,7 @@ maxG=0.4
 dG=0.1
 
 temp="0 300"
-aspect="1.0 2.0 2.5 3.0"
+aspect="15.0 20.0"
 
 commands="./trans_width_temp.sh ./trans_width_temp_PEC.sh"
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-dirs=$(ls | grep "CubePEC" | grep -v "300")
+dirs=$(ls | grep "Cube_" | grep "300")
 ext=".out"
 printf "%7s %7s %7s %7s %12s %12s %12s %12s %s\n" L Grid Aspect Temp Energy EnergyErr Force ForceErr Status
 for dir in $dirs
