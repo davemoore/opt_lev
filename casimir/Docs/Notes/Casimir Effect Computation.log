@@ -1,10 +1,10 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2014.5.25)  23 MAR 2015 09:10
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2014.5.25)  23 MAR 2015 18:36
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**"Casimir Scratch.tex"
-(./Casimir Scratch.tex
+**"Casimir Effect Computation.tex"
+(./Casimir Effect Computation.tex
 LaTeX2e <2014/05/01>
 Babel <3.9k> and hyphenation patterns for 78 languages loaded.
 (/usr/local/texlive/2014/texmf-dist/tex/latex/base/article.cls
@@ -206,12 +206,15 @@ Package: natbib 2010/09/13 8.31b (PWD, AO)
 LaTeX Info: Redefining \cite on input line 694.
 \c@NAT@ctr=\count103
 )
-(./Casimir Scratch.aux
+(./Casimir Effect Computation.aux
 
 LaTeX Warning: Label `fig:geo' multiply defined.
 
+
+LaTeX Warning: Label `fig:earlyEstimate' multiply defined.
+
 )
-\openout1 = `"Casimir Scratch.aux"'.
+\openout1 = `"Casimir Effect Computation.aux"'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 19.
 LaTeX Font Info:    ... okay on input line 19.
@@ -467,7 +470,24 @@ ite.png used on input line 187.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[5] (./Casimir Scratch.bbl
+
+<../../scuffCode/CubeSphereBest/analytic_v_numerical_best.png, id=89, 867.24pt 
+x 578.16pt>
+File: ../../scuffCode/CubeSphereBest/analytic_v_numerical_best.png Graphic file
+ (type png)
+ <use ../../scuffCode/CubeSphereBest/analytic_v_numerical_best.png>
+Package pdftex.def Info: ../../scuffCode/CubeSphereBest/analytic_v_numerical_be
+st.png used on input line 193.
+(pdftex.def)             Requested size: 505.89pt x 337.26505pt.
+
+Overfull \hbox (36.13498pt too wide) in paragraph at lines 193--194
+ [][] 
+ []
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[5] (./Casimir Effect Computation.bbl
 Underfull \hbox (badness 6725) in paragraph at lines 16--24
 []\OT1/cmr/m/n/10 Giuseppe Bi-monte, Thorsten Emig, and Mehran Kar-dar.  Ma-te-
 rial de-pen-dence
@@ -524,19 +544,20 @@ png> <../../scuffCode/CubeSphereDepth/depth_correction_finite.png>] [13 <../../
 scuffCode/CubeSphereAspect/force_v_aspect.png> <../../scuffCode/CubeSphereAspec
 t/aspect_correction.png>] [14 <../../scuffCode/CubeSphereAspect/force_v_aspect_
 finite.png> <../../scuffCode/CubeSphereAspect/aspect_correction_finite.png>]
-(./Casimir Scratch.aux)
+[15 <../../scuffCode/CubeSphereBest/analytic_v_numerical_best.png>]
+(./Casimir Effect Computation.aux)
 
 LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 3335 strings out of 493117
- 47231 string characters out of 6135433
- 115383 words of memory out of 5000000
- 6730 multiletter control sequences out of 15000+600000
+ 3341 strings out of 493117
+ 47671 string characters out of 6135433
+ 115417 words of memory out of 5000000
+ 6734 multiletter control sequences out of 15000+600000
  12936 words of font info for 50 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 42i,9n,29p,1168b,249s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 42i,9n,29p,1179b,249s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
 ></usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb>
 </usr/local/texlive/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><
@@ -552,10 +573,10 @@ ve/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive
 /2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/
 2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive/2
 014/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on "Casimir Scratch.pdf" (14 pages, 1141648 bytes).
+Output written on "Casimir Effect Computation.pdf" (15 pages, 1224174 bytes).
 PDF statistics:
- 186 PDF objects out of 1000 (max. 8388607)
- 110 compressed objects within 2 object streams
+ 191 PDF objects out of 1000 (max. 8388607)
+ 112 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
- 81 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 86 words of extra memory for PDF output out of 10000 (max. 10000000)
 

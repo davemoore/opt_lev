@@ -7,13 +7,9 @@
 // geometric parameters 
 //////////////////////////////////////////////////
 aspect = 10;
-depth = 10;
-gRatio = 10;
-aRatio = 10;
 L = aspect*10;   // side length
-D = depth*10; //depth
+D = 100; //depth
 H = 10;
-offset = 40;
 
 //////////////////////////////////////////////////
 // this factor may be increased or decreased to   
@@ -28,34 +24,31 @@ Mesh.CharacteristicLengthFactor=1.3;
 // particular regions of the object 
 //////////////////////////////////////////////////
 grid = DefineNumber[ 0.3, Name "Parameters/grid" ];
-lCoarse = grid*gRatio;
-lFinel  =  grid*((aRatio-1)*(L+2*offset)/L+1);
-lFiner  =  grid*((aRatio-1)*(L-2*offset)/L+1);
-lCoarsel = lFinel*gRatio;
-lCoarser = lFiner*gRatio;
+lCoarse =  grid*10;
+lFine   =  grid*5;
 
 //////////////////////////////////////////////////
 // geometric description of cube /////////////////
 //////////////////////////////////////////////////
-Point(1) = { L/2, -H/2, -D, lCoarser};
-Point(2) = {-L/2, -H/2, -D, lCoarsel};
-Point(3) = {-L/2, -H/2,  0, lFinel};
-Point(4) = { L/2, -H/2,  0, lFiner};
+Point(1) = { L/2, -H/2, -D, lCoarse};
+Point(2) = {-L/2, -H/2, -D, lCoarse};
+Point(3) = {-L/2, -H/2,  0, lFine};
+Point(4) = { L/2, -H/2,  0, lFine};
 
-Point(5) = { L/2, H/2, -D, lCoarser};
-Point(6) = {-L/2, H/2, -D, lCoarsel};
-Point(7) = {-L/2, H/2,  0, lFinel};
-Point(8) = { L/2, H/2,  0, lFiner};
+Point(5) = { L/2, H/2, -D, lCoarse};
+Point(6) = {-L/2, H/2, -D, lCoarse};
+Point(7) = {-L/2, H/2,  0, lFine};
+Point(8) = { L/2, H/2,  0, lFine};
 
-Point(9) = { -H/2+offset, -H/2,  0, grid};
-Point(10) = { -H/2+offset, H/2,  0, grid};
-Point(11) = { H/2+offset, -H/2,  0, grid};
-Point(12) = { H/2+offset, H/2,  0, grid};
+Point(9) = { -H/2, -H/2,  0, grid};
+Point(10) = { -H/2, H/2,  0, grid};
+Point(11) = { H/2, -H/2,  0, grid};
+Point(12) = { H/2, H/2,  0, grid};
 
-Point(13) = { -H/2+offset, -H/2,  -D, lCoarse};
-Point(14) = { -H/2+offset, H/2,  -D, lCoarse};
-Point(15) = { H/2+offset, -H/2,  -D, lCoarse};
-Point(16) = { H/2+offset, H/2,  -D, lCoarse};
+Point(13) = { -H/2, -H/2,  -D, lCoarse};
+Point(14) = { -H/2, H/2,  -D, lCoarse};
+Point(15) = { H/2, -H/2,  -D, lCoarse};
+Point(16) = { H/2, H/2,  -D, lCoarse};
 Line(1) = {10, 12};
 Line(2) = {12, 11};
 Line(3) = {11, 9};
