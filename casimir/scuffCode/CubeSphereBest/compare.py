@@ -67,6 +67,64 @@ xlabel('Distance (microns)')
 ylabel('Force (N)')
 title('Analytical (Dashed) v Numerical (Solid) Calculations')
 legend(loc="lower left",ncol=2)
-savefig('analytic_v_numerical')
+savefig('analytic_v_numerical_best')
 #show()
 
+#data points computed (through similar method) for correction due to aspect ratio L/R from PFA (Canaguier-Durand 2012)
+cdx=[0,0.1,.2,0.4,0.6,0.8,1]
+cdy=[1.0,.98,.95,.86,.78,.72,.68]
+
+clf()
+iPFA = interp1d(dist,fpfa)
+gs=numpy.unique(g1t)
+for i in range(0,len(gs)):
+    inds = numpy.where(g1t == gs[i])
+    rPFA=f1t[inds]/iPFA(d1t[inds])
+    plot(d1t[inds]/2.5,rPFA,label="PFA, grid="+str(gs[i]))
+plot(cdx,cdy,label="Canaguieier-Durand",linestyle=':',color="black")
+#xscale('log')
+xlim(0,3)
+xlabel('Distance/Radius')
+ylabel('(PFA/BEM) Force Ratio')
+title('Comparion between Calculations, grid=1 micron')
+legend()
+#show()
+savefig("pfa_v_pec_best.png")
+
+clf()
+inds=argsort(g1t)
+d1t=d1t[inds]
+f1t=f1t[inds]
+g1t=g1t[inds]
+ds=numpy.unique(d1t)
+for i in range(0,len(ds)):
+    inds=numpy.where(d1t == ds[i])
+    plot(g1t[inds],f1t[inds]/f1t[inds[0][0]],'--',label=str(ds[i]),alpha=.9)
+plot([0.1,1.2],[1,1],linestyle=':',color='black')
+ylim(0.2,1.1)
+xlim(0.3,1)
+xscale('log')
+xlabel('Grid Scale Length')
+ylabel('Force/Force(smallest gridding)')
+title("Convergence in Grid Spacing")
+legend(loc='lower left',title="Separation")
+savefig("pfa_convergence_best.png")
+
+clf()
+inds=argsort(g1t)
+d1t=d1t[inds]
+f1t=f1t[inds]
+g1t=g1t[inds]
+ds=numpy.unique(d1t)
+for i in range(0,len(ds)):
+    inds=numpy.where(d1t == ds[i])
+    plot(g1t[inds],f1t[inds]/f1t[inds[0][0]],'--',label=str(ds[i]),alpha=.9)
+plot([0.1,1.2],[1,1],linestyle=':',color='black')
+ylim(0.8,1.1)
+xlim(0.3,1)
+xscale('log')
+xlabel('Grid Scale Length')
+ylabel('Force/Force(smallest gridding)')
+title("Convergence in Grid Spacing")
+legend(loc='lower left',title="Separation")
+savefig("pfa_convergence_zoom_best.png")
