@@ -6,16 +6,19 @@
 \usepackage{epstopdf}
 \usepackage{amsmath}
 \usepackage[round]{natbib}
+\geometry{margin=1in}
 \DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+\graphicspath{{../../scuffCode/CubeSphere/}{../../scuffCode/CubeSphereAspect/}{../../scuffCode/CubeSphereDepth/}{../../scuffCode/Comparison/}}
 
 \newcommand{\E}{\mathcal{E}}
  
-\title{\vspace{-0.5in}Internal Note: The Casimir Force in a Micron-Scale Optical Trap Geometry}
+\title{\vspace{-0.5in}Internal Note: The Casimir Force in a \\ Micron-Scale Optical Trap Geometry}
 \author{Noah Kurinsky}
 %\date{}                                  
 
 \begin{document}
 \maketitle
+\abstract{This}
 
 \section{Background}
 
@@ -39,13 +42,22 @@ In this note, I will outline the steps taken in attempting to predict the magnit
 
 \section{Analytical Spherical Solutions}
 
+The only exact solutions come for the 
+
 \begin{figure}[!h]
 \centering
 \includegraphics[height=3in]{geometry}
 \caption{Geometry of cantilever and bead, truncated in the x direction and limited to tens of plasma wavelengths in depth. Here we show four distances of the bead from the cantilever in the z direction.}\label{fig:geo}
 \end{figure}
 
+\begin{figure}[!h]
+\centering
+\includegraphics[height=3in]{Bead_positions}
+\caption{Geometry of cantilever and bead, truncated in the x direction and limited to tens of plasma wavelengths in depth. Here we show four distances of the bead from the cantilever in the z direction.}\label{fig:geo}
+\end{figure}
+
 \subsection{Proximity Force Approximation (PFA)}
+
 \subsection{Expanded Proximity Force Approximation}
 Most of this section taken from \citet{Dexp}, also see \citet{Bimonte12}
 
@@ -58,6 +70,11 @@ For $R>>a$:
 $$
 E_{C}\approx E_{PFA}=\int_{\Sigma}E_{pp}(z)d\sigma
 $$
+\begin{figure}[h]
+\centering
+\includegraphics[width=5in]{PFAExpansion}
+\caption{Illustration of the effect of the first order correction on the PFA; blue line shows expansion, orange line is PFA, green line is first order correction.}\label{fig:expansion}
+\end{figure}
 
 We don't expect this to hold much past this condition, but can use the derivative expansion to first order to obtain a slightly more accurate term. The formula for the derivative expansion in terms of some surface separation $z=\psi(\mathbf{x}_\parallel)$ is
 $$
@@ -80,12 +97,6 @@ $$
 (\partial_r\psi)^2=R^2\left[-\frac{1}{2}\left(1-\frac{r^2}{R^2}\right)^{-1/2}\left(\frac{-2r}{R^2}\right)\right]^2=\frac{r^2}{R^2(1-\frac{r^2}{R^2})}=\frac{r^2}{R^2-r^2}=\left(\frac{R^2}{r^2}-1\right)^{-1}
 $$
 we can see that the derivative is undefined if we integrate to $R$, so as long as we integrate to $r_{limit}<R$ we should have a convergent integral; this shouldn't affect the accuracy given the $r^{-3}$ dependence. The effect of the derivative expansion correction in a perfectly conducting system can be seen below.
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=5in]{PFAExpansion}
-\caption{Illustration of the effect of the first order correction on the PFA; blue line shows expansion, orange line is PFA, green line is first order correction.}\label{fig:expansion}
-\end{figure}
 
 \citet{Bulgac} calculate the force between plane and sphere exactly, and compare to PFA. \citet{Durand} explore various temperature and geometry effects as a function of radius and separation. 
 
@@ -124,7 +135,58 @@ We are limited by the validity of the proximity force approximation, which assum
 
 \section{Numerical Computation}
 
+\begin{figure}[h]
+\centering
+\includegraphics[width=5.5in]{convergence}
+\caption{Earlier Casimir force estimates based on different geometries.}\label{fig:conv1}
+\end{figure}
 
+\begin{figure}[h]
+\centering
+\includegraphics[width=5.5in]{pfa_convergence}
+\includegraphics[width=5.5in]{pfa_convergence_zoom}
+\caption{Earlier Casimir force estimates based on different geometries.}\label{fig:conv2}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=7in]{pfa_v_pec}
+\caption{Earlier Casimir force estimates based on different geometries.}\label{fig:geometric}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=7in]{analytic_v_numerical}
+\caption{Earlier Casimir force estimates based on different geometries.}\label{fig:earlyEstimate}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=5.5in]{depth_v_gridding}
+\includegraphics[width=5.5in]{depth_v_gridding_finite}
+\caption{Depth versus relative grid size on the rear of the cantilever, showing relatively little dependence on relative grid size but large dependence on overall depth (fine grinding not as important as there being cells).}\label{fig:depth}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=5.5in]{depth_correction}
+\includegraphics[width=5.5in]{depth_correction_finite}
+\caption{Depth versus relative grid size on the rear of the cantilever, showing relatively little dependence on relative grid size but large dependence on overall depth (fine grinding not as important as there being cells).}\label{fig:depthCorr}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=5in]{force_v_aspect}
+\includegraphics[width=5in]{aspect_correction}
+\caption{Width (in terms of aspect ratio) versus distance from the cantilever, showing increased variation of value from that at aspect ratio of 2 as separation increases (which makes sense geomertically). The cantilever we utilize corresponds to an aspect ratio of 10.}\label{fig:aspect}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=5in]{force_v_aspect_finite}
+\includegraphics[width=5in]{aspect_correction_finite}
+\caption{Width (in terms of aspect ratio) versus distance from the cantilever for finite conductivity, showing increased variation of value from that at aspect ratio of 2 as separation increases (which makes sense geomertically). The cantilever we utilize corresponds to an aspect ratio of 10.}\label{fig:aspectFinite}
+\end{figure}
 
 \pagebreak
 \appendix

@@ -33,7 +33,7 @@ for i in range(0,len(asps)):
 
 #xscale('log')
 #yscale('log')
-xlabel('Distance (microns)')
+xlabel('Aspect Ratio (D/H)')
 ylabel('Force (N)')
 xlim(1,5)
 ylim(0.95,1.1)
@@ -56,10 +56,10 @@ for i in range(0,len(lens)):
     sinds=numpy.argsort(x)
     plot(x[sinds],y[sinds],'-o',label="T="+str(300)+" d="+str(lens[i]))
 
-xlabel('Aspect Ratio (D/H)')
-ylabel('Force(Aspect)/Force(Aspect=1)')
+xlabel('Gridding Ratio')
+ylabel('Force(Aspect)/min(Force)')
 title('Aspect v Force Numerical Calculations')
 legend(loc="lower left",ncol=4)
-ylim(0,4.0)
-savefig('aspect_correction.png')
+ylim(0.99,1.01)
+savefig('depth_correction.png')
 #show()
