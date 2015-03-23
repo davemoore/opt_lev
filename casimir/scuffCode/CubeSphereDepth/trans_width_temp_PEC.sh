@@ -6,7 +6,7 @@ meshfiles="Sphere.geo Cube_Depth.geo"
 oldcubefile="Cube_Depth.msh"
 newcubefile="Cube.msh"
 
-filestr="RatioBeadCube"
+filestr="RatioBeadCubePEC"
 
 if [ $# -gt 4 ]
 then
