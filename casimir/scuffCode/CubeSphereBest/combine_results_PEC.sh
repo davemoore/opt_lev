@@ -1,13 +1,13 @@
 #!/bin/bash
 
-dirs=$(ls | grep "CubePEC" | grep -v "T-")
+dirs=$(ls | grep "CubePEC" | grep "T-0")
 ext=".out"
 printf "%7s %7s %12s %12s %12s %12s %s\n" L Grid Energy EnergyErr Force ForceErr Status
 for dir in $dirs
 do
     files=$dir/*$ext
     L=$(echo $dir | cut -d 'L' -f 2 | cut -d '-' -f 2 | cut -d '_' -f 1)
-    grid=$(echo $dir | cut -d 'd' -f 3 | cut -d '-' -f 2 | cut -d 'b' -f 1 | cut -d '.' -f 1,2)
+    grid=$(echo $dir | cut -d 'd' -f 3 | cut -d '-' -f 2 | cut -d 'b' -f 1 | cut -d '.' -f 1,2 | cut -d '_' -f 1)
     for file in $files
     do
 	if [ -f $file ] 
