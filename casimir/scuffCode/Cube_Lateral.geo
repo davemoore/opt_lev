@@ -31,19 +31,17 @@ grid = DefineNumber[ 0.3, Name "Parameters/grid" ];
 lCoarse = grid*gRatio;
 lFinel  =  grid*((aRatio-1)*(L+2*offset)/L+1);
 lFiner  =  grid*((aRatio-1)*(L-2*offset)/L+1);
-lCoarsel = lFinel*gRatio;
-lCoarser = lFiner*gRatio;
 
 //////////////////////////////////////////////////
 // geometric description of cube /////////////////
 //////////////////////////////////////////////////
-Point(1) = { L/2, -H/2, -D, lCoarser};
-Point(2) = {-L/2, -H/2, -D, lCoarsel};
+Point(1) = { L/2, -H/2, -D, lCoarse};
+Point(2) = {-L/2, -H/2, -D, lCoarse};
 Point(3) = {-L/2, -H/2,  0, lFinel};
 Point(4) = { L/2, -H/2,  0, lFiner};
 
-Point(5) = { L/2, H/2, -D, lCoarser};
-Point(6) = {-L/2, H/2, -D, lCoarsel};
+Point(5) = { L/2, H/2, -D, lCoarse};
+Point(6) = {-L/2, H/2, -D, lCoarse};
 Point(7) = {-L/2, H/2,  0, lFinel};
 Point(8) = { L/2, H/2,  0, lFiner};
 

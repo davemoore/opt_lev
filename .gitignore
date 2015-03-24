@@ -1,5 +1,6 @@
 .*
 *.pyc
+*.msh
 *~
 processed.pkl
 !/.gitignore
@@ -17,3 +18,4 @@ casimir/scuffCode/CubeSphereAspect/BeadCube*
 casimir/scuffCode/CubeSphereAspect/AspectBeadCube*
 casimir/scuffCode/CubeSphereDepth/RatioBeadCube*
 casimir/scuffCode/CubeSphereBest/RatioBeadCube*
+casimir/scuffCode/CubeSphereLateral/*BeadCube*
