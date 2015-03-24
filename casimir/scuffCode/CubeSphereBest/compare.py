@@ -50,6 +50,18 @@ d2t=d2t[inds]
 f2t=f2t[inds]
 g2t=g2t[inds]
 
+#d2,g2,e2,ee2,f2,ef2,s2=numpy.loadtxt("combined_results.txt",unpack=True,skiprows=1)
+#f2=-f2*31.6e-15
+#inds=argsort(d2)
+#d2=d2[inds]
+#f2=f2[inds]
+#g2=g2[inds]
+#s2=s2[inds]
+#inds=numpy.where(s2 == 0)
+#d2=d2[inds]
+#f2=f2[inds]
+#g2=g2[inds]
+
 d2ts,g2ts,e2ts,ee2ts,f2ts,ef2ts,sts2=numpy.loadtxt("../CubeSphere/combined_results_temp.txt",unpack=True,skiprows=1)
 f2ts=-f2ts*31.6e-15
 inds=argsort(d2ts)
@@ -71,29 +83,35 @@ figure(figsize=(12,8))
 
 gst=numpy.min(g1t)
 inds = numpy.where(g1t == gst)
-plot(d1t[inds],f1t[inds],'-o',label="PEC 300K, grid="+str(gst),color="black")
+plot(d1t[inds],f1t[inds],'-o',label="PEC 300K, g="+str(gst),color="black")
 inds = numpy.where(g1t == 0.5)
-plot(d1t[inds],f1t[inds],'-.',label="PEC 300K, grid="+str(0.4),color="black")
+plot(d1t[inds],f1t[inds],'-.',label="PEC 300K, g="+str(0.4),color="black")
 
 gs=numpy.min(g1)
 inds = numpy.where(g1 == gs)
-plot(d1[inds],f1[inds],'-o',label="PEC 0K, grid="+str(gs),color="blue")
+plot(d1[inds],f1[inds],'-o',label="PEC 0K, g="+str(gs),color="blue")
 inds = numpy.where(g1 == 0.5)
-plot(d1[inds],f1[inds],'-.',label="PEC 0K, grid="+str(0.4),color="blue")
+plot(d1[inds],f1[inds],'-.',label="PEC 0K, g="+str(0.4),color="blue")
 
 gst=numpy.min(g1ts)
 inds = numpy.where(g1ts == gst)
-plot(d1ts[inds],f1ts[inds],'--',label="PEC 300K, small geometry, grid="+str(gst),color="black")
+plot(d1ts[inds],f1ts[inds],'--',label="PEC 300K, cube, g="+str(gst),color="black")
 
 gs=numpy.min(g2t)
 inds = numpy.where(g2t == gs)
-plot(d2t[inds],f2t[inds],'-o',label="FEC 300K, grid="+str(gs),color="green")
+plot(d2t[inds],f2t[inds],'-o',label="FEC 300K, g="+str(gs),color="green")
 inds = numpy.where(g2t == 0.5)
-plot(d2t[inds],f2t[inds],'-.',label="FEC 300K, grid="+str(0.5),color="green")
+plot(d2t[inds],f2t[inds],'-.',label="FEC 300K, g="+str(0.5),color="green")
+
+#gs=numpy.min(g2)
+#inds = numpy.where(g2 == gs)
+#plot(d2[inds],f2[inds],'-o',label="FEC 300K, grid="+str(gs),color="green")
+#inds = numpy.where(g2 == 0.5)
+#plot(d2[inds],f2[inds],'-.',label="FEC 300K, grid="+str(0.5),color="green")
 
 gs=numpy.min(g2ts)
 inds = numpy.where(g2ts == gs)
-plot(d2ts[inds],f2ts[inds],'--',label="FEC 300K, small geometry, grid="+str(gs),color="green")
+plot(d2ts[inds],f2ts[inds],'--',label="FEC 300K, cube, g="+str(gs),color="green")
 
 plot(dist,fpfa,label="PFA",linestyle=':',color="black")
 plot(dist,fright,label="SiO2/Au",linestyle=':',color="green")
@@ -101,7 +119,7 @@ plot(dist,ftemp,label="SiO2/Au T=300",linestyle=':',color="red")
 xlim(1,30)
 #xscale('log')
 yscale('log')
-ylim(1e-22,1e-14)
+ylim(1e-24,1e-14)
 xlabel('Distance (microns)')
 ylabel('Force (N)')
 title('Analytical (Dashed) v Numerical (Solid) Calculations')

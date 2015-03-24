@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2014.5.25)  23 MAR 2015 23:15
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2014.5.25)  24 MAR 2015 12:56
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -487,6 +487,67 @@ Overfull \hbox (36.13498pt too wide) in paragraph at lines 193--194
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
+
+<../../scuffCode/CubeSphereBest/pfa_v_pec_best.png, id=90, 867.24pt x 578.16pt>
+File: ../../scuffCode/CubeSphereBest/pfa_v_pec_best.png Graphic file (type png)
+
+<use ../../scuffCode/CubeSphereBest/pfa_v_pec_best.png>
+Package pdftex.def Info: ../../scuffCode/CubeSphereBest/pfa_v_pec_best.png used
+ on input line 199.
+(pdftex.def)             Requested size: 505.89pt x 337.26505pt.
+
+Overfull \hbox (36.13498pt too wide) in paragraph at lines 199--200
+ [][] 
+ []
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+<../../scuffCode/CubeSphereLateral/lateral_force.png, id=91, 578.16pt x 433.62p
+t>
+File: ../../scuffCode/CubeSphereLateral/lateral_force.png Graphic file (type pn
+g)
+ <use ../../scuffCode/CubeSphereLateral/lateral_force.png>
+Package pdftex.def Info: ../../scuffCode/CubeSphereLateral/lateral_force.png us
+ed on input line 205.
+(pdftex.def)             Requested size: 361.34999pt x 271.01183pt.
+
+<../../scuffCode/CubeSphereLateral/lateral_force_finite.png, id=92, 578.16pt x 
+433.62pt>
+File: ../../scuffCode/CubeSphereLateral/lateral_force_finite.png Graphic file (
+type png)
+ <use ../../scuffCode/CubeSphereLateral/lateral_force_finite.png>
+Package pdftex.def Info: ../../scuffCode/CubeSphereLateral/lateral_force_finite
+.png used on input line 206.
+(pdftex.def)             Requested size: 361.34999pt x 271.01183pt.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+<../../scuffCode/CubeSphereLateral/lateral_force_drop.png, id=93, 578.16pt x 43
+3.62pt>
+File: ../../scuffCode/CubeSphereLateral/lateral_force_drop.png Graphic file (ty
+pe png)
+ <use ../../scuffCode/CubeSphereLateral/lateral_force_drop.png>
+Package pdftex.def Info: ../../scuffCode/CubeSphereLateral/lateral_force_drop.p
+ng used on input line 212.
+(pdftex.def)             Requested size: 361.34999pt x 271.01183pt.
+
+<../../scuffCode/CubeSphereLateral/lateral_force_drop_finite.png, id=94, 578.16
+pt x 433.62pt>
+File: ../../scuffCode/CubeSphereLateral/lateral_force_drop_finite.png Graphic f
+ile (type png)
+
+<use ../../scuffCode/CubeSphereLateral/lateral_force_drop_finite.png>
+Package pdftex.def Info: ../../scuffCode/CubeSphereLateral/lateral_force_drop_f
+inite.png used on input line 213.
+(pdftex.def)             Requested size: 361.34999pt x 271.01183pt.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
 [5] (./Casimir Effect Computation.bbl
 Underfull \hbox (badness 6725) in paragraph at lines 16--24
 []\OT1/cmr/m/n/10 Giuseppe Bi-monte, Thorsten Emig, and Mehran Kar-dar.  Ma-te-
@@ -544,17 +605,21 @@ png> <../../scuffCode/CubeSphereDepth/depth_correction_finite.png>] [13 <../../
 scuffCode/CubeSphereAspect/force_v_aspect.png> <../../scuffCode/CubeSphereAspec
 t/aspect_correction.png>] [14 <../../scuffCode/CubeSphereAspect/force_v_aspect_
 finite.png> <../../scuffCode/CubeSphereAspect/aspect_correction_finite.png>]
-[15 <../../scuffCode/CubeSphereBest/analytic_v_numerical_best.png>]
+[15 <../../scuffCode/CubeSphereBest/analytic_v_numerical_best.png>] [16 <../../
+scuffCode/CubeSphereBest/pfa_v_pec_best.png>] [17 <../../scuffCode/CubeSphereLa
+teral/lateral_force.png> <../../scuffCode/CubeSphereLateral/lateral_force_finit
+e.png>] [18 <../../scuffCode/CubeSphereLateral/lateral_force_drop.png> <../../s
+cuffCode/CubeSphereLateral/lateral_force_drop_finite.png>]
 (./Casimir Effect Computation.aux)
 
 LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 3341 strings out of 493117
- 47671 string characters out of 6135433
- 115417 words of memory out of 5000000
- 6734 multiletter control sequences out of 15000+600000
+ 3370 strings out of 493117
+ 49059 string characters out of 6135433
+ 116483 words of memory out of 5000000
+ 6757 multiletter control sequences out of 15000+600000
  12936 words of font info for 50 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  42i,9n,29p,1179b,249s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -573,10 +638,10 @@ ve/2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive
 /2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/
 2014/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive/2
 014/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on "Casimir Effect Computation.pdf" (15 pages, 1228179 bytes).
+Output written on "Casimir Effect Computation.pdf" (18 pages, 1456687 bytes).
 PDF statistics:
- 191 PDF objects out of 1000 (max. 8388607)
- 112 compressed objects within 2 object streams
+ 210 PDF objects out of 1000 (max. 8388607)
+ 118 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
- 86 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 111 words of extra memory for PDF output out of 10000 (max. 10000000)
 
