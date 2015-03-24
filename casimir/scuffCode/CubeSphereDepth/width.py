@@ -20,6 +20,18 @@ g1=g1[inds]
 dep1=dep1[inds]
 t1=t1[inds]
 
+d1ts,g1ts,e1ts,ee1ts,f1ts,ef1ts,sts=numpy.loadtxt("../CubeSphereBest/PEC_combined_results_temp.txt",unpack=True,skiprows=1)
+f1ts=-f1ts*31.6e-15
+inds=argsort(d1ts)
+d1ts=d1ts[inds]
+f1ts=f1ts[inds]
+g1ts=g1ts[inds]
+sts=sts[inds]
+inds=numpy.where(sts == 0)
+d1ts=d1ts[inds]
+f1ts=f1ts[inds]
+g1ts=g1ts[inds]
+
 figure(figsize=(12,8))
 
 inds = numpy.where(t1 == 300)
@@ -31,12 +43,20 @@ for i in range(0,len(asps)):
     gpts=numpy.where(asps[i] == asp)
     plot(xd1[gpts],yf1[gpts],'-o',label="PEC, temp="+str(300)+" r="+str(asps[i]))
 
+gpts=numpy.where((d1ts == 20.0) & (g1ts == 0.4))
+y=f1ts[gpts]/numpy.min(f1[inds])
+x=y*0+10
+gpts=numpy.where(asp == 20)
+tx=numpy.append(xd1[gpts],x)
+ty=numpy.append(yf1[gpts],y)
+plot(tx,ty,'--',label="PEC, temp="+str(300)+" r=20, with Best",color="black")
+
 #xscale('log')
 #yscale('log')
 xlabel('Aspect Ratio (D/H)')
 ylabel('Force (N)')
-xlim(1,5)
-ylim(0.95,1.1)
+xlim(1,10)
+ylim(0.95,1.2)
 title('Numerical Calculations, Aspect Ratio')
 legend(loc="lower left",ncol=2)
 savefig('depth_v_gridding.png')
