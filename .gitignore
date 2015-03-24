@@ -19,3 +19,5 @@ casimir/scuffCode/CubeSphereAspect/AspectBeadCube*
 casimir/scuffCode/CubeSphereDepth/RatioBeadCube*
 casimir/scuffCode/CubeSphereBest/RatioBeadCube*
 casimir/scuffCode/CubeSphereLateral/*BeadCube*
+
+casimir/scuffCode/update_all.sh
