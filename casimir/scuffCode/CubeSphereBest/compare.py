@@ -14,6 +14,18 @@ d1t=d1t[inds]
 f1t=f1t[inds]
 g1t=g1t[inds]
 
+d1,g1,e1,ee1,f1,ef1,s=numpy.loadtxt("PEC_combined_results.txt",unpack=True,skiprows=1)
+f1=-f1*31.6e-15
+inds=argsort(d1)
+d1=d1[inds]
+f1=f1[inds]
+g1=g1[inds]
+s=s[inds]
+inds=numpy.where(s == 0)
+d1=d1[inds]
+f1=f1[inds]
+g1=g1[inds]
+
 d1ts,g1ts,e1ts,ee1ts,f1ts,ef1ts,sts=numpy.loadtxt("../CubeSphere/PEC_combined_results_temp.txt",unpack=True,skiprows=1)
 f1ts=-f1ts*31.6e-15
 inds=argsort(d1ts)
@@ -62,6 +74,12 @@ inds = numpy.where(g1t == gst)
 plot(d1t[inds],f1t[inds],'-o',label="PEC 300K, grid="+str(gst),color="black")
 inds = numpy.where(g1t == 0.5)
 plot(d1t[inds],f1t[inds],'-.',label="PEC 300K, grid="+str(0.4),color="black")
+
+gs=numpy.min(g1)
+inds = numpy.where(g1 == gs)
+plot(d1[inds],f1[inds],'-o',label="PEC 0K, grid="+str(gs),color="blue")
+inds = numpy.where(g1 == 0.5)
+plot(d1[inds],f1[inds],'-.',label="PEC 0K, grid="+str(0.4),color="blue")
 
 gst=numpy.min(g1ts)
 inds = numpy.where(g1ts == gst)
