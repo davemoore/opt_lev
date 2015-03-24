@@ -8,7 +8,7 @@
 \usepackage[round]{natbib}
 \geometry{margin=1in}
 \DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
-\graphicspath{{../../scuffCode/CubeSphere/}{../../scuffCode/CubeSphereAspect/}{../../scuffCode/CubeSphereDepth/}{../../scuffCode/Comparison/}{../../scuffCode/CubeSphereBest/}}
+\graphicspath{{../../scuffCode/CubeSphere/}{../../scuffCode/CubeSphereAspect/}{../../scuffCode/CubeSphereDepth/}{../../scuffCode/Comparison/}{../../scuffCode/CubeSphereBest/}{../../scuffCode/CubeSphereLateral/}}
 
 \newcommand{\E}{\mathcal{E}}
  
@@ -192,6 +192,26 @@ We are limited by the validity of the proximity force approximation, which assum
 \centering
 \includegraphics[width=7in]{analytic_v_numerical_best}
 \caption{Earlier Casimir force estimates based on different geometries.}\label{fig:earlyEstimate}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=7in]{pfa_v_pec_best}
+\caption{Casimir force estimates compared to PFA, based on large geometry. Compared to correction for infinite plane.}\label{fig:geometricbest}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=5in]{lateral_force}
+\includegraphics[width=5in]{lateral_force_finite}
+\caption{Force as a function of lateral displacement along the cantilever.}\label{fig:lat}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=5in]{lateral_force_drop}
+\includegraphics[width=5in]{lateral_force_drop_finite}
+\caption{Force ratio as a function of lateral displacement along the cantilever.}\label{fig:latdrop}
 \end{figure}
 
 \pagebreak
