@@ -191,8 +191,38 @@ We are limited by the validity of the proximity force approximation, which assum
 \begin{figure}[h]
 \centering
 \includegraphics[width=7in]{analytic_v_numerical_best}
-\caption{Earlier Casimir force estimates based on different geometries.}\label{fig:earlyEstimate}
+\caption{Casimir force estimate based on extended geometry.}\label{fig:estimate}
 \end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=7in]{prediction}
+\caption{Best prediction for Casimir force at 300K with finite conductivity correction.}\label{fig:prediction}
+\end{figure}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{c | c || c | c}
+D ($\mu$m) & F (aN) &D ($\mu$m) & F (aN) \\
+\hline
+   3 & 7.37e+01 &  16 & 2.34e-01 \\
+   4 & 2.90e+01 & 17 & 1.85e-01 \\
+   5 & 1.38e+01 &  18 & 1.47e-01 \\
+   6 & 7.61e+00 &  19 & 1.19e-01 \\
+   7 & 4.61e+00 & 20 & 9.71e-02 \\
+   8 & 2.96e+00 &  21 & 7.99e-02 \\
+   9 & 1.97e+00 &  22 & 6.63e-02 \\
+  10 & 1.35e+00 &  23 & 5.54e-02 \\
+  11 & 9.53e-01 & 24 & 4.66e-02 \\
+  12 & 6.92e-01 &  25 & 3.95e-02 \\
+  13 & 5.14e-01 &  26 & 3.36e-02 \\
+  14 & 3.89e-01 & 27 & 2.87e-02 \\
+  15 & 3.00e-01 & 28 & 2.47e-02 \\
+   & & 29 & 2.13e-02 \\
+   \hline
+\end{tabular}
+\caption{Force as function of distance, silica bead and gold cantilever, in microns and attonewtons respectively. This points interpolated between slightly sparser points (5,10,15,20,25,30 are exact calculations) and have relative uncertainty on the 10\% level to high confidence.}
+\end{table}
 
 \begin{figure}[h]
 \centering
@@ -212,6 +242,13 @@ We are limited by the validity of the proximity force approximation, which assum
 \includegraphics[width=5in]{lateral_force_drop}
 \includegraphics[width=5in]{lateral_force_drop_finite}
 \caption{Force ratio as a function of lateral displacement along the cantilever.}\label{fig:latdrop}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=5in]{lateral_force_drop_zoom}
+\includegraphics[width=5in]{lateral_force_drop_finite_zoom}
+\caption{Force ratio as a function of lateral displacement along the cantilever.}\label{fig:latdropZoom}
 \end{figure}
 
 \pagebreak

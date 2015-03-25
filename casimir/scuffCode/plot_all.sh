@@ -11,6 +11,7 @@ popd
 
 pushd CubeSphereBest
 python compare.py
+python prediction.py
 popd
 
 pushd CubeSphereDepth

@@ -18,6 +18,7 @@ yscale('log')
 xlim(0,100)
 savefig('lateral_force_finite')
 
+clf()
 lens=numpy.unique(L)
 for i in range(0,len(lens)):
     gpts = numpy.where((L == lens[i]) & (grid == 0.5))
@@ -33,3 +34,20 @@ yscale('log')
 xlim(0,100)
 ylim(1e-4,2)
 savefig('lateral_force_drop_finite')
+
+clf()
+lens=numpy.unique(L)
+for i in range(0,len(lens)):
+    gpts = numpy.where((L == lens[i]) & (grid == 0.5))
+    x=W[gpts]
+    y=f[gpts]
+    inds=numpy.argsort(x)
+    x=x[inds]
+    y=y[inds]
+    y=y/y[0]
+    plot(x,y,'-o',label=str(lens[i]))
+legend(loc='lower left')
+#yscale('log')
+xlim(0,60)
+ylim(0.6,1.1)
+savefig('lateral_force_drop_finite_zoom')
