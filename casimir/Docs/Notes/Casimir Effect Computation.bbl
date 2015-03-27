@@ -1,4 +1,4 @@
-\begin{thebibliography}{10}
+\begin{thebibliography}{12}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -46,6 +46,14 @@ H.B.G. Casimir.
 \newblock {On the Attraction Between Two Perfectly Conducting Plates}.
 \newblock \emph{Indag.Math.}, 10:\penalty0 261--263, 1948.
 
+\bibitem[Emig(2008)]{Emig07}
+Thorsten Emig.
+\newblock Fluctuation induced quantum interactions between compact objects and
+  a plane mirror.
+\newblock \emph{Journal of Statistical Mechanics: Theory and Experiment},
+  2008\penalty0 (04):\penalty0 P04007, 12 2008.
+\newblock URL \url{http://stacks.iop.org/1742-5468/2008/i=04/a=P04007}.
+
 \bibitem[Fosco et~al.(2011)Fosco, Lombardo, and Mazzitelli]{Dexp}
 C\'esar~D. Fosco, Fernando~C. Lombardo, and Francisco~D. Mazzitelli.
 \newblock Proximity force approximation for the casimir energy as a derivative
@@ -80,5 +88,11 @@ Sahand~Jamal Rahi, Thorsten Emig, Noah Graham, Robert~L. Jaffe, and Mehran
 \newblock Scattering theory approach to electrodynamic casimir forces.
 \newblock \emph{Physical Review D}, 80\penalty0 (8), 2009.
 \newblock \doi{10.1103/PhysRevD.80.085021}.
+
+\bibitem[Rodriguez et~al.(2011)Rodriguez, Capasso, and Johnson]{rodr}
+Alejandro~W. Rodriguez, Federico Capasso, and Steven~G. Johnson.
+\newblock The casimir effect in microstructured geometries.
+\newblock \emph{Nat Photon}, 5\penalty0 (4):\penalty0 211--221, 04 2011.
+\newblock URL \url{http://dx.doi.org/10.1038/nphoton.2011.39}.
 
 \end{thebibliography}

@@ -76,7 +76,10 @@ g2ts=g2ts[inds]
 
 datafile="../../Mathematica/calculated_vals.tsv"
 PFA_datafile="../../Mathematica/calculated_pfa_vals.tsv"
+EXP_datafile="../../Mathematica/calculated_exp_vals.tsv"
 dist,fpfa,fnaive,fright,ftemp=numpy.loadtxt(PFA_datafile,unpack=True)
+dist2,fexp=numpy.loadtxt(EXP_datafile,unpack=True)
+fexp=fexp*1e-18
 dist=dist*1e6
 
 figure(figsize=(12,8))
@@ -107,11 +110,11 @@ plot(d2[inds],f2[inds],'-d',label="F 0K, g="+str(0.5),color="black")
 
 gst=numpy.min(g1ts)
 inds = numpy.where(g1ts == gst)
-plot(d1ts[inds],f1ts[inds],'-.',label="P 300K, cube, g="+str(gst),color="red")
+#plot(d1ts[inds],f1ts[inds],'-.',label="P 300K, cube, g="+str(gst),color="red")
 
 gs=numpy.min(g2ts)
 inds = numpy.where(g2ts == gs)
-plot(d2ts[inds],f2ts[inds],'-.',label="F 300K, cube, g="+str(gs),color="green")
+#plot(d2ts[inds],f2ts[inds],'-.',label="F 300K, cube, g="+str(gs),color="green")
 
 plot([1,30],[1e-15,1e-15],':',color="black")
 plot([1,30],[1e-16,1e-16],':',color="black")
@@ -121,9 +124,10 @@ plot([1,30],[1e-19,1e-19],':',color="black")
 plot([1,30],[1e-20,1e-20],':',color="black")
 plot([1,30],[1e-21,1e-21],':',color="black")
 
-plot(dist,fpfa,label="PFA T=0",linestyle='--',color="blue")
-plot(dist,fright,label="SiO2/Au T=0",linestyle='--',color="black")
-plot(dist,ftemp,label="SiO2/Au T=300",linestyle='--',color="green")
+#plot(dist,fpfa,label="PFA T=0",linestyle='--',color="blue")
+plot(dist2,fexp,label="Corrected PFA T=0",linestyle='--',color="purple")
+#plot(dist,fright,label="SiO2/Au T=0",linestyle='--',color="black")
+#plot(dist,ftemp,label="SiO2/Au T=300",linestyle='--',color="green")
 xlim(1,30)
 #xscale('log')
 yscale('log')
