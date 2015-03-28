@@ -32,6 +32,9 @@ dist,fpfa,fnaive,fright,ftemp=numpy.loadtxt(PFA_datafile,unpack=True)
 dist=dist*1e6
 ftemp=ftemp*1e18
 
+EXP_datafile="../../Mathematica/calculated_exp_vals.tsv"
+dist2,fexp=numpy.loadtxt(EXP_datafile,unpack=True)
+
 figure(figsize=(12,8))
 xnew=np.arange(1, 30, 0.1)
 
@@ -67,7 +70,8 @@ plot([1,30],[1e-1,1e-1],':',color="black")
 plot([1,30],[1e-2,1e-2],':',color="black")
 plot([1,30],[1e-3,1e-3],':',color="black")
 
-plot(dist,ftemp,label="SiO2/Au PFA",linestyle='--',color="green")
+#plot(dist,ftemp,label="SiO2/Au PFA",linestyle='--',color="green")
+plot(dist2,fexp,label="Corrected PFA T=0",linestyle='--',color="purple")
 xlim(2.5,30)
 #xscale('log')
 yscale('log')

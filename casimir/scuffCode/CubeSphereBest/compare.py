@@ -78,8 +78,9 @@ datafile="../../Mathematica/calculated_vals.tsv"
 PFA_datafile="../../Mathematica/calculated_pfa_vals.tsv"
 EXP_datafile="../../Mathematica/calculated_exp_vals.tsv"
 dist,fpfa,fnaive,fright,ftemp=numpy.loadtxt(PFA_datafile,unpack=True)
-dist2,fexp=numpy.loadtxt(EXP_datafile,unpack=True)
+dist2,fexp,fexptemp=numpy.loadtxt(EXP_datafile,unpack=True)
 fexp=fexp*1e-18
+fexptemp=fexptemp*1e-18
 dist=dist*1e6
 
 figure(figsize=(12,8))
@@ -88,13 +89,13 @@ gst=numpy.min(g1t)
 inds = numpy.where(g1t == gst)
 plot(d1t[inds],f1t[inds],'-o',label="P 300K, g="+str(gst),color="red")
 inds = numpy.where(g1t == 0.5)
-plot(d1t[inds],f1t[inds],'-d',label="P 300K, g="+str(0.4),color="red")
+#plot(d1t[inds],f1t[inds],'-d',label="P 300K, g="+str(0.4),color="red")
 
 gs=numpy.min(g1)
 inds = numpy.where(g1 == gs)
 plot(d1[inds],f1[inds],'-o',label="P 0K, g="+str(gs),color="blue")
 inds = numpy.where(g1 == 0.5)
-plot(d1[inds],f1[inds],'-d',label="P 0K, g="+str(0.4),color="blue")
+#plot(d1[inds],f1[inds],'-d',label="P 0K, g="+str(0.4),color="blue")
 
 gs=numpy.min(g2t)
 inds = numpy.where(g2t == gs)
@@ -126,12 +127,13 @@ plot([1,30],[1e-21,1e-21],':',color="black")
 
 #plot(dist,fpfa,label="PFA T=0",linestyle='--',color="blue")
 plot(dist2,fexp,label="Corrected PFA T=0",linestyle='--',color="purple")
+plot(dist2,fexptemp,label="Corrected PFA T=300",linestyle='--',color="orange")
 #plot(dist,fright,label="SiO2/Au T=0",linestyle='--',color="black")
 #plot(dist,ftemp,label="SiO2/Au T=300",linestyle='--',color="green")
 xlim(1,30)
 #xscale('log')
 yscale('log')
-ylim(1e-22,1e-14)
+ylim(1e-21,1e-14)
 xlabel('Distance (microns)')
 ylabel('Force (N)')
 title('Analytical (Dashed) v Numerical (Solid) Calculations')
