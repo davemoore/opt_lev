@@ -3,44 +3,44 @@ Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: Casimir Effect Computation.aux
 The style file: plainnat.bst
 Database file #1: Casimir.bib
-You've used 13 entries,
+You've used 15 entries,
             2773 wiz_defined-function locations,
-            714 strings with 7799 characters,
-and the built_in function-call counts, 6338 in all, are:
-= -- 579
-> -- 366
-< -- 4
-+ -- 124
-- -- 111
-* -- 581
-:= -- 1010
-add.period$ -- 57
-call.type$ -- 13
-change.case$ -- 76
-chr.to.int$ -- 13
-cite$ -- 26
-duplicate$ -- 268
-empty$ -- 494
-format.name$ -- 126
-if$ -- 1303
+            726 strings with 8101 characters,
+and the built_in function-call counts, 7138 in all, are:
+= -- 649
+> -- 415
+< -- 5
++ -- 141
+- -- 126
+* -- 646
+:= -- 1142
+add.period$ -- 65
+call.type$ -- 15
+change.case$ -- 87
+chr.to.int$ -- 15
+cite$ -- 30
+duplicate$ -- 307
+empty$ -- 556
+format.name$ -- 143
+if$ -- 1466
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 13
-newline$ -- 91
-num.names$ -- 52
-pop$ -- 111
+missing$ -- 15
+newline$ -- 103
+num.names$ -- 60
+pop$ -- 130
 preamble$ -- 1
-purify$ -- 63
+purify$ -- 72
 quote$ -- 0
-skip$ -- 188
+skip$ -- 217
 stack$ -- 0
-substring$ -- 236
-swap$ -- 22
+substring$ -- 240
+swap$ -- 25
 text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 143
+type$ -- 165
 warning$ -- 0
-while$ -- 53
+while$ -- 59
 width$ -- 0
-write$ -- 212
+write$ -- 241

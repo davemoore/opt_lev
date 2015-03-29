@@ -5,6 +5,8 @@
 \usepackage{amssymb}
 \usepackage{epstopdf}
 \usepackage{amsmath}
+\usepackage{morefloats}
+\usepackage{hyperref}
 \usepackage[round]{natbib}
 \geometry{margin=1in}
 \DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
@@ -120,7 +122,7 @@ $$
 $$
 b_8=-\frac{12551}{9600} \;\;\; b_9=\frac{1282293}{163840} \;\;\; b_{10}=-\frac{32027856257}{722534400} \;\;\; b_{11}=\frac{39492614653}{412876800}
 $$
-these expressions are plotted in figure \ref{fig:expansion}. These expressions still assume perfect conductivity, zero temperature, and infinite plane surface, but these can be formulated as additional multiplicative corrections.
+these expressions are plotted in figure \ref{fig:expansion}. The empirical fit at small separations was also explored comparably by \citet{BeyondPFA}. These expressions still assume perfect conductivity, zero temperature, and infinite plane surface, but these can be formulated as additional multiplicative corrections.
 
 \begin{figure}[!h]
 \centering
@@ -128,7 +130,7 @@ these expressions are plotted in figure \ref{fig:expansion}. These expressions s
 \caption{Full length scale calculation for casimir force in plane-sphere configuration, for infinite conductivity and zero temperature, compared to PFA.}\label{fig:expansion}
 \end{figure}
 
-\citet{Durand} explore geometry effects as a function of radius and separation, and tabulate corrections based on face to face separation, but their estimates are for infinite planes and do not extend far enough from the plane to be practically useful for our predictions. I have plotted corrections for the various numerically computed geometries in figures below as a function face to face separation in figures \ref{fig:geometric} and \ref{fig:geometricbest}.
+\citet{Durand} explore geometry effects as a function of radius and separation, and tabulate corrections based on face to face separation, but their estimates are for infinite planes and do not extend far enough from the plane to be practically useful for our predictions. I have plotted corrections for the various numerically computed geometries in figures below as a function face to face separation in figures \ref{fig:geometric} and \ref{fig:geometricbest}. Arguments based on fractional area covered  
 
 \subsection{Finite Conductivity Corrections}
 This section follows from \citet{Lambrecht} \citep[see also][]{BeyondPFA}. Recognizing that the integral above is of scattering matrices over frequency space, the conductivity will factor into the scattering matrix for a given frequency and affect the overall Casimir energy. Another way to think about this is that, in our dipole metaphor, different elements have different polarizabilities and will react with different characteristic frequencies to perturbations.
@@ -178,18 +180,11 @@ The length at which the thermal casimir force becomes relevant is determined by 
 $$
 \lambda_T=\frac{\hbar c}{k_B T}
 $$
-
-\citet{Lamoreaux}
+and the robust way to incorporate this into the calculation is to evaluate the integral as an infinite sum over the Matsubara frequencies
 $$
-\eta_T=1+\frac{720}{\pi^2}\left\{\begin{array}{l r}
-1.202(\xi^3/2\pi)\zeta(3)-(\xi^4\pi^2/45)&\xi\le1/2 \\
-1.202(\xi/8\pi)\zeta(3)-(\pi^2/720)&\xi < 1/2
-\end{array}\right.
+\xi_n=\frac{2\pi n k T}{\hbar}
 $$
-where $\xi=kTL/\hbar c$ is the length scale from the Matsubara sum.
-
-\subsection{Expected accuracy}
-We are limited by the validity of the proximity force approximation, which assumes the (roughly) Casimir forces are additive, which is known not to be the case, and assumes the sphere and plane are close enough such that the plane appears infinite and the curvature is relatively small. We include the first order correction to the PFA, which may not extend validity very far and still assumes the plane is long enough to be effectively infinite.
+as discussed in \citet{Durand}. Another robust improvement on these estimates would be to evaluate the integral numerically in this way.
 
 \begin{figure}[h]
 \centering
@@ -197,7 +192,25 @@ We are limited by the validity of the proximity force approximation, which assum
 \caption{Reproduced calculation of PFA from \citet{Lamoreaux}}\label{fig:LamPFA}
 \end{figure}
 
+Following \citet{Lamoreaux}, we choose to instead multiply the zero temperature force by a semi-analytic correction factor 
+$$
+F_T=\eta_TF_0
+$$
+where
+$$
+\eta_T=1+\frac{720}{\pi^2}\left\{\begin{array}{l r}
+1.202(\xi^3/2\pi)\zeta(3)-(\xi^4\pi^2/45)&\xi\le1/2 \\
+1.202(\xi/8\pi)\zeta(3)-(\pi^2/720)&\xi < 1/2
+\end{array}\right.
+$$
+where $\xi=kTL/\hbar c$ is the length scale from the Matsubara sum. This correction is trusted given that, using this temperature correction and the PFA, I was able to reproduce the force curve which matched the data points from this casimir force measurement. This plot can be seen in figure \ref{fig:LamPFA}.
+
+\subsection{Expected accuracy}
+While we are limited in the accuracy of our analytic calculations by assumptions of infinite plane and uncertain model of conductivity, we can expect these calculations to be nearly exact for small values of $d/R$, given that the PFA alone is exact there, and reasonably should expect to obtain results within an order of magnitude of the true force for the largest separations. Major sources of uncertainty include temperature corrections and dielectric corrections, as well as uncertainty in the parameters of the fitted power series approximation and in the interpolated range between this power series and the analytic solution. Much of this uncertainty comes from using multiplicative corrections to the integral solution found for special conditions, and as such more accurate predictions could be obtained from numerically performing this integral; this is what is done in the next section.
+
 \section{Numerical Computation}
+
+We employed the Scuff-EM cas3d program\footnote{\url{http://homerreid.dyndns.org/scuff-EM/scuff-cas3D/}}\citep{Cas3DPRL,Cas3DPRA}, which numerically evaluates the integral from the previous section for arbitrary geometries, conductivities, and temperatures. The main challenge was to create a geometry whose BEM matrix was diagonalizable in a reasonable amount of time without sacrificing accuracy. Early convergence tests with a very large and uniformly gridded cantilever showed that the length scale of the gridding was important in the convergence of the prediction (figure ref{fog:conv1}). The earlier predictions did not converge properly as a function of radius, performing poorly except around 1 micron, as seen in figure \ref{fig:earlyEstimate}. 
 
 \begin{figure}[!h]
 \centering
@@ -212,64 +225,10 @@ We are limited by the validity of the proximity force approximation, which assum
 \caption{Geometry of cantilever and bead, representing the full x-y shape of the cantilever and extended to ~100 plasma wavelengths in depth. Here we show the bead 20 microns from the cantilever in the z direction, offset in the x direction by 25 and 50 microns. The radial meshing pattern has been made to follow to preserve convergence properties of the simulation/maximize accuracy nearest the sphere.}\label{fig:geoLat}
 \end{figure}
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=5.5in]{convergence}
-\caption{Earlier Casimir force estimates based on different geometries.}\label{fig:conv1}
-\end{figure}
+\pagebreak
+I created a geometry of a slab and sphere, both gridded finest nearest to each other with gridding decreasing on far surfaces. The sphere had gridding with a length scale twice as large on the back than the front, while the plane consisted of a uniformly gridded square nearest the sphere, and gridding decreasing as a function of distance from the square. I allowed the width, depth, and relative gridding on the far side of the cantilever to vary in order to test geometric convergence properties. Prediction as a function of plane width can be seen in figures \ref{fig:aspect} and \ref{fig:aspectFinite}, and we see that we need to simulate the full plane width (aspect ratio of 10) to get an accurate prediction; we cannot truncate this dimension. Prediction as a function of plane depth and rear gridding can be seen in figures \ref{fig:depth} and \ref{fig:depthCorr}, showing we need to simulate at least out to 100 microns in depth but can grid coarsely.
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=5.5in]{pfa_convergence}
-\includegraphics[width=5.5in]{pfa_convergence_zoom}
-\caption{Earlier Casimir force estimates based on different geometries.}\label{fig:conv2}
-\end{figure}
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=7in]{pfa_v_pec}
-\caption{Earlier Casimir force estimates based on different geometries.}\label{fig:geometric}
-\end{figure}
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=7in]{analytic_v_numerical}
-\caption{Earlier Casimir force estimates based on different geometries.}\label{fig:earlyEstimate}
-\end{figure}
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=5.5in]{depth_v_gridding}
-\includegraphics[width=5.5in]{depth_v_gridding_finite}
-\caption{Depth versus relative grid size on the rear of the cantilever, showing relatively little dependence on relative grid size but large dependence on overall depth (fine grinding not as important as there being cells).}\label{fig:depth}
-\end{figure}
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=5.5in]{depth_correction}
-\includegraphics[width=5.5in]{depth_correction_finite}
-\caption{Depth versus relative grid size on the rear of the cantilever, showing relatively little dependence on relative grid size but large dependence on overall depth (fine grinding not as important as there being cells).}\label{fig:depthCorr}
-\end{figure}
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=5in]{force_v_aspect}
-\includegraphics[width=5in]{aspect_correction}
-\caption{Width (in terms of aspect ratio) versus distance from the cantilever, showing increased variation of value from that at aspect ratio of 2 as separation increases (which makes sense geomertically). The cantilever we utilize corresponds to an aspect ratio of 10.}\label{fig:aspect}
-\end{figure}
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=5in]{force_v_aspect_finite}
-\includegraphics[width=5in]{aspect_correction_finite}
-\caption{Width (in terms of aspect ratio) versus distance from the cantilever for finite conductivity, showing increased variation of value from that at aspect ratio of 2 as separation increases (which makes sense geomertically). The cantilever we utilize corresponds to an aspect ratio of 10.}\label{fig:aspectFinite}
-\end{figure}
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=7in]{analytic_v_numerical_best}
-\caption{Casimir force estimate based on extended geometry.}\label{fig:estimate}
-\end{figure}
+Based on these considerations, the final geometry I chose is a slab 100 microns by 100 microns by 10 microns in height as shown in figure \ref{fig:geoLarge}. For predictions as a function of displacement along the cantilever, I created a version which moves the finely gridded section laterally with the sphere, as shown in figure \ref{fig:geoLat}. In addition, the best gridding was a mesh length scale of 0.3 near the center. The numerical calculations for finite and infinite conductivities as well as 0 and finite temperature can be seen in figure \ref{fig:estimate}, compared to the analytic solutions from the previous section. In addition the simulations for lateral displacement along the cantilever can be seen in figures \ref{fig:lat}, \ref{fig:latdrop}, \ref{fig:latdropZoom}. These figures show a relatively constant force until the edge of the cantilever, where there's a rapid drop-off in force.
 
 \begin{figure}[h]
 \centering
@@ -298,41 +257,108 @@ D ($\mu$m) & F (aN) &D ($\mu$m) & F (aN) \\
    & & 29 & 2.13e-02 \\
    \hline
 \end{tabular}
-\caption{Force as function of distance, silica bead and gold cantilever, in microns and attonewtons respectively. This points interpolated between slightly sparser points (5,10,15,20,25,30 are exact calculations) and have relative uncertainty on the 10\% level to high confidence.}
+\caption{Force as function of distance, silica bead and gold cantilever, in microns and attonewtons respectively. This points interpolated between slightly sparser points (5,10,15,20,25,30 are exact calculations) and have relative uncertainty on the 10\% level to high confidence.}\label{tab:pred}
 \end{table}
+
+The predictions for the force from our true geometry for the bead positioned at the center of the cantilever as a function of face-to-face separation are shown in figure \ref{fig:prediction} and tabulated in table \ref{tab:pred}. The numerical predictions show good agreement with the analytic solutions, and there is an extra geometric correction due to non-infinite plane (see figure \ref{fig:geomCorr}) which make the numerical predictions smaller than the analytic calculations. Given the uncertainty in the conductivity model and the untested nature of these methods, at worst this is an order of magnitude estimate and at best carries an uncertainty around 10\%.
+
+\clearpage
+\appendix
+\section{Additional Figures}
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=7in]{pfa_v_pec_best}
+\includegraphics[width=5.5in]{convergence}
+\caption{Earlier Casimir force estimates based on different geometries.}\label{fig:conv1}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=7in]{analytic_v_numerical}
+\caption{Earlier Casimir force estimates based on different geometries.}\label{fig:earlyEstimate}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=5.5in]{pfa_convergence}
+\includegraphics[width=5.5in]{pfa_convergence_zoom_best}
+\caption{Convergence of numerical calculations as a function of separation and grid length scale for the small geometry (above) and full geometry (below).}\label{fig:conv2}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=7in]{pfa_v_pec}
+\caption{PFA compared to numerical calculations.}\label{fig:geometric}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=5in]{force_v_aspect}
+\includegraphics[width=5in]{aspect_correction}
+\caption{Width (in terms of aspect ratio) versus distance from the cantilever for infinite conductivity and T=300K, showing increased variation of value from that at aspect ratio of 2 as separation increases (which makes sense geomertically). The cantilever we utilize corresponds to an aspect ratio of 10.}\label{fig:aspect}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=5in]{force_v_aspect_finite}
+\includegraphics[width=5in]{aspect_correction_finite}
+\caption{Width (in terms of aspect ratio) versus distance from the cantilever for finite conductivity and T=300K, showing increased variation of value from that at aspect ratio of 2 as separation increases (which makes sense geomertically). The cantilever we utilize corresponds to an aspect ratio of 10.}\label{fig:aspectFinite}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=5.5in]{depth_v_gridding}
+\includegraphics[width=5.5in]{depth_v_gridding_finite}
+\caption{Depth versus relative grid size on the rear of the cantilever, showing relatively little dependence on relative grid size but large dependence on overall depth (fine gridding not as important as there being cells).}\label{fig:depth}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=5.5in]{depth_correction}
+\includegraphics[width=5.5in]{depth_correction_finite}
+\caption{Relative grid size on the rear of the cantilever versus force correction, showing relatively little dependence on relative grid size.}\label{fig:depthCorr}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=7in]{analytic_v_numerical_best}
+\caption{Casimir force estimate based on extended geometry.}\label{fig:estimate}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=5in]{pfa_v_pec_best}
 \caption{Casimir force estimates compared to PFA, based on large geometry. Compared to correction for infinite plane.}\label{fig:geometricbest}
+\end{figure}
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=5in]{geometry_corrections}
+\caption{Full PFA expansion compared to numerical calculations.}\label{fig:geomCorr}
 \end{figure}
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=5in]{lateral_force}
 \includegraphics[width=5in]{lateral_force_finite}
-\caption{Force as a function of lateral displacement along the cantilever.}\label{fig:lat}
+\caption{Force as a function of lateral displacement along the cantilever for infinite (above) and finite (below) conductivity.}\label{fig:lat}
 \end{figure}
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=5in]{lateral_force_drop}
 \includegraphics[width=5in]{lateral_force_drop_finite}
-\caption{Force ratio as a function of lateral displacement along the cantilever.}\label{fig:latdrop}
+\caption{Force ratio as a function of lateral displacement along the cantilever for infinite (above) and finite (below) conductivity, as a fraction of the force near the center of the cantilever.}\label{fig:latdrop}
 \end{figure}
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=5in]{lateral_force_drop_zoom}
 \includegraphics[width=5in]{lateral_force_drop_finite_zoom}
-\caption{Force ratio as a function of lateral displacement along the cantilever.}\label{fig:latdropZoom}
+\caption{Force ratio as a function of lateral displacement along the cantilever for infinite (above) and finite (below) conductivity, as a fraction of the force near the center of the cantilever. Here we zoom in to capture the behavior near the cantilever edge}\label{fig:latdropZoom}
 \end{figure}
 
-\pagebreak
-\appendix
-\section{Scuff-EM}
-\section{Casimir Force Code}
-
+\clearpage
 \bibliographystyle{plainnat}
 \bibliography{Casimir}
 \thanks{here}

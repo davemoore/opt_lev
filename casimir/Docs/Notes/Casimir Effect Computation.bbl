@@ -1,4 +1,4 @@
-\begin{thebibliography}{13}
+\begin{thebibliography}{15}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -96,6 +96,20 @@ Sahand~Jamal Rahi, Thorsten Emig, Noah Graham, Robert~L. Jaffe, and Mehran
 \newblock Scattering theory approach to electrodynamic casimir forces.
 \newblock \emph{Physical Review D}, 80\penalty0 (8), 2009.
 \newblock \doi{10.1103/PhysRevD.80.085021}.
+
+\bibitem[Reid"(2009)]{Cas3DPRL}
+M.~T.~Homer Reid".
+\newblock Efficient computation of casimir interactions between arbitrary 3d
+  objects.
+\newblock \emph{Physical Review Letters}, 103\penalty0 (4), 2009.
+\newblock \doi{10.1103/PhysRevLett.103.040401}.
+
+\bibitem[Reid et~al.(2009)Reid, Rodriguez, White, and Johnson]{Cas3DPRA}
+M.~T.~Homer Reid, Alejandro~W. Rodriguez, Jacob White, and Steven~G. Johnson.
+\newblock Efficient computation of casimir interactions between arbitrary 3d
+  objects.
+\newblock \emph{Phys. Rev. A}, 04 2009.
+\newblock URL \url{http://arxiv.org/abs/0904.0741}.
 
 \bibitem[Rodriguez et~al.(2011)Rodriguez, Capasso, and Johnson]{rodr}
 Alejandro~W. Rodriguez, Federico Capasso, and Steven~G. Johnson.
