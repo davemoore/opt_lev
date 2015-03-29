@@ -1,4 +1,4 @@
-\begin{thebibliography}{12}
+\begin{thebibliography}{13}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -61,6 +61,14 @@ C\'esar~D. Fosco, Fernando~C. Lombardo, and Francisco~D. Mazzitelli.
 \newblock \emph{Phys. Rev. D}, 84:\penalty0 105031, Nov 2011.
 \newblock \doi{10.1103/PhysRevD.84.105031}.
 \newblock URL \url{http://link.aps.org/doi/10.1103/PhysRevD.84.105031}.
+
+\bibitem[Kitamura et~al.(2007)Kitamura, Pilon, and Jonasz]{Silica}
+Rei Kitamura, Laurent Pilon, and Miroslaw Jonasz.
+\newblock Optical constants of silica glass from extreme ultraviolet to far
+  infrared at near room temperature.
+\newblock \emph{Appl. Opt.}, 46\penalty0 (33):\penalty0 8118--8133, Nov 2007.
+\newblock \doi{10.1364/AO.46.008118}.
+\newblock URL \url{http://ao.osa.org/abstract.cfm?URI=ao-46-33-8118}.
 
 \bibitem[{Lambrecht} and {Reynaud}(2000)]{Lambrecht}
 A.~{Lambrecht} and S.~{Reynaud}.

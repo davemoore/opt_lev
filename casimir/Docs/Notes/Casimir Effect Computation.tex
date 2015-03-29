@@ -38,11 +38,11 @@ Hendrik Casimir based his prediction on a simplified model involving two paralle
 
 The nominal quantity computed in analysis of this effect is the casimir energy as a function of separation between metallic reflectors. In Casimir's classical result \citep{Casimir} the energy between two parallel perfectly conducting plates was calculated exactly to be \citep[given in nice form by][]{ScatteringTheory}
 $$
-\E=-\frac{hc\pi^2A}{720L^3}
+\E=-\frac{\hbar c\pi^2A}{720L^3}
 $$
 which of course makes the Casimir pressure between the two plates
 $$
-P_C=\frac{1}{A}\frac{d\E}{dL}=\frac{hc\pi^2}{240L^4}
+P_C=\frac{1}{A}\frac{d\E}{dL}=\frac{\hbar c\pi^2}{240L^4}
 $$
 and thus in vacuum, two perfectly conducting plates at $T=0K$ will attract each other with a pressure independent of plate area. This geometry has since been studied in various limits, including most notably finite conductivity and temperature \citep[][ and references therein]{ScatteringTheory} but also finite extent and non-planar geometries \citep[][ and references therein]{Rahi}.
 
@@ -79,48 +79,59 @@ Consider the geometry shown in figure \ref{fig:geo}. This is clearly not the cas
 $$
 E_{C}\approx E_{PFA}=\int_{\Sigma}E_{pp}(z)d\sigma
 $$
-where $E_{pp}$ is the Casimir energy per unit area of two parallel planes separated by a distance $z$, using the normal Casimir equation from the previous section. Here, the geometric argument that surfaces be approximately parallel, and forces additive, corresponds to the limit $R>>d$. For the sphere plane geometry, this integral yields the formula
+where $E_{pp}$ is the Casimir energy per unit area of two parallel planes separated by a distance $z$, using the normal Casimir equation from the previous section. Here, the geometric argument that surfaces be approximately parallel, and forces additive, corresponds to the limit $R>>d$. For the sphere plane geometry, this integral yields the formula \citep{Durand}
 $$
-E_{PFA}=
+F_{PFA}=2\pi R \frac{E_C}{A}=\frac{\hbar c\pi^3R}{360L^3}
 $$
-The PFA is based on the more general Derjaguin approximation for distance dependent forces between planar and curved surfaces, as discussed in \citet{BeyondPFA}. 
+or in terms of energy,
+$$
+E_{PFA}=-\frac{\hbar c\pi^3R}{720L^2}
+$$
+The PFA is based on the more general Derjaguin approximation for distance dependent forces between planar and curved surfaces, as discussed in \citet{BeyondPFA}. Because of the crucial assumption that the Casimir force obey the superposition principle, which it will not, in general, this is an uncontrolled approximation, as discussed in \citet{Emig07}, but the PFA has been shown to work well within its limit of applicability; figure \ref{fig:LamPFA} was calculated using the PFA, and matches the data measured by \citet{Lamoreaux} nearly perfectly.
 
 \subsection{Expanded Proximity Force Approximation}
-Most of this section taken from \citet{Dexp}, also see \citet{Bimonte12}
 
-\begin{figure}[h]
+To obtain a better picture of the Casimir force, and a more robust theory, we need to discuss a more general framework for calculating Casimir forces. The scattering theory framework for Casimir calculations is discussed at length in \citet{ScatteringTheory}, \citet{Emig07}, and \citet{Rahi}. The general idea is to treat the space between two surfaces as a cavity in which imaginary photons propagate, and calculate the force due to allowable modes of virtual photons across all separations within the cavity. From \citet{Rahi} and \citet{Emig07}, we find that the expression for Casimir energy between any number of arbitrary surfaces is given by
+$$
+E=\frac{\hbar c}{2\pi}\int_0^{\infty}d\kappa\ln\frac{\det{\mathbb{M}}}{\det{\mathbb{M}_{\infty}}}
+$$
+where $\mathbb{M}$ is a modified scattering matrix derived in \citet{Emig07} and $\kappa$ is imaginary frequency, the continuous zero-temperature limit of the Matsubara sum, discussed in the next section. 
+
+I write this somewhat obscure integral to provide a starting point for future more targeted numerical computations, pointing out that these scattering matrices are very large, and integrating their determinants corresponds to diagonalizing and integrating functions of $\kappa$. The numerical code I discuss later on is essentially a means by which arbitrary geometries can be translated into these scattering matrices, after which the code attempts to diagonalize these matrices and perform this integral. If we could exploit any particular symmetry in our geometry to expedite the calculation over the most brute-force approach, this would be an avenue by which more efficient numerical calculations could proceed.
+
+Following this theory, many recent efforts have focused on using this formalism to work out corrections to the PFA \citep[see e.g.][]{Dexp, Bimonte12, Bulgac, Durand}. \citet{Emig07} extensively explored expansions in the small and large distance regimes for the sphere-plate geometry for a perfectly conducting plate, and found an analytical solution for far distances, and a power-law fit to PFA corrections for small distances, which I have stitched together to form a prediction curve over all separations (\citet{Emig07} used mathematica to numerically integrate this geometry over the whole range, verifying continuity between the two expressions). 
+
+At small distances, the empirical power series fit of the correction to the PFA (accurate to $0.15R$ in face-to-face separation between plate and sphere) is
+$$
+\frac{E}{E_{PFA}}=1+\theta_1\frac{d}{R}+\theta_2\left(\frac{d}{R}\right)^2+\mathcal{O}\left[\left(\frac{d}{R}\right)^3\right]
+$$
+where the numerically fitted parameters are \citep{Emig07} are
+$$
+\theta_1=-1.42\pm0.02 \;\;\;\;\; \theta_2=2.39\pm0.14
+$$
+The semi-analytic expansion for the large distance limit ($d>2R$)
+$$
+E=\frac{\hbar c}{\pi}\frac{1}{L}\sum_{j=4}^\infty b_j\left(\frac{R}{L}\right)^{j-1}
+$$
+with the coefficients
+$$
+b_4=-\frac{9}{16} \;\;\; b_5=0 \;\;\; b_6=-\frac{25}{32} \;\;\; b_7=-\frac{3023}{4096}
+$$
+$$
+b_8=-\frac{12551}{9600} \;\;\; b_9=\frac{1282293}{163840} \;\;\; b_{10}=-\frac{32027856257}{722534400} \;\;\; b_{11}=\frac{39492614653}{412876800}
+$$
+these expressions are plotted in figure \ref{fig:expansion}. These expressions still assume perfect conductivity, zero temperature, and infinite plane surface, but these can be formulated as additional multiplicative corrections.
+
+\begin{figure}[!h]
 \centering
-\includegraphics[width=5in]{PFAExpansion}
-\caption{Illustration of the effect of the first order correction on the PFA; blue line shows expansion, orange line is PFA, green line is first order correction.}\label{fig:expansion}
+\includegraphics[height=4in]{analytical}
+\caption{Full length scale calculation for casimir force in plane-sphere configuration, for infinite conductivity and zero temperature, compared to PFA.}\label{fig:expansion}
 \end{figure}
 
-We don't expect this to hold much past this condition, but can use the derivative expansion to first order to obtain a slightly more accurate term. The formula for the derivative expansion in terms of some surface separation $z=\psi(\mathbf{x}_\parallel)$ is
-$$
-E_{DE}=-\frac{\pi^2}{1440}\int\frac{1}{\psi^3}\left(1+\frac{2}{3}(\partial_\alpha \psi)^2\right)d\mathbf{x}_\parallel
-$$
-and if we add in the correction factor $\eta_E(z)$ (see next section), we get
-$$
-E_{DE}=-\frac{\pi^2}{1440}\int\frac{\eta_E(\psi)}{\psi^3}\left(1+\frac{2}{3}(\partial_\alpha \psi)^2\right)d\mathbf{x}_\parallel
-$$
-which, given the complexity of $\eta_E$, is best evaluated numerically. We can parameterize the surface of a sphere as
-$$
-\psi_0(r)=R\left(1-\sqrt{1-\frac{r^2}{R^2}}\right)
-$$
-where the surface separation would be $\psi=a+\psi_0(r)$ and $a$ the minimal separation between sphere and plane. Given that the derivative with respect to $\theta$ is 0, the integral simplifies to
-$$
-E_{DE}=-\frac{2\pi^3}{1440}\int\frac{\eta_E(\psi)}{\psi^3}\left(1+\frac{2}{3}(\partial_r \psi)^2\right)dr
-$$
-and we can write, as well, 
-$$
-(\partial_r\psi)^2=R^2\left[-\frac{1}{2}\left(1-\frac{r^2}{R^2}\right)^{-1/2}\left(\frac{-2r}{R^2}\right)\right]^2=\frac{r^2}{R^2(1-\frac{r^2}{R^2})}=\frac{r^2}{R^2-r^2}=\left(\frac{R^2}{r^2}-1\right)^{-1}
-$$
-we can see that the derivative is undefined if we integrate to $R$, so as long as we integrate to $r_{limit}<R$ we should have a convergent integral; this shouldn't affect the accuracy given the $r^{-3}$ dependence. The effect of the derivative expansion correction in a perfectly conducting system can be seen below.
+\citet{Durand} explore geometry effects as a function of radius and separation, and tabulate corrections based on face to face separation, but their estimates are for infinite planes and do not extend far enough from the plane to be practically useful for our predictions. I have plotted corrections for the various numerically computed geometries in figures below as a function face to face separation in figures \ref{fig:geometric} and \ref{fig:geometricbest}.
 
-\citet{Bulgac} calculate the force between plane and sphere exactly, and compare to PFA. \citet{Durand} explore various temperature and geometry effects as a function of radius and separation. 
-
-\section{Finite Conductivity Corrections}
-\subsection{Dielectric Correction}
-\citet{BeyondPFA,Lambrecht}: dielectric effects, non-perfect conductivity. The following mostly from \citet{Lambrecht}
+\subsection{Finite Conductivity Corrections}
+This section follows from \citet{Lambrecht} \citep[see also][]{BeyondPFA}. Recognizing that the integral above is of scattering matrices over frequency space, the conductivity will factor into the scattering matrix for a given frequency and affect the overall Casimir energy. Another way to think about this is that, in our dipole metaphor, different elements have different polarizabilities and will react with different characteristic frequencies to perturbations.
 
 The dielectric constant is large at frequencies smaller than the plasma frequency $\omega_p$, so corrections are more relevant at separations smaller than the plasma wavelength
 $$
@@ -132,11 +143,11 @@ $$
 $$
 and in turn, $N$ is the number of conduction electrons per unit volume, $Z$ is the number of free electrons per atom (taken to just be $Z=1$), $N_a$ is the atomic number density, $q$ is the electron charge, and $m^*$ is effective electron mass, also taken to be 1 for Au though not necessarily for $\mathrm{SiO^2}$. We in turn calculate $N_a$ as the density $\rho$ divided by the atomic mass $m_Z$ for the species.
 
-Thermal corrections relevant at distances larger than 
+The correction due to conductivity is parameterized as
 $$
-\lambda_T=\frac{\hbar c}{k_B T}
+F_{finite}=\eta_{E}F_{infinite}
 $$
-The reduction factor for the Casimir energy is given by
+where the reduction factor for the Casimir energy is given by \citep{Lambrecht}
 \begin{equation}
 \eta_E=-\frac{180L^3}{c\pi^4}\int^{\infty}_{0}\kappa d\kappa\int^{c\kappa}_0\sum_{p=\parallel,\perp}\log{\left(1-r_{p,1}(i\omega,i\kappa)r_{p,2}(i\omega,i\kappa)e^{-2\kappa L}\right)}d\omega
 \end{equation}
@@ -145,8 +156,37 @@ where $r_{p,i}(i\omega,i\kappa)$ is the reflection amplitude of surface $i$ for 
 r_{\perp}&=-\frac{\sqrt{\omega^2(\epsilon(i\omega)-1)+c^2\kappa}-c\kappa}{\sqrt{\omega^2(\epsilon(i\omega)-1)+c^2\kappa}+c\kappa} \\
 r_{\parallel}&=\frac{\sqrt{\omega^2(\epsilon(i\omega)-1)+c^2\kappa}-c\kappa\epsilon(i\omega)}{\sqrt{\omega^2(\epsilon(i\omega)-1)+c^2\kappa}+c\kappa\epsilon(i\omega)}
 \end{align}
+\citet{Lambrecht} suggest numerical integration over the range $10^{-4}$ to $10^{3}$ eV for distances 0.1 to 10 $\mu$m for best efficiency in numerics, though in mathematica the integral converges fairly quickly (see the mathematica notebook for the implemented function).
 
-\citet{Lambrecht} suggest numerical integration over the range $10^{-4}$ to $10^{3}$ eV for distances 0.1 to 10 $\mu$m
+The non-trivial aspect of this correction is the form of $\epsilon(i\omega)$. From \citet{Lambrecht}, we see that there are two main options for how to evaluate this function, namely empirical measurements or through a model. The two dominant models are the plasma and Drude models of conductivity, which do not agree and are a major source of disagreement in current literature (this is one motivation for performing measurements of the thermal casimir force). The plasma model gives
+$$
+\epsilon(i\omega)=1+\frac{\omega_p^2}{\omega^2}
+$$
+while the Drude model adds the relaxation parameter $\gamma$, using the form
+$$
+\epsilon(i\omega)=1+\frac{\omega_p^2}{\omega(\omega+\gamma)}
+$$
+For gold, we find $\omega_p\approx1.37*10^{16}$ and $\gamma\approx4.521*10^{13}$. For the numerical calculations here, I employed Drude model, as \citet{Lambrecht} suggests it is a better fit to the empirical data, but the main correction comes from the silica bead, which follows the dielectric form
+$$
+\epsilon(i\omega)=\epsilon_{\infty} + \frac{\epsilon_{0} - \epsilon_{\infty}}{1 - \frac{\omega^2}{\omega_p^2}}
+$$
+where $\epsilon_0$ and $\epsilon_\infty$ are permittivities above and below the divergent pole at $\omega_p$. This is the form used in an example calculation which came with the numerical code, and could be refined further, though it does seem to be approximately correct. A good first reference, which has a similar form, would be \citet{Silica}. The values used for these calculations were $\epsilon_0\approx 11.87$, $\epsilon_\infty\approx1.035$, and $\omega_p\approx 8.86*10^{15}$. 
+
+\subsection{Temperature Corrections}
+
+The length at which the thermal casimir force becomes relevant is determined by the thermal length scale,
+$$
+\lambda_T=\frac{\hbar c}{k_B T}
+$$
+
+\citet{Lamoreaux}
+$$
+\eta_T=1+\frac{720}{\pi^2}\left\{\begin{array}{l r}
+1.202(\xi^3/2\pi)\zeta(3)-(\xi^4\pi^2/45)&\xi\le1/2 \\
+1.202(\xi/8\pi)\zeta(3)-(\pi^2/720)&\xi < 1/2
+\end{array}\right.
+$$
+where $\xi=kTL/\hbar c$ is the length scale from the Matsubara sum.
 
 \subsection{Expected accuracy}
 We are limited by the validity of the proximity force approximation, which assumes the (roughly) Casimir forces are additive, which is known not to be the case, and assumes the sphere and plane are close enough such that the plane appears infinite and the curvature is relatively small. We include the first order correction to the PFA, which may not extend validity very far and still assumes the plane is long enough to be effectively infinite.
