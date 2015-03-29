@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2014.5.25)  27 MAR 2015 10:51
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2014.5.25)  28 MAR 2015 19:42
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -305,90 +305,90 @@ LaTeX Warning: `!h' float specifier changed to `!ht'.
 <PFAExpansion.pdf, id=23, 509.905pt x 305.14pt>
 File: PFAExpansion.pdf Graphic file (type pdf)
  <use PFAExpansion.pdf>
-Package pdftex.def Info: PFAExpansion.pdf used on input line 89.
+Package pdftex.def Info: PFAExpansion.pdf used on input line 93.
 (pdftex.def)             Requested size: 361.34999pt x 216.25047pt.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 [4] [5 <./geometry.png (PNG copy)>] [6 <./PFAExpansion.pdf>]
-<LamPFA.png, id=81, 686.565pt x 322.20375pt>
+<LamPFA.png, id=80, 686.565pt x 322.20375pt>
 File: LamPFA.png Graphic file (type png)
  <use LamPFA.png>
-Package pdftex.def Info: LamPFA.png used on input line 152.
+Package pdftex.def Info: LamPFA.png used on input line 156.
 (pdftex.def)             Requested size: 361.34999pt x 169.5774pt.
 
-<../../scuffCode/CubeSphereAspect/Bead_positions.png, id=82, 712.6625pt x 735.7
+<../../scuffCode/CubeSphereAspect/Bead_positions.png, id=81, 712.6625pt x 735.7
 4875pt>
 File: ../../scuffCode/CubeSphereAspect/Bead_positions.png Graphic file (type pn
 g)
  <use ../../scuffCode/CubeSphereAspect/Bead_positions.png>
 Package pdftex.def Info: ../../scuffCode/CubeSphereAspect/Bead_positions.png us
-ed on input line 160.
+ed on input line 164.
 (pdftex.def)             Requested size: 210.00525pt x 216.81pt.
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-<../../scuffCode/Geometry/L-20_W-25.png, id=83, 712.6625pt x 735.74875pt>
+<../../scuffCode/Geometry/L-20_W-25.png, id=82, 712.6625pt x 735.74875pt>
 File: ../../scuffCode/Geometry/L-20_W-25.png Graphic file (type png)
 
 <use ../../scuffCode/Geometry/L-20_W-25.png>
 Package pdftex.def Info: ../../scuffCode/Geometry/L-20_W-25.png used on input l
-ine 166.
+ine 170.
 (pdftex.def)             Requested size: 210.00525pt x 216.81pt.
 
-<../../scuffCode/Geometry/L-20_W-50.png, id=84, 712.6625pt x 735.74875pt>
+<../../scuffCode/Geometry/L-20_W-50.png, id=83, 712.6625pt x 735.74875pt>
 File: ../../scuffCode/Geometry/L-20_W-50.png Graphic file (type png)
 
 <use ../../scuffCode/Geometry/L-20_W-50.png>
 Package pdftex.def Info: ../../scuffCode/Geometry/L-20_W-50.png used on input l
-ine 167.
+ine 171.
 (pdftex.def)             Requested size: 210.00525pt x 216.81pt.
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-<../../scuffCode/Comparison/convergence.png, id=85, 578.16pt x 433.62pt>
+<../../scuffCode/Comparison/convergence.png, id=84, 578.16pt x 433.62pt>
 File: ../../scuffCode/Comparison/convergence.png Graphic file (type png)
 
 <use ../../scuffCode/Comparison/convergence.png>
 Package pdftex.def Info: ../../scuffCode/Comparison/convergence.png used on inp
-ut line 173.
+ut line 177.
 (pdftex.def)             Requested size: 397.48499pt x 298.11302pt.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<../../scuffCode/CubeSphere/pfa_convergence.png, id=87, 867.24pt x 578.16pt>
+<../../scuffCode/CubeSphere/pfa_convergence.png, id=86, 867.24pt x 578.16pt>
 File: ../../scuffCode/CubeSphere/pfa_convergence.png Graphic file (type png)
 
 <use ../../scuffCode/CubeSphere/pfa_convergence.png>
 Package pdftex.def Info: ../../scuffCode/CubeSphere/pfa_convergence.png used on
- input line 179.
+ input line 183.
 (pdftex.def)             Requested size: 397.48499pt x 264.99522pt.
 
-<../../scuffCode/CubeSphere/pfa_convergence_zoom.png, id=88, 867.24pt x 578.16p
+<../../scuffCode/CubeSphere/pfa_convergence_zoom.png, id=87, 867.24pt x 578.16p
 t>
 File: ../../scuffCode/CubeSphere/pfa_convergence_zoom.png Graphic file (type pn
 g)
  <use ../../scuffCode/CubeSphere/pfa_convergence_zoom.png>
 Package pdftex.def Info: ../../scuffCode/CubeSphere/pfa_convergence_zoom.png us
-ed on input line 180.
+ed on input line 184.
 (pdftex.def)             Requested size: 397.48499pt x 264.99522pt.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<../../scuffCode/CubeSphere/pfa_v_pec.png, id=89, 867.24pt x 578.16pt>
+<../../scuffCode/CubeSphere/pfa_v_pec.png, id=88, 867.24pt x 578.16pt>
 File: ../../scuffCode/CubeSphere/pfa_v_pec.png Graphic file (type png)
 
 <use ../../scuffCode/CubeSphere/pfa_v_pec.png>
 Package pdftex.def Info: ../../scuffCode/CubeSphere/pfa_v_pec.png used on input
- line 186.
+ line 190.
 (pdftex.def)             Requested size: 505.89pt x 337.26505pt.
 
-Overfull \hbox (36.13498pt too wide) in paragraph at lines 186--187
+Overfull \hbox (36.13498pt too wide) in paragraph at lines 190--191
  [][] 
  []
 
@@ -396,16 +396,16 @@ Overfull \hbox (36.13498pt too wide) in paragraph at lines 186--187
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 
-<../../scuffCode/CubeSphere/analytic_v_numerical.png, id=90, 867.24pt x 578.16p
+<../../scuffCode/CubeSphere/analytic_v_numerical.png, id=89, 867.24pt x 578.16p
 t>
 File: ../../scuffCode/CubeSphere/analytic_v_numerical.png Graphic file (type pn
 g)
  <use ../../scuffCode/CubeSphere/analytic_v_numerical.png>
 Package pdftex.def Info: ../../scuffCode/CubeSphere/analytic_v_numerical.png us
-ed on input line 192.
+ed on input line 196.
 (pdftex.def)             Requested size: 505.89pt x 337.26505pt.
 
-Overfull \hbox (36.13498pt too wide) in paragraph at lines 192--193
+Overfull \hbox (36.13498pt too wide) in paragraph at lines 196--197
  [][] 
  []
 
@@ -413,120 +413,120 @@ Overfull \hbox (36.13498pt too wide) in paragraph at lines 192--193
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 
-<../../scuffCode/CubeSphereDepth/depth_v_gridding.png, id=91, 867.24pt x 578.16
+<../../scuffCode/CubeSphereDepth/depth_v_gridding.png, id=90, 867.24pt x 578.16
 pt>
 File: ../../scuffCode/CubeSphereDepth/depth_v_gridding.png Graphic file (type p
 ng)
  <use ../../scuffCode/CubeSphereDepth/depth_v_gridding.png>
 Package pdftex.def Info: ../../scuffCode/CubeSphereDepth/depth_v_gridding.png u
-sed on input line 198.
+sed on input line 202.
 (pdftex.def)             Requested size: 397.48499pt x 264.99522pt.
 
-<../../scuffCode/CubeSphereDepth/depth_v_gridding_finite.png, id=92, 867.24pt x
+<../../scuffCode/CubeSphereDepth/depth_v_gridding_finite.png, id=91, 867.24pt x
  578.16pt>
 File: ../../scuffCode/CubeSphereDepth/depth_v_gridding_finite.png Graphic file 
 (type png)
  <use ../../scuffCode/CubeSphereDepth/depth_v_gridding_finite.png>
 Package pdftex.def Info: ../../scuffCode/CubeSphereDepth/depth_v_gridding_finit
-e.png used on input line 199.
+e.png used on input line 203.
 (pdftex.def)             Requested size: 397.48499pt x 264.99522pt.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 
-<../../scuffCode/CubeSphereDepth/depth_correction.png, id=93, 867.24pt x 578.16
+<../../scuffCode/CubeSphereDepth/depth_correction.png, id=92, 867.24pt x 578.16
 pt>
 File: ../../scuffCode/CubeSphereDepth/depth_correction.png Graphic file (type p
 ng)
  <use ../../scuffCode/CubeSphereDepth/depth_correction.png>
 Package pdftex.def Info: ../../scuffCode/CubeSphereDepth/depth_correction.png u
-sed on input line 205.
+sed on input line 209.
 (pdftex.def)             Requested size: 397.48499pt x 264.99522pt.
 
-<../../scuffCode/CubeSphereDepth/depth_correction_finite.png, id=94, 867.24pt x
+<../../scuffCode/CubeSphereDepth/depth_correction_finite.png, id=93, 867.24pt x
  578.16pt>
 File: ../../scuffCode/CubeSphereDepth/depth_correction_finite.png Graphic file 
 (type png)
  <use ../../scuffCode/CubeSphereDepth/depth_correction_finite.png>
 Package pdftex.def Info: ../../scuffCode/CubeSphereDepth/depth_correction_finit
-e.png used on input line 206.
+e.png used on input line 210.
 (pdftex.def)             Requested size: 397.48499pt x 264.99522pt.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 
-<../../scuffCode/CubeSphereAspect/force_v_aspect.png, id=95, 867.24pt x 578.16p
+<../../scuffCode/CubeSphereAspect/force_v_aspect.png, id=94, 867.24pt x 578.16p
 t>
 File: ../../scuffCode/CubeSphereAspect/force_v_aspect.png Graphic file (type pn
 g)
  <use ../../scuffCode/CubeSphereAspect/force_v_aspect.png>
 Package pdftex.def Info: ../../scuffCode/CubeSphereAspect/force_v_aspect.png us
-ed on input line 212.
+ed on input line 216.
 (pdftex.def)             Requested size: 361.34999pt x 240.90234pt.
 
-<../../scuffCode/CubeSphereAspect/aspect_correction.png, id=96, 867.24pt x 578.
+<../../scuffCode/CubeSphereAspect/aspect_correction.png, id=95, 867.24pt x 578.
 16pt>
 File: ../../scuffCode/CubeSphereAspect/aspect_correction.png Graphic file (type
  png)
  <use ../../scuffCode/CubeSphereAspect/aspect_correction.png>
 Package pdftex.def Info: ../../scuffCode/CubeSphereAspect/aspect_correction.png
- used on input line 213.
+ used on input line 217.
 (pdftex.def)             Requested size: 361.34999pt x 240.90234pt.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 
-<../../scuffCode/CubeSphereAspect/force_v_aspect_finite.png, id=97, 867.24pt x 
+<../../scuffCode/CubeSphereAspect/force_v_aspect_finite.png, id=96, 867.24pt x 
 578.16pt>
 File: ../../scuffCode/CubeSphereAspect/force_v_aspect_finite.png Graphic file (
 type png)
  <use ../../scuffCode/CubeSphereAspect/force_v_aspect_finite.png>
 Package pdftex.def Info: ../../scuffCode/CubeSphereAspect/force_v_aspect_finite
-.png used on input line 219.
+.png used on input line 223.
 (pdftex.def)             Requested size: 361.34999pt x 240.90234pt.
 
-<../../scuffCode/CubeSphereAspect/aspect_correction_finite.png, id=98, 867.24pt
+<../../scuffCode/CubeSphereAspect/aspect_correction_finite.png, id=97, 867.24pt
  x 578.16pt>
 File: ../../scuffCode/CubeSphereAspect/aspect_correction_finite.png Graphic fil
 e (type png)
 
 <use ../../scuffCode/CubeSphereAspect/aspect_correction_finite.png>
 Package pdftex.def Info: ../../scuffCode/CubeSphereAspect/aspect_correction_fin
-ite.png used on input line 220.
+ite.png used on input line 224.
 (pdftex.def)             Requested size: 361.34999pt x 240.90234pt.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 
-<../../scuffCode/CubeSphereBest/analytic_v_numerical_best.png, id=99, 867.24pt 
+<../../scuffCode/CubeSphereBest/analytic_v_numerical_best.png, id=98, 867.24pt 
 x 578.16pt>
 File: ../../scuffCode/CubeSphereBest/analytic_v_numerical_best.png Graphic file
  (type png)
  <use ../../scuffCode/CubeSphereBest/analytic_v_numerical_best.png>
 Package pdftex.def Info: ../../scuffCode/CubeSphereBest/analytic_v_numerical_be
-st.png used on input line 226.
+st.png used on input line 230.
 (pdftex.def)             Requested size: 505.89pt x 337.26505pt.
 
-Overfull \hbox (36.13498pt too wide) in paragraph at lines 226--227
+Overfull \hbox (36.13498pt too wide) in paragraph at lines 230--231
  [][] 
  []
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<../../scuffCode/CubeSphereBest/prediction.png, id=100, 867.24pt x 578.16pt>
+<../../scuffCode/CubeSphereBest/prediction.png, id=99, 867.24pt x 578.16pt>
 File: ../../scuffCode/CubeSphereBest/prediction.png Graphic file (type png)
 
 <use ../../scuffCode/CubeSphereBest/prediction.png>
 Package pdftex.def Info: ../../scuffCode/CubeSphereBest/prediction.png used on 
-input line 232.
+input line 236.
 (pdftex.def)             Requested size: 505.89pt x 337.26505pt.
 
-Overfull \hbox (36.13498pt too wide) in paragraph at lines 232--233
+Overfull \hbox (36.13498pt too wide) in paragraph at lines 236--237
  [][] 
  []
 
@@ -537,16 +537,16 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 
-<../../scuffCode/CubeSphereBest/pfa_v_pec_best.png, id=101, 867.24pt x 578.16pt
+<../../scuffCode/CubeSphereBest/pfa_v_pec_best.png, id=100, 867.24pt x 578.16pt
 >
 File: ../../scuffCode/CubeSphereBest/pfa_v_pec_best.png Graphic file (type png)
 
  <use ../../scuffCode/CubeSphereBest/pfa_v_pec_best.png>
 Package pdftex.def Info: ../../scuffCode/CubeSphereBest/pfa_v_pec_best.png used
- on input line 262.
+ on input line 266.
 (pdftex.def)             Requested size: 505.89pt x 337.26505pt.
 
-Overfull \hbox (36.13498pt too wide) in paragraph at lines 262--263
+Overfull \hbox (36.13498pt too wide) in paragraph at lines 266--267
  [][] 
  []
 
@@ -554,69 +554,69 @@ Overfull \hbox (36.13498pt too wide) in paragraph at lines 262--263
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 
-<../../scuffCode/CubeSphereLateral/lateral_force.png, id=102, 578.16pt x 433.62
+<../../scuffCode/CubeSphereLateral/lateral_force.png, id=101, 578.16pt x 433.62
 pt>
 File: ../../scuffCode/CubeSphereLateral/lateral_force.png Graphic file (type pn
 g)
  <use ../../scuffCode/CubeSphereLateral/lateral_force.png>
 Package pdftex.def Info: ../../scuffCode/CubeSphereLateral/lateral_force.png us
-ed on input line 268.
+ed on input line 272.
 (pdftex.def)             Requested size: 361.34999pt x 271.01183pt.
 
-<../../scuffCode/CubeSphereLateral/lateral_force_finite.png, id=103, 578.16pt x
+<../../scuffCode/CubeSphereLateral/lateral_force_finite.png, id=102, 578.16pt x
  433.62pt>
 File: ../../scuffCode/CubeSphereLateral/lateral_force_finite.png Graphic file (
 type png)
  <use ../../scuffCode/CubeSphereLateral/lateral_force_finite.png>
 Package pdftex.def Info: ../../scuffCode/CubeSphereLateral/lateral_force_finite
-.png used on input line 269.
+.png used on input line 273.
 (pdftex.def)             Requested size: 361.34999pt x 271.01183pt.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 
-<../../scuffCode/CubeSphereLateral/lateral_force_drop.png, id=104, 578.16pt x 4
+<../../scuffCode/CubeSphereLateral/lateral_force_drop.png, id=103, 578.16pt x 4
 33.62pt>
 File: ../../scuffCode/CubeSphereLateral/lateral_force_drop.png Graphic file (ty
 pe png)
  <use ../../scuffCode/CubeSphereLateral/lateral_force_drop.png>
 Package pdftex.def Info: ../../scuffCode/CubeSphereLateral/lateral_force_drop.p
-ng used on input line 275.
+ng used on input line 279.
 (pdftex.def)             Requested size: 361.34999pt x 271.01183pt.
 
-<../../scuffCode/CubeSphereLateral/lateral_force_drop_finite.png, id=105, 578.1
+<../../scuffCode/CubeSphereLateral/lateral_force_drop_finite.png, id=104, 578.1
 6pt x 433.62pt>
 File: ../../scuffCode/CubeSphereLateral/lateral_force_drop_finite.png Graphic f
 ile (type png)
 
 <use ../../scuffCode/CubeSphereLateral/lateral_force_drop_finite.png>
 Package pdftex.def Info: ../../scuffCode/CubeSphereLateral/lateral_force_drop_f
-inite.png used on input line 276.
+inite.png used on input line 280.
 (pdftex.def)             Requested size: 361.34999pt x 271.01183pt.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 
-<../../scuffCode/CubeSphereLateral/lateral_force_drop_zoom.png, id=106, 578.16p
+<../../scuffCode/CubeSphereLateral/lateral_force_drop_zoom.png, id=105, 578.16p
 t x 433.62pt>
 File: ../../scuffCode/CubeSphereLateral/lateral_force_drop_zoom.png Graphic fil
 e (type png)
 
 <use ../../scuffCode/CubeSphereLateral/lateral_force_drop_zoom.png>
 Package pdftex.def Info: ../../scuffCode/CubeSphereLateral/lateral_force_drop_z
-oom.png used on input line 282.
+oom.png used on input line 286.
 (pdftex.def)             Requested size: 361.34999pt x 271.01183pt.
 
-<../../scuffCode/CubeSphereLateral/lateral_force_drop_finite_zoom.png, id=107, 
+<../../scuffCode/CubeSphereLateral/lateral_force_drop_finite_zoom.png, id=106, 
 578.16pt x 433.62pt>
 File: ../../scuffCode/CubeSphereLateral/lateral_force_drop_finite_zoom.png Grap
 hic file (type png)
 
 <use ../../scuffCode/CubeSphereLateral/lateral_force_drop_finite_zoom.png>
 Package pdftex.def Info: ../../scuffCode/CubeSphereLateral/lateral_force_drop_f
-inite_zoom.png used on input line 283.
+inite_zoom.png used on input line 287.
 (pdftex.def)             Requested size: 361.34999pt x 271.01183pt.
 
 
@@ -708,7 +708,7 @@ ite_zoom.png>] (./Casimir Effect Computation.aux) )
 Here is how much of TeX's memory you used:
  3429 strings out of 493117
  50862 string characters out of 6135433
- 122663 words of memory out of 5000000
+ 123663 words of memory out of 5000000
  6808 multiletter control sequences out of 15000+600000
  12795 words of font info for 48 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -729,7 +729,7 @@ ype1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2014/texmf-dist/fonts/type
 ublic/amsfonts/cm/cmti10.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/pu
 blic/amsfonts/cm/cmtt10.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/pub
 lic/amsfonts/symbols/msbm10.pfb>
-Output written on "Casimir Effect Computation.pdf" (23 pages, 1802142 bytes).
+Output written on "Casimir Effect Computation.pdf" (23 pages, 1808211 bytes).
 PDF statistics:
  235 PDF objects out of 1000 (max. 8388607)
  129 compressed objects within 2 object streams

@@ -78,36 +78,48 @@ datafile="../../Mathematica/calculated_vals.tsv"
 PFA_datafile="../../Mathematica/calculated_pfa_vals.tsv"
 EXP_datafile="../../Mathematica/calculated_exp_vals.tsv"
 dist,fpfa,fnaive,fright,ftemp=numpy.loadtxt(PFA_datafile,unpack=True)
-dist2,fexp,fexptemp=numpy.loadtxt(EXP_datafile,unpack=True)
+dist2,fexp,fexptemp,fexpfin,fexpfintemp=numpy.loadtxt(EXP_datafile,unpack=True)
 fexp=fexp*1e-18
 fexptemp=fexptemp*1e-18
+fexpfin=fexpfin*1e-18
+fexpfintemp=fexpfintemp*1e-18
 dist=dist*1e6
 
 figure(figsize=(12,8))
 
 gst=numpy.min(g1t)
 inds = numpy.where(g1t == gst)
-plot(d1t[inds],f1t[inds],'-o',label="P 300K, g="+str(gst),color="red")
-inds = numpy.where(g1t == 0.5)
-#plot(d1t[inds],f1t[inds],'-d',label="P 300K, g="+str(0.4),color="red")
+xnew=np.arange(numpy.min(d1t[inds]), 30, 0.1)
+s = interp1d(d1t[inds],log(f1t[inds]),kind='cubic')
+plot(xnew,exp(s(xnew)),'--',color="red")
+scatter(d1t[inds],f1t[inds],marker='o',label="P 300K, g="+str(gst),color="red")
 
 gs=numpy.min(g1)
 inds = numpy.where(g1 == gs)
-plot(d1[inds],f1[inds],'-o',label="P 0K, g="+str(gs),color="blue")
+xnew=np.arange(numpy.min(d1[inds]), 30, 0.1)
+s = interp1d(d1[inds],log(f1[inds]),kind='cubic')
+plot(xnew,exp(s(xnew)),'--',color="blue")
+scatter(d1[inds],f1[inds],marker='o',label="P 0K, g="+str(gs),color="blue")
 inds = numpy.where(g1 == 0.5)
 #plot(d1[inds],f1[inds],'-d',label="P 0K, g="+str(0.4),color="blue")
 
 gs=numpy.min(g2t)
 inds = numpy.where(g2t == gs)
-plot(d2t[inds],f2t[inds],'-o',label="F 300K, g="+str(gs),color="green")
+xnew=np.arange(numpy.min(d2t[inds]), 30, 0.1)
+s = interp1d(d2t[inds],log(f2t[inds]),kind='cubic')
+plot(xnew,exp(s(xnew)),'--',color="green")
+scatter(d2t[inds],f2t[inds],marker='o',label="F 300K, g="+str(gs),color="green")
 inds = numpy.where(g2t == 0.5)
-plot(d2t[inds],f2t[inds],'-d',label="F 300K, g="+str(0.5),color="green")
+scatter(d2t[inds],f2t[inds],marker='d',label="F 300K, g="+str(0.5),color="green")
 
 gs=numpy.min(g2)
 inds = numpy.where(g2 == gs)
-plot(d2[inds],f2[inds],'-o',label="F 0K, g="+str(gs),color="black")
+scatter(d2[inds],f2[inds],marker='o',label="F 0K, g="+str(gs),color="black")
 inds = numpy.where(g2 == 0.5)
-plot(d2[inds],f2[inds],'-d',label="F 0K, g="+str(0.5),color="black")
+xnew=np.arange(numpy.min(d2[inds]), 30, 0.1)
+s = interp1d(d2[inds],log(f2[inds]),kind='cubic')
+plot(xnew,exp(s(xnew)),'--',color="black")
+scatter(d2[inds],f2[inds],marker='d',label="F 0K, g="+str(0.5),color="black")
 
 gst=numpy.min(g1ts)
 inds = numpy.where(g1ts == gst)
@@ -126,8 +138,10 @@ plot([1,30],[1e-20,1e-20],':',color="black")
 plot([1,30],[1e-21,1e-21],':',color="black")
 
 #plot(dist,fpfa,label="PFA T=0",linestyle='--',color="blue")
-plot(dist2,fexp,label="Corrected PFA T=0",linestyle='--',color="purple")
-plot(dist2,fexptemp,label="Corrected PFA T=300",linestyle='--',color="orange")
+plot(dist2,fexp,label="Corrected PFA T=0",linestyle='-',color="blue")
+plot(dist2,fexptemp,label="Corrected PFA T=300",linestyle='-',color="red")
+plot(dist2,fexpfin,label="Si/Au T=0",linestyle='-',color="black")
+plot(dist2,fexpfintemp,label="Si/Au T=300",linestyle='-',color="green")
 #plot(dist,fright,label="SiO2/Au T=0",linestyle='--',color="black")
 #plot(dist,ftemp,label="SiO2/Au T=300",linestyle='--',color="green")
 xlim(1,30)
