@@ -33,7 +33,7 @@ dist=dist*1e6
 ftemp=ftemp*1e18
 
 EXP_datafile="../../Mathematica/calculated_exp_vals.tsv"
-dist2,fexp=numpy.loadtxt(EXP_datafile,unpack=True)
+dist2,fexp,fexptemp,fexpfin,fexpfintemp=numpy.loadtxt(EXP_datafile,unpack=True)
 
 figure(figsize=(12,8))
 xnew=np.arange(1, 30, 0.1)
@@ -71,11 +71,14 @@ plot([1,30],[1e-2,1e-2],':',color="black")
 plot([1,30],[1e-3,1e-3],':',color="black")
 
 #plot(dist,ftemp,label="SiO2/Au PFA",linestyle='--',color="green")
-plot(dist2,fexp,label="Corrected PFA T=0",linestyle='--',color="purple")
-xlim(2.5,30)
+#plot(dist2,fexp,label="Corrected PFA T=0",linestyle='--',color="purple")
+plot(dist2,fexptemp,label="Corrected PFA T=300",linestyle='--',color="orange")
+#plot(dist2,fexpfin,label="Si/Au T=0",linestyle='--',color="blue")
+plot(dist2,fexpfintemp,label="Si/Au T=300",linestyle='--',color="red")
+xlim(1,30)
 #xscale('log')
 yscale('log')
-ylim(1e-2,5e2)
+ylim(1e-2,1e3)
 xlabel('Distance (microns)')
 ylabel('Force (1e-18 N)')
 title('Numerical Prediction for Casimir Force')

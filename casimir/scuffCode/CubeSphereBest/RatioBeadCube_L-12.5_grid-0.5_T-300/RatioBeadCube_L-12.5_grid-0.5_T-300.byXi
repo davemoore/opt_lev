@@ -1,9 +1,0 @@
-# scuff-cas3D run on hequ0105 at 03/23/15::08:10:56
-# data file columns: 
-#1: transform tag
-#2: imaginary angular frequency
-#3: energy Xi integrand
-#4: z-force Xi integrand
-1 1.000000e-03 -1.94756399e-04 -4.53338988e-05 
-1 8.232789e-01 -6.40855264e-12 -1.14187402e-11 
-1 1.646558e+00 -1.97194390e-14 -2.98123543e-20 
