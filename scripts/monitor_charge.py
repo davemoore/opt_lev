@@ -10,10 +10,10 @@ import scipy.signal as sp
 import scipy.optimize as opt
 import cPickle as pickle
 
-path = r"D:\Data\20150209\Bead1\chargehp"
+path = r"D:\Data\20150421\Bead1\chargelp2"
 ts = 10.
 
-fdrive = 35.
+fdrive = 23.
 make_plot = True
 
 data_columns = [0, 1] ## column to calculate the correlation against

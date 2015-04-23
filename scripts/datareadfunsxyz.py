@@ -5,11 +5,9 @@ import os
 import scipy.signal as sp
 
 
-refname = r"after_aod_nofb_1000mV_100Hz.h5"
-#fname0 =  r"nobead_original_grounds_1000mV_100Hz.h5"
-fname0=""
-#fname0 = r"2mbar_zcool_5000mV_35Hz_10.h5"
-path = r"D:\Data\20150305\test"
+refname = r"2mbar_xzcool_50mV_23Hz.h5"
+fname0 = r""
+path = r"D:\Data\20150422\Bead2"
 d2plt = 1
 if fname0 == "":
 	filelist = os.listdir(path)
@@ -28,7 +26,7 @@ if fname0 == "":
 		 
 
 Fs = 5e3  ## this is ignored with HDF5 files
-NFFT = 2**17
+NFFT = 2**12
 def getdata(fname):
 	print "Opening file: ", fname
 	## guess at file type from extension
@@ -73,18 +71,18 @@ if d2plt:
 	rotated = [data0[3][:,0], data0[3][:,1]]
         #plt.plot(rotated[0])
         #plt.plot(rotated[1])
-        plt.plot(rotated[0], label = 'x')
-        plt.plot(rotated[1], label = 'y')
-        plt.plot(data0[3][:, -1], label = 'z')
+        plt.plot(data0[3][:, 3])#-numpy.mean(data0[3][:, 0]))/numpy.std(data0[3][:, 0]), label = 'x')
+        plt.plot(data1[3][:, 6])#-numpy.mean(data0[3][:, 1]))/numpy.std(data0[3][:, 0]), label = 'x resp')
+        #plt.plot(data0[3][:, 2], label = 'z')
         #plt.plot(data0[3][:, -1])
         #plt.plot(data0[3][:, 3], label = 'fucking laser')
-        plt.legend()
+        #plt.legend()
        # plt.plot(data0[3][:, 3])
        # plt.plot(data0[3][:, 4])
         #plt.plot(data0[3][:, 5])
         #plt.plot(data0[3][:, -1])
-        if refname:
-            plt.plot(data1[3][:, 2],label='z ref')
+        #if refname:
+            #plt.plot(data1[3][:, 2],label='z ref')
             #plt.plot(data1[3][:, 1])
 
 

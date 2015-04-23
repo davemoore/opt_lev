@@ -4,5 +4,6 @@
 	<Property Name="NI.Lib.SourceVersion" Type="Int">318799872</Property>
 	<Property Name="NI.Lib.Version" Type="Str">1.0.0.0</Property>
 	<Item Name="datatakersync_master.vi" Type="VI" URL="../datatakersync_master.vi"/>
+	<Item Name="Untitled 1 (SubVI).vi" Type="VI" URL="../Untitled 1 (SubVI).vi"/>
 	<Item Name="Untitled 2.vi" Type="VI" URL="../Untitled 2.vi"/>
 </Library>
