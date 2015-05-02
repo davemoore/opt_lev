@@ -10,7 +10,7 @@ import scipy.signal as sp
 import scipy.optimize as opt
 import cPickle as pickle
 
-path = r"D:\Data\20150501\Bead1\chargelp"
+path = r"D:\Data\20150428\Bead2\chargehp"
 ts = 10.
 
 fdrive = 41.
@@ -69,6 +69,16 @@ def get_most_recent_file(p):
     
     fnum = re.findall('\d+.h5', mrf)[0][:-3]
     return mrf#.replace(fnum, str(int(fnum)-1))
+
+def ffn(x, p0, p1, p2):
+    return p0*np.sin( 2*np.pi*p1*xx + p2 )
+
+def get_mod(m, p1 = 3.05e-4, p2 = 0):
+    ##Takes the aliased modulation and fits a sin
+    b,a = sp.butter(3,0.1)
+    cdrive = sp.filtfilt(np.abs(m-np.mean(m)))
+cdrive = sp.filtfilt( b, a, cdrive )
+cdrive -= np.mean(cdrive)
 
 
 best_phase = None

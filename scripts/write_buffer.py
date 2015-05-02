@@ -92,9 +92,10 @@ emp_vec = np.load("z_template.npy")
 emptot = np.interp( np.linspace(0,1,2*half_length),np.linspace(0,1,len(emp_vec)), emp_vec)*max_val
 
 dtot[:,1] = emptot
+dtot[:,1] = np.roll(dtot[:,1], 0)
 
 plt.plot(dtot)
-#plt.plot(emptot)
+plt.plot(emptot)
 plt.show()
 
 np.savetxt(r"D:\GitHub\opt_lev\labview\fpga\gauss_cdf.txt", dtot, delimiter=",",fmt="%d")
