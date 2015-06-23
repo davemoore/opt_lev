@@ -702,7 +702,6 @@ For information on moving this example to another FPGA target, refer to ni.com/i
 				<Item Name="NI_PtbyPt.lvlib" Type="Library" URL="/&lt;vilib&gt;/ptbypt/NI_PtbyPt.lvlib"/>
 				<Item Name="Smart Open.vi" Type="VI" URL="/&lt;vilib&gt;/myRIO/Instrument Drivers/Onboard IO/AI/vis/Smart Open.vi"/>
 				<Item Name="Read.vi" Type="VI" URL="/&lt;vilib&gt;/myRIO/Instrument Drivers/Onboard IO/AI/vis/Read.vi"/>
-				<Item Name="NI_FpgaMspHost.lvlib" Type="Library" URL="/&lt;vilib&gt;/rvi/Analysis/host/Public/NI_FpgaMspHost.lvlib"/>
 			</Item>
 			<Item Name="user.lib" Type="Folder">
 				<Item Name="port init.vi" Type="VI" URL="/&lt;userlib&gt;/Agilis Labview 7.1/AGILIS_Communication.llb/port init.vi"/>
@@ -736,6 +735,7 @@ For information on moving this example to another FPGA target, refer to ni.com/i
 			<Item Name="Get Full Terminal Name.vi" Type="VI" URL="../../datatakersync_unfucked/C/Users/Beads/Downloads/Get Full Terminal Name.vi"/>
 			<Item Name="lvanlys.dll" Type="Document" URL="/&lt;resource&gt;/lvanlys.dll"/>
 			<Item Name="Measure Fringe Displacement Simple.vi" Type="VI" URL="../../Measure Fringe Displacement Simple.vi"/>
+			<Item Name="MultiChannelFeed_FPGATarget2_MultiChannelfFee_lERQoxjCHp8.lvbitx" Type="Document" URL="../PXI7854R/GitHub/opt_lev/labview/fpga/FPGA Bitfiles/MultiChannelFeed_FPGATarget2_MultiChannelfFee_lERQoxjCHp8.lvbitx"/>
 			<Item Name="niFpgaExecutionStage.ctl" Type="VI" URL="/&lt;vilib&gt;/rvi/eio/common/niFpgaExecutionStage.ctl"/>
 			<Item Name="nirviEmuClasses.ctl" Type="VI" URL="/&lt;vilib&gt;/rvi/eio/common/nirviEmuClasses.ctl"/>
 			<Item Name="EIO_ResourceConfig.ctl" Type="VI" URL="/&lt;vilib&gt;/eio/EIO_ResourceConfig.ctl"/>
@@ -750,29 +750,6 @@ For information on moving this example to another FPGA target, refer to ni.com/i
 			<Item Name="nirviReportUnexpectedCaseInternalError.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/errors/nirviReportUnexpectedCaseInternalError.vi"/>
 			<Item Name="niLvFpgaErrorClusterFromErrorCode.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/errors/niLvFpgaErrorClusterFromErrorCode.vi"/>
 			<Item Name="niLvFPGAUserSpecifiedEmulationVISupport.ctl" Type="VI" URL="/&lt;vilib&gt;/rvi/customViForEmulation/niLvFPGAUserSpecifiedEmulationVISupport.ctl"/>
-			<Item Name="niFpgaWaitOnOcc.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/interface/common/niFpgaWaitOnOcc.vi"/>
-			<Item Name="niLvFpga_Close_PCIe-7841R.vi" Type="VI" URL="/&lt;vilib&gt;/FPGAPlugInAG/PCIe-7841R/niLvFpga_Close_PCIe-7841R.vi"/>
-			<Item Name="niLvFpgaWhatHappensToTopLevelVI.ctl" Type="VI" URL="/&lt;vilib&gt;/rvi/errors/niLvFpgaWhatHappensToTopLevelVI.ctl"/>
-			<Item Name="niFpgaNodeNameForErrorReporting.ctl" Type="VI" URL="/&lt;vilib&gt;/rvi/interface/common/niFpgaNodeNameForErrorReporting.ctl"/>
-			<Item Name="niLvFpgaAdjustHostInterfaceError.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/errors/niLvFpgaAdjustHostInterfaceError.vi"/>
-			<Item Name="niFpgaFxpOverflowPolicy.ctl" Type="VI" URL="/&lt;vilib&gt;/rvi/Analysis/common/scripting/niFpgaFxpOverflowPolicy.ctl"/>
-			<Item Name="niFpgaNumIoResolution.ctl" Type="VI" URL="/&lt;vilib&gt;/rvi/Analysis/common/dataTypes/niFpgaNumIoResolution.ctl"/>
-			<Item Name="niFpgaBnFxpIntWrapper.ctl" Type="VI" URL="/&lt;vilib&gt;/rvi/Analysis/common/blockNode/niFpgaBnFxpIntWrapper.ctl"/>
-			<Item Name="niLvFpgaFilterSettings.ctl" Type="VI" URL="/&lt;vilib&gt;/rvi/Analysis/measure/butterworth/configuration/niLvFpgaFilterSettings.ctl"/>
-			<Item Name="nirviIIRReorderCoefficients.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/Analysis/measure/butterworth/configuration/nirviIIRReorderCoefficients.vi"/>
-			<Item Name="niFpgaBwSettings.ctl" Type="VI" URL="/&lt;vilib&gt;/rvi/Analysis/measure/butterworth/configuration/niFpgaBwSettings.ctl"/>
-			<Item Name="nirviBwFloatEquivCoeffs.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/Analysis/measure/butterworth/configuration/nirviBwFloatEquivCoeffs.vi"/>
-			<Item Name="nirviBwForceUnityGains.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/Analysis/measure/butterworth/configuration/nirviBwForceUnityGains.vi"/>
-			<Item Name="nirviBwQuantizeCoeffs.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/Analysis/measure/butterworth/configuration/nirviBwQuantizeCoeffs.vi"/>
-			<Item Name="niLvFpgaBwValidateConfig.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/Analysis/measure/butterworth/configuration/niLvFpgaBwValidateConfig.vi"/>
-			<Item Name="nirviBwProcessCoefficients.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/Analysis/measure/butterworth/configuration/nirviBwProcessCoefficients.vi"/>
-			<Item Name="nirviBwOrderingFilterSections.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/Analysis/measure/butterworth/configuration/nirviBwOrderingFilterSections.vi"/>
-			<Item Name="niLvFpga_Run_PCIe-7841R.vi" Type="VI" URL="/&lt;vilib&gt;/FPGAPlugInAG/PCIe-7841R/niLvFpga_Run_PCIe-7841R.vi"/>
-			<Item Name="nirviErrorClusterFromErrorCode.vi" Type="VI" URL="/&lt;vilib&gt;/RVI Host/nirviSupport.llb/nirviErrorClusterFromErrorCode.vi"/>
-			<Item Name="nirviWhatTheDeviceIsDoing.ctl" Type="VI" URL="/&lt;vilib&gt;/rvi/ClientSDK/nirviWhatTheDeviceIsDoing.ctl"/>
-			<Item Name="nirio_resource_hc.ctl" Type="VI" URL="/&lt;vilib&gt;/userdefined/High Color/nirio_resource_hc.ctl"/>
-			<Item Name="niLvFpga_Open_PCIe-7841R.vi" Type="VI" URL="/&lt;vilib&gt;/FPGAPlugInAG/PCIe-7841R/niLvFpga_Open_PCIe-7841R.vi"/>
-			<Item Name="MultiChannelFeed_FPGATarget2_MultiChannelfFee_lERQoxjCHp8.lvbitx" Type="Document" URL="../PXI7854R/GitHub/opt_lev/labview/fpga/FPGA Bitfiles/MultiChannelFeed_FPGATarget2_MultiChannelfFee_lERQoxjCHp8.lvbitx"/>
 		</Item>
 		<Item Name="Build Specifications" Type="Build"/>
 	</Item>
