@@ -3,11 +3,11 @@ import matplotlib
 import matplotlib.pyplot as plt
 import os
 import scipy.signal as sp
+import numpy as np
 
-
-refname = r"2mbar_zcool_50mV_100Hz.h5"
+refname = r"urmbar_xyzcool_0mVDC_50mV_41Hz_0mVDC.h5"
 fname0 = r""
-path = r"D:\Data\20150501\Bead4"
+path = r"D:\Data\20150603\Bead2\cant_50um"
 d2plt = 1
 if fname0 == "":
 	filelist = os.listdir(path)
@@ -26,7 +26,8 @@ if fname0 == "":
 		 
 
 Fs = 5e3  ## this is ignored with HDF5 files
-NFFT = 2**13
+NFFT = 2**17
+
 def getdata(fname):
 	print "Opening file: ", fname
 	## guess at file type from extension
@@ -62,28 +63,17 @@ def rotate(vec1, vec2, theta):
 
 if refname:
 	data1 = getdata(os.path.join(path, refname))
-Fs = 5000
-b, a = sp.butter(3, [2*10./Fs, 2*200./Fs], btype = 'bandpass')
+Fs = 10000
+b, a = sp.butter(1, [2*5./Fs, 2*10./Fs], btype = 'bandpass')
 
 if d2plt:	
-	fig = plt.figure()
-	#rotated = rotate(data0[3][:, 0],data0[3][:, 1], numpy.pi*(0))
-	rotated = [data0[3][:,0], data0[3][:,1]]
-        #plt.plot(rotated[0])
-        #plt.plot(rotated[1])
-        plt.plot(data0[3][:, 3])#-numpy.mean(data0[3][:, 0]))/numpy.std(data0[3][:, 0]), label = 'x')
-        plt.plot(data1[3][:, 6])#-numpy.mean(data0[3][:, 1]))/numpy.std(data0[3][:, 0]), label = 'x resp')
-        #plt.plot(data0[3][:, 2], label = 'z')
-        #plt.plot(data0[3][:, -1])
-        #plt.plot(data0[3][:, 3], label = 'fucking laser')
-        #plt.legend()
-       # plt.plot(data0[3][:, 3])
-       # plt.plot(data0[3][:, 4])
-        #plt.plot(data0[3][:, 5])
-        #plt.plot(data0[3][:, -1])
-        #if refname:
-            #plt.plot(data1[3][:, 2],label='z ref')
-            #plt.plot(data1[3][:, 1])
+
+        fig = plt.figure()
+        plt.plot(data0[3][:, 0])
+        plt.plot(data0[3][:, 1])
+        plt.plot(data0[3][:, 2])
+       # plt.plot(np.abs(data0[3][:, 3])-np.mean(np.abs(data0[3][:, 3])))
+       
 
 
 

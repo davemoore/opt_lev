@@ -66,6 +66,7 @@ np.savetxt(r"D:\GitHub\opt_lev\labview\fpga\two_traps.txt", dtot, delimiter=",",
 n = 9
 
 t = np.linspace(np.pi/2., 2.*np.pi + np.pi/2., half_length/2**n + 1.)
+#t = np.linspace(0, 2.*np.pi, half_length/2**n + 1.)
 triangle = ss.sawtooth(t, width = 0.5)[:-1]
 
 triangletot = np.array([])
@@ -79,20 +80,24 @@ cdf = 2.*(sp.norm.cdf(xint)-0.5)
 s = np.interp(triangletot, cdf, xint, left = np.min(xint), right = np.max(xint))
 
 t2 = np.linspace(0, 2.*np.pi, 2.*half_length + 1)
-mod = np.sin(t2 - np.pi/2.) + 1.
+modx = np.cos(t2 - np.pi) + 1.
+mody = np.sin(t2 - np.pi/2.) + 1.
 
-xtot = mod[: -1]*np.hstack([s, s])
-ytot = -1.*mod[: -1]**2
+xtot = modx[: -1]*np.hstack([s, s])
+ytot = mody[: -1]*np.hstack([s, s])
 
-dtot = np.transpose( np.vstack( (xtot, ytot) ) )
+dtot = np.transpose( np.vstack( (xtot, ytot, np.zeros(len(ytot))) ) )
 
 dtot = 1.0*max_val*dtot/np.max(dtot)
 
 emp_vec = np.load("z_template.npy")
 emptot = np.interp( np.linspace(0,1,2*half_length),np.linspace(0,1,len(emp_vec)), emp_vec)*max_val
 
-dtot[:,1] = emptot
-dtot[:,1] = np.roll(dtot[:,1], 0)
+## set y mod to zero for now
+dtot[:,1] = 0
+
+dtot[:,2] = emptot[::-1]
+#dtot[:,2] = np.roll(dtot[:,2], -550)
 
 plt.plot(dtot)
 plt.plot(emptot)

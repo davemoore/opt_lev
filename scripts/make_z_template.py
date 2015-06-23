@@ -7,7 +7,7 @@ import scipy.optimize as opt
 import bead_util as bu
 import numpy as np
 
-refname = r"D:\Data\20150430\Bead1\urmbar_xyzcool_temp_150mV_21Hz.h5"
+refname = r"D:\Data\20150603\Bead2\2mbar_ztemp_400mV_41Hz_200mVDC.h5"
 dat, attribs, _ = bu.getdata(refname)
 
 ## first find the phase of the drive signal
@@ -49,7 +49,7 @@ yy = plt.ylim()
 # plt.loglog( freqs, np.abs(tvf) )
 # plt.show()
 
-b2,a2 = sp.butter(3,0.02)
+b2,a2 = sp.butter(3,0.005)
 cdat = sp.filtfilt(b2, a2, cdat)
 
 tot_vec = np.zeros( (1,np.round( npts_per_cycle )) )
@@ -58,7 +58,7 @@ for n in range(0, tot_cyc ):
 
     sidx = np.round( n*npts_per_cycle - init_phase)
     eidx = sidx + np.round( npts_per_cycle )
-
+    print sidx, eidx
     if( sidx < 0 ): continue
     if( eidx > len(cdat)): continue
 
