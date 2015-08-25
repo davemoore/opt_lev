@@ -209,7 +209,6 @@ def fit_spec(refname, fit_freqs, make_plot=False,
     noise_val = np.median( xpsd[bin_low:bin_hi] )
     return noise_val, bp, bcov, press
 
-
 def find_str(str):
     """ Function to sort files.  Assumes that the filename ends
         in #mV_#Hz[_#].h5 and sorts by end index first, then
