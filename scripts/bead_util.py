@@ -45,8 +45,10 @@ def getdata(fname):
             f = h5py.File(fname,'r')
             dset = f['beads/data/pos_data']
             dat = np.transpose(dset)
-            max_volt = dset.attrs['max_volt']
-            nbit = dset.attrs['nbit']
+            #max_volt = dset.attrs['max_volt']
+            #nbit = dset.attrs['nbit']
+            max_volt = 10.
+            nbit = 32767.
             dat = 1.0*dat*max_volt/nbit
             attribs = dset.attrs
 
@@ -149,6 +151,63 @@ def get_calibration(refname, fit_freqs, make_plot=False,
         plt.ylabel("PSD [m Hz$^{-1/2}$]")
     
     return np.sqrt(norm_rat), bp, bcov
+
+def fit_spec(refname, fit_freqs, make_plot=False, 
+                    data_columns = [0,1], drive_column=-1, NFFT=2**14, exclude_peaks=False):
+    ## given a reference file, fit the spectrum to a Lorentzian and return
+    ## the calibration from V to physical units
+    dat, attribs, cf = getdata(refname)
+    if( len(attribs) > 0 ):
+        fsamp = attribs["Fsamp"]
+        press = attribs["pressures"]
+    xdat = dat[:,data_columns[0]]
+    xpsd, freqs = matplotlib.mlab.psd(xdat, Fs = fsamp, NFFT = NFFT) 
+
+    ##first, fit for the absolute calibration
+    damp_guess = 400
+    f0_guess = 150
+    Aemp = np.median( xpsd[fit_freqs[0]:fit_freqs[0]+10] )
+    spars = [Aemp*(2*np.pi*f0_guess)**4/damp_guess, f0_guess, damp_guess]
+
+    fit_bool = inrange( freqs, fit_freqs[0], fit_freqs[1] )
+
+    ## if there's large peaks in the spectrum, it can cause the fit to fail
+    ## this attempts to exclude them.  If a single boolean=True is passed,
+    ## then any points 50% higher than the starting points are excluded (useful
+    ## for th overdamped case). If a list defining frequency ranges is passed, e.g.:
+    ## [[f1start, f1stop],[f2start, f2stop],...], then points within the given
+    ## ranges are excluded
+    if( isinstance(exclude_peaks, list) ):
+        for cex in exclude_peaks:
+            fit_bool = np.logical_and(fit_bool, np.logical_not( inrange(freqs, cex[0],cex[1])))
+    elif(exclude_peaks):
+        fit_bool = np.logical_and( fit_bool, xpsd < 1.5*Aemp )
+
+    xdat_fit = freqs[fit_bool]
+    ydat_fit = np.sqrt(xpsd[fit_bool])
+    bp, bcov = opt.curve_fit( bead_spec_rt_hz, xdat_fit, ydat_fit, p0=spars)
+    #bp = spars
+    #bcov = 0.
+
+    print bp
+
+    print attribs["temps"][0]+273
+    norm_rat = (2*kb*(attribs["temps"][0]+273)/(bead_mass)) * 1/bp[0]
+
+    if(make_plot):
+        fig = plt.figure()
+        plt.loglog( freqs, np.sqrt(norm_rat * xpsd), '.' )
+        plt.loglog( xdat_fit, np.sqrt(norm_rat * ydat_fit**2), 'k.' )
+        xx = np.linspace( freqs[fit_bool][0], freqs[fit_bool][-1], 1e3)
+        plt.loglog( xx, np.sqrt(norm_rat * bead_spec_rt_hz( xx, bp[0], bp[1], bp[2] )**2), 'r')
+        plt.xlabel("Freq [Hz]")
+        plt.ylabel("PSD [m Hz$^{-1/2}$]")
+    
+    #return np.sqrt(norm_rat), bp, bcov, press
+    bin_low = np.argmin( np.abs( freqs - 10. ))
+    bin_hi = np.argmin( np.abs( freqs - 40. ))
+    noise_val = np.median( xpsd[bin_low:bin_hi] )
+    return noise_val, bp, bcov, press
 
 
 def find_str(str):

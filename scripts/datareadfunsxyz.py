@@ -5,9 +5,9 @@ import os
 import scipy.signal as sp
 import numpy as np
 
-refname = r"urmbar_xyzcool_0mVDC_50mV_41Hz_0mVDC.h5"
+refname = r"urmbar_xyzcool14.h5"
 fname0 = r""
-path = r"D:\Data\20150603\Bead2\cant_50um"
+path = r"C:\Data\20150823\Bead2\turbo_spin_down2"
 d2plt = 1
 if fname0 == "":
 	filelist = os.listdir(path)
@@ -36,14 +36,14 @@ def getdata(fname):
 		f = h5py.File(fname,'r')
 		dset = f['beads/data/pos_data']
 		dat = numpy.transpose(dset)
-		max_volt = dset.attrs['max_volt']
-		nbit = dset.attrs['nbit']
+		#max_volt = dset.attrs['max_volt']
+		#nbit = dset.attrs['nbit']
 		Fs = dset.attrs['Fsamp']
 		
-		dat = 1.0*dat*max_volt/nbit
+		#dat = 1.0*dat*max_volt/nbit
 
 	else:
-		dat = numpy.loadtxt(fname, skiprows = 5, usecols = [2, 3, 4, 5] )
+		dat = numpy.loadtxt(fname, skiprows = 5, usecols = [2, 3, 4, 5, 6] )
 
 	xpsd, freqs = matplotlib.mlab.psd(dat[:, 0]-numpy.mean(dat[:, 0]), Fs = Fs, NFFT = NFFT) 
 	ypsd, freqs = matplotlib.mlab.psd(dat[:, 1]-numpy.mean(dat[:, 1]), Fs = Fs, NFFT = NFFT)
@@ -71,7 +71,7 @@ if d2plt:
         fig = plt.figure()
         plt.plot(data0[3][:, 0])
         plt.plot(data0[3][:, 1])
-        plt.plot(data0[3][:, 2])
+        plt.plot(data0[3][:, 3])
        # plt.plot(np.abs(data0[3][:, 3])-np.mean(np.abs(data0[3][:, 3])))
        
 

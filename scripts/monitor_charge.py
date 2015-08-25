@@ -10,14 +10,14 @@ import scipy.signal as sp
 import scipy.optimize as opt
 import cPickle as pickle
 
-path = r"D:\Data\20150603\Bead2\cant_move"
+path = r"C:\Data\20150823\Bead2\chargelp"
 ts = 10.
 
-fdrive = 41.
+fdrive = 29.
 make_plot = True
 
 data_columns = [0, 1] ## column to calculate the correlation against
-drive_column = -1 ## column containing drive signal
+drive_column = 11 ##-1 ## column containing drive signal
 
 def getphase(fname):
         print "Getting phase from: ", fname 
@@ -48,6 +48,11 @@ def getdata(fname, maxv):
         lentrace = len(xdat)
         ## zero pad one cycle
         corr_full = bu.corr_func( dat[:,drive_column], xdat, fsamp, fdrive)
+
+        #plt.figure()
+        #plt.plot( xdat)
+        #plt.plot(dat[:,drive_column])
+        #plt.show()
         
 
         return corr_full[0], np.max(corr_full) 
@@ -66,7 +71,7 @@ def get_most_recent_file(p):
         if os.path.getmtime(f)>mtime:
             mrf = f
             mtime = os.path.getmtime(f)
-    
+
     fnum = re.findall('\d+.h5', mrf)[0][:-3]
     return mrf#.replace(fnum, str(int(fnum)-1))
 
