@@ -4,14 +4,14 @@
 import numpy as np
 import matplotlib, calendar
 import matplotlib.pyplot as plt
-import os, re, time
+import os, re, time, glob
 import bead_util as bu
 import scipy.signal as sp
 import scipy.optimize as opt
 import cPickle as pickle
 
-path = r"D:\Data\20140711\Bead6\chargelp_chirps_10s"
-fdrive = 41.
+path = r"/data/20141212/Bead2/charge_cantilever_leave"
+fdrive = 307.
 make_plot = True
 
 data_columns = [0, 1] ## column to calculate the correlation against
@@ -46,10 +46,11 @@ def getdata(fname, maxv):
         lentrace = len(xdat)
         ## zero pad one cycle
         xdat = np.append(xdat, np.zeros( fsamp/fdrive ))
-        corr_full = np.correlate( xdat, dat[:,drive_column])/lentrace
-        corr = corr_full[ maxv ]
+        corr_full = np.correlate( xdat-np.median(xdat), dat[:,drive_column]-np.median(dat[:,drive_column]))/lentrace
+        cout = corr_full[ len(corr_full)/2 ]
+        cm_out = np.max( np.abs(corr_full))
 
-        return corr
+        return cout, cm_out
 
 def get_most_recent_file(p):
 
@@ -70,30 +71,28 @@ def get_most_recent_file(p):
 
 best_phase = None
 corr_data = []
+corr_max_data = []
 
-if make_plot:
-    fig0 = plt.figure()
-    plt.hold(False)
+def sort_fun( s ):
+  return int(re.findall("\d+.h5",s)[0][:-3])
 
-while( True ):
+flist = sorted(glob.glob(path + "/*.h5"), key=sort_fun)
+#while( True ):
     ## get the most recent file in the directory and calculate the correlation
-
-    cfile = get_most_recent_file( path )
-    
-    ## wait a sufficient amount of time to ensure the file is closed
-    time.sleep(10)
+for cfile in flist:
+    print cfile
 
     if( not best_phase ):
         best_phase = getphase( cfile )
 
-    corr = getdata( cfile, best_phase )
+    corr, corr_max = getdata( cfile, best_phase )
     corr_data.append(corr)
+    corr_max_data.append(corr_max)
 
-    np.savetxt( os.path.join(path, "current_corr.txt"), [corr,] )
 
-    if make_plot:
-        plt.plot(corr_data)
-        plt.draw()
-        plt.pause(0.001)
+plt.figure()
+plt.plot(corr_data)
+plt.plot(corr_max_data)
+plt.show()
 
     

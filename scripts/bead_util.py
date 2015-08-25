@@ -21,8 +21,9 @@ num_nucleons = bead_mass/nucleon_mass
 data_columns = [0, 1, 2] ## column to calculate the correlation against
 drive_column = -1
 laser_column = 3
+aod_columns = [4, 5, 6]
 
-prime_comb = np.loadtxt("../waveforms/rand_wf_primes.txt")
+prime_comb = np.loadtxt("/home/dcmoore/opt_lev/waveforms/rand_wf_primes.txt")
 ## normalize the prime_comb to have max = 1
 prime_comb /= np.max( np.abs(prime_comb) )
 

@@ -12,7 +12,8 @@ print gap, lam
 D = 5e-6 # diameter of bead (m)
 rhob = 2e3 # density bead (kg/m^3)
 rhoa = 19.3e3 # density attractor
-rhosi = 2.3e3 # density attractor
+#rhosi = 2.3e3 # density attractor
+rhosi = 8.96e3 # density of copper
 a = 10e-6 # length of attractor cube side (m)
 a_depth = 10e-6 # depth of attractor cube side (m)
 au_thick = 0.2e-6 # shield layer thickness (m)
@@ -43,7 +44,7 @@ def Fg_tot(z,y,x):
     return f1[0]
 
 curr_thick = a_depth
-intval = integrate.tplquad(Fg_tot, -a_depth/2.0, a_depth/2.0, lambda y: -a/2.0, lambda y: a/2.0, lambda y,z: -a/2.0, lambda y,z: a/2.0, epsabs=1e-2, epsrel=1e-2)
+intval = integrate.tplquad(Fg_tot, -a_depth/2.0, a_depth/2.0, lambda y: -a/4.0, lambda y: a/4.0, lambda y,z: -a/2.0, lambda y,z: a/2.0, epsabs=1e-2, epsrel=1e-2)
 
 #curr_thick = au_thick
 #intval_shield = integrate.tplquad(Fg_tot, -au_thick/2.0, au_thick/2.0, lambda y: -a/2.0, lambda y: a/2.0, lambda y,z: -a/2.0, lambda y,z: a/2.0, epsabs=1e-4, epsrel=1e-4)
