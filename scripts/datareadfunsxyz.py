@@ -5,9 +5,9 @@ import os
 import scipy.signal as sp
 import numpy as np
 
-refname = r"urmbar_xyzcool14.h5"
+refname = r"1mbar_xyzcool.h5"
 fname0 = r""
-path = r"C:\Data\20150823\Bead2\turbo_spin_down2"
+path = r"C:\Data\20150825\Bead1"
 d2plt = 1
 if fname0 == "":
 	filelist = os.listdir(path)
@@ -26,7 +26,7 @@ if fname0 == "":
 		 
 
 Fs = 5e3  ## this is ignored with HDF5 files
-NFFT = 2**17
+NFFT = 2**12
 
 def getdata(fname):
 	print "Opening file: ", fname
@@ -48,6 +48,7 @@ def getdata(fname):
 	xpsd, freqs = matplotlib.mlab.psd(dat[:, 0]-numpy.mean(dat[:, 0]), Fs = Fs, NFFT = NFFT) 
 	ypsd, freqs = matplotlib.mlab.psd(dat[:, 1]-numpy.mean(dat[:, 1]), Fs = Fs, NFFT = NFFT)
         zpsd, freqs = matplotlib.mlab.psd(dat[:, 2]-numpy.mean(dat[:, 2]), Fs = Fs, NFFT = NFFT)
+
 	norm = numpy.median(dat[:, 2])
         #for h in [xpsd, ypsd, zpsd]:
         #        h /= numpy.median(dat[:,2])**2
