@@ -10,7 +10,7 @@ import scipy.signal as sp
 import scipy.optimize as opt
 import cPickle as pickle
 
-path = r"C:\Data\20150823\Bead2\chargelp"
+path = r"C:\Data\20150825\Bead3\chargelp"
 ts = 10.
 
 fdrive = 29.
@@ -43,7 +43,7 @@ def getdata(fname, maxv):
         if( len(attribs) > 0 ):
             fsamp = attribs["Fsamp"]
 
-        xdat = dat[:,data_columns[0]]
+        xdat = dat[:,data_columns[1]]
 
         lentrace = len(xdat)
         ## zero pad one cycle

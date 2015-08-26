@@ -5,9 +5,9 @@ import os
 import scipy.signal as sp
 import numpy as np
 
-refname = r"1mbar_xyzcool.h5"
+refname = r"UR_mbar_xyzcool.h5"
 fname0 = r""
-path = r"C:\Data\20150825\Bead1"
+path = r"C:\Data\20150825\Bead3"
 d2plt = 1
 if fname0 == "":
 	filelist = os.listdir(path)
@@ -26,7 +26,7 @@ if fname0 == "":
 		 
 
 Fs = 5e3  ## this is ignored with HDF5 files
-NFFT = 2**12
+NFFT = 2**17
 
 def getdata(fname):
 	print "Opening file: ", fname
