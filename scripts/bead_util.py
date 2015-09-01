@@ -60,17 +60,8 @@ def getdata(fname, gain_error=1.0):
             f = h5py.File(fname,'r')
             dset = f['beads/data/pos_data']
             dat = np.transpose(dset)
-            max_volt = dset.attrs['max_volt']
-            nbit = dset.attrs['nbit']
-            dat = 1.0*dat*max_volt/nbit
+            dat = dat / 3276.7 ## hard coded scaling from DAQ
             attribs = dset.attrs
-
-            ## correct the drive amplitude for the voltage divider. 
-            ## this assumes the drive is the last column in the dset
-            vd = attribs['volt_div'] if 'volt_div' in attribs else 1.0
-            if( vd > 0 ):
-                curr_gain = gain_fac(vd*gain_error)
-                dat[:,-1] *= curr_gain
 
         except (KeyError, IOError):
             print "Warning, got no keys for: ", fname

@@ -1,14 +1,15 @@
 import numpy, h5py
+import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 import os
 import scipy.signal as sp
 
 
-refname = r"2mbar_cant_-2_5_500mV_10Hz.h5"
-fname0 = r"2mbar_cant_-5_5_500mV_10Hz.h5"
-#fname0 =  r"../no_charge/urmbar_xyzcool_2500mV_RANDFREQ_2"
-path = "/data/20141212/Bead2/charge_cant_vs_freq/"
+refname = r"urmbar_xyzcool_50mV_200Hz_83.h5"
+fname0 = r"urmbar_xyzcool_50mV_200Hz_83.h5"
+
+path = "/data/20140803/Bead8/chargelp_cal/"
 d2plt = 1
 if fname0 == "":
 	filelist = os.listdir(path)
@@ -27,7 +28,7 @@ if fname0 == "":
 		 
 
 Fs = 5e3  ## this is ignored with HDF5 files
-NFFT = 2**14
+NFFT = 2**17
 def getdata(fname):
 	print "Opening file: ", fname
 	## guess at file type from extension
@@ -36,19 +37,19 @@ def getdata(fname):
 		f = h5py.File(fname,'r')
 		dset = f['beads/data/pos_data']
 		dat = numpy.transpose(dset)
-		max_volt = dset.attrs['max_volt']
-		nbit = dset.attrs['nbit']
-		Fs = dset.attrs['Fsamp']
+		#max_volt = dset.attrs['max_volt']
+		#nbit = dset.attrs['nbit']
+		#Fs = dset.attrs['Fsamp']
 		
-		dat = 1.0*dat*max_volt/nbit
+		#dat = 1.0*dat*max_volt/nbit
 
 	else:
 		dat = numpy.loadtxt(fname, skiprows = 5, usecols = [2, 3, 4, 5] )
 
-	xpsd, freqs = matplotlib.mlab.psd(dat[:, 0], Fs = Fs, NFFT = NFFT) 
+	xpsd, freqs = matplotlib.mlab.psd(dat[:, 0]-np.mean(dat[:,0]), Fs = Fs, NFFT = NFFT) 
 	#xpsd = numpy.abs(numpy.fft.rfft(dat[:, 0]))
-        ypsd, freqs = matplotlib.mlab.psd(dat[:, 1], Fs = Fs, NFFT = NFFT)
-        zpsd, freqs = matplotlib.mlab.psd(dat[:, 2], Fs = Fs, NFFT = NFFT)
+        ypsd, freqs = matplotlib.mlab.psd(dat[:, 1]-np.mean(dat[:,1]), Fs = Fs, NFFT = NFFT)
+        zpsd, freqs = matplotlib.mlab.psd(dat[:, 2]-np.mean(dat[:,2]), Fs = Fs, NFFT = NFFT)
 	norm = numpy.median(dat[:, 2])
 	return [freqs, xpsd, ypsd, dat, zpsd]
 
