@@ -1,0 +1,33 @@
+import numpy as np
+import bead_util as bu
+import matplotlib
+import os
+import glob
+
+
+path = "/data/20150324/Bead2/pressures"
+reprocessfile = True
+
+def ave_power(psd, freqs, fmin, fmax):
+    ##returns the average power in psd within a specified frequency range.
+    return np.sum(psd[(freqs>=fmin) & (freqs<=fmax)])
+
+
+if reprocessfile:
+    init_list = glob.glob(path + "/*.h5") 
+
+def getdata(fname):
+    
+    
+	print "Processing ", fname
+        dat, attribs, cf = bu.getdata(os.path.join(path, fname))
+
+        ## make sure file opened correctly
+        if( len(dat) == 0 ):
+            return {}
+        out_dict = {"corr_t0": corr,
+                    "max_corr": [corr_max, corr_max_pos],
+                    "max_corr_sq": [corr_sq_max, corr_sq_max_pos],
+                    "psd": np.sqrt(xpsd[max_bi}
+        
+        cf.close()

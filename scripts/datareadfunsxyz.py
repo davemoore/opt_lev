@@ -1,16 +1,24 @@
+
 import numpy, h5py
 import matplotlib
 import matplotlib.pyplot as plt
 import os
 import scipy.signal as sp
+import bead_util as bu
 
+refname =r"urmbar_xyzcool_50mV_100Hz.h5"
+fname0 =  r"urmbar_xyzcool2_50mV_100Hz.h5"
+calf = r"2mbar_zcool_500mV_21Hz.h5"
+path = r"/data/20150501/Bead1"
+d2plt = 0
 
-refname = r"2mbar_axcool_2500mV_no_synth.h5"
-#fname0 =  r"2mbar_xyzcool_50mV_41Hz.h5"
-fname0 = r""
-path = r"D:\Data\20141017\Bead1\cooling_test"
-d2plt = 1
+norm, bp, bcov = bu.get_calibration(os.path.join(path, calf), [1., 400.], make_plot = True)
+
+k = bp[1]**2*bu.bead_mass
+cal = norm*k
+
 if fname0 == "":
+
 	filelist = os.listdir(path)
 
 	mtime = 0
@@ -27,7 +35,7 @@ if fname0 == "":
 		 
 
 Fs = 5e3  ## this is ignored with HDF5 files
-NFFT = 2**11
+NFFT = 2**14
 def getdata(fname):
 	print "Opening file: ", fname
 	## guess at file type from extension
@@ -51,7 +59,7 @@ def getdata(fname):
 	norm = numpy.median(dat[:, 2])
         #for h in [xpsd, ypsd, zpsd]:
         #        h /= numpy.median(dat[:,2])**2
-	return [freqs, xpsd, ypsd, dat, zpsd]
+	return [freqs, numpy.sqrt(xpsd), numpy.sqrt(ypsd), dat, zpsd]
 
 data0 = getdata(os.path.join(path, fname0))
 
@@ -86,19 +94,20 @@ if d2plt:
             plt.plot(data1[3][:, 2],label='z ref')
             #plt.plot(data1[3][:, 1])
 
-
+gf = data0[0]<2500.
 
 fig = plt.figure()
 plt.subplot(3, 1, 1)
-plt.loglog(data0[0], data0[1],label="Data")
+plt.loglog(data0[0][gf], cal*data0[1][gf],label="Data")
 if refname:
-	plt.loglog(data1[0], data1[1],label="Ref")
-plt.ylabel("V$^2$/Hz")
+	plt.loglog(data1[0][gf], cal*data1[1][gf],label="Ref")
+plt.ylabel("N/sqrt(Hz)")
 plt.legend()
 plt.subplot(3, 1, 2)
-plt.loglog(data0[0], data0[2])
+plt.loglog(data0[0][gf], cal*data0[2][gf])
 if refname:
-	plt.loglog(data1[0], data1[2])
+	plt.loglog(data1[0][gf], cal*data1[2][gf])
+plt.ylabel("N/sqrt(Hz)")
 plt.subplot(3, 1, 3)
 plt.loglog(data0[0], data0[4])
 if refname:
