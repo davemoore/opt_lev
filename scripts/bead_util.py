@@ -21,8 +21,9 @@ num_nucleons = bead_mass/nucleon_mass
 data_columns = [0, 1, 2] ## column to calculate the correlation against
 drive_column = -1
 laser_column = 3
+aod_columns = [4, 5, 6]
 
-prime_comb = np.loadtxt("../waveforms/rand_wf_primes.txt")
+prime_comb = np.loadtxt("/home/dcmoore/opt_lev/waveforms/rand_wf_primes.txt")
 ## normalize the prime_comb to have max = 1
 prime_comb /= np.max( np.abs(prime_comb) )
 
@@ -59,17 +60,8 @@ def getdata(fname, gain_error=1.0):
             f = h5py.File(fname,'r')
             dset = f['beads/data/pos_data']
             dat = np.transpose(dset)
-            max_volt = dset.attrs['max_volt']
-            nbit = dset.attrs['nbit']
-            dat = 1.0*dat*max_volt/nbit
+            dat = dat / 3276.7 ## hard coded scaling from DAQ
             attribs = dset.attrs
-
-            ## correct the drive amplitude for the voltage divider. 
-            ## this assumes the drive is the last column in the dset
-            vd = attribs['volt_div'] if 'volt_div' in attribs else 1.0
-            if( vd > 0 ):
-                curr_gain = gain_fac(vd*gain_error)
-                dat[:,-1] *= curr_gain
 
         except (KeyError, IOError):
             print "Warning, got no keys for: ", fname
