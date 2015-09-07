@@ -9,9 +9,8 @@ import bead_util as bu
 NFFT = 2**18
 fig=plt.figure()
 
-cal_fac = 1.6e-15/125.  ## N/bit
+cal_fac = 1.6e-15/125. * 3276.7   ## N/bit
 
-plt.figure()
 path = "/data/20140803/Bead8/chargelp_cal"
 f = "urmbar_xyzcool_200Hz_95.h5"
 
@@ -43,7 +42,7 @@ flist = ["urmbar_discharged_lid_on.h5",]
 name_list = ["Old setup",]
 
 
-cal_fac = 1.6e-15/150.  ## N/bit
+cal_fac = 1.6e-15/150. * 3276.7  ## N/bit
 
 f = flist[0]
 cdat,attribs,_ = bu.getdata(os.path.join(path, f))

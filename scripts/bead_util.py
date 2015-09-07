@@ -1,6 +1,6 @@
 ## set of utility functions useful for analyzing bead data
 
-import h5py, os, matplotlib, re
+import h5py, os, matplotlib, re, glob
 import numpy as np
 import datetime as dt
 import matplotlib.pyplot as plt
@@ -593,3 +593,48 @@ def get_noise_direction_ratio( noise_list, weight_func ):
     print rat_out
 
     return rat_out
+
+def fsin(x, p0, p1, p2):
+    return p0*np.sin(2.*np.pi*p1*x + p2)
+
+def get_mod(dat, mod_column = 3):
+    b, a = sp.butter(3, 0.1)
+    cdrive = np.abs(dat[:, mod_column] - np.mean(dat[:, mod_column]))
+    cdrive = sp.filtfilt(b, a, cdrive)
+    cdrive -= np.mean(cdrive)
+    xx = np.arange(len(cdrive))
+    spars = [np.std(cdrive)*2, 6.1e-4, 0]
+    bf, bc = opt.curve_fit( fsin, xx, cdrive, p0 = spars)
+    return fsin(xx, bf[0], bf[1], bf[2])/np.abs(bf[0])
+
+def lin(x, m, b):
+    return m*x + b
+
+def get_DC_force(path, ind, column = 0, fmod = 6.):
+    files = glob.glob(path + "/*.h5")
+    n = len(files)
+    amps = np.zeros(n)
+    DCs = np.zeros(n)
+    for i in range(n):
+        dat, attribs, cf = getdata(os.path.join(path, files[i]))
+        fs = attribs['Fsamp']
+        cf.close()
+        amps[i] = corr_func(get_mod(dat), dat[:, column], fs, fmod)[0]
+        lst = re.findall('-?\d+', files[i])
+        DCs[i] = int(lst[ind])
+    return amps, DCs
+
+def calibrate_dc(path, charge, dist = 0.01, make_plt = False):
+    amps, DCs = get_DC_force(path, -5)
+    Fs = DCs*e_charge*charge/dist
+    spars = [1e15, 0.]
+    bf, bc = opt.curve_fit(lin, Fs, amps, p0 = spars)
+    if make_plt:
+        
+        plt.plot(Fs, lin(Fs, bf[0], bf[1]), 'r', label = 'linear fit', linewidth = 5)
+        plt.plot(Fs, amps, 'x', label = 'data', markersize = 10, linewidth = 5)
+        plt.legend()
+        plt.xlabel('Applied Force [N]')
+        plt.ylabel('Measured response [V]')
+        plt.show()
+    return 1./bf[0]
