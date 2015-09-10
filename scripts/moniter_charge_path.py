@@ -1,4 +1,4 @@
-## load all files in a directory and plot the correlation of the resonse
+## load all files in a directory and plot the correlation of the response
 ## with the drive signal versus time
 
 import numpy as np
@@ -10,7 +10,8 @@ import scipy.signal as sp
 import scipy.optimize as opt
 import cPickle as pickle
 
-path = r"D:\Data\20150202\Bead1\cantidrive\mon"
+#path = r"D:\Data\20150202\Bead3\cantidrive\mon"
+path = "/data/20150909/Bead1/recharge_cal"
 ts = 10.
 
 fdrive = 41.
@@ -18,8 +19,12 @@ make_plot = True
 reprocess_file = True
 
 data_columns = [0, 1] ## column to calculate the correlation against
-drive_column = -1 ## column containing drive signal
+drive_column = 12 ## column containing drive signal
 
+
+def keyfunc(s):
+	cs = re.findall("_\d+.h5", s)
+	return int(cs[0][1:-3])
 
 
 def getdata(fname, maxv):
@@ -30,7 +35,7 @@ def getdata(fname, maxv):
         if( len(attribs) > 0 ):
             fsamp = attribs["Fsamp"]
 
-        xdat = dat[:,data_columns[0]]
+        xdat = dat[:,data_columns[1]]
 
         lentrace = len(xdat)
         ## zero pad one cycle
@@ -51,8 +56,10 @@ if make_plot:
 
 if reprocess_file:
 
-    init_list = glob.glob(path + "\*200mV*.h5")
-    files = sorted(init_list, key = bu.find_str)
+    init_list = glob.glob(path + "/*xyzcool*_250mV*.h5")
+    print "SANITY"
+    files = sorted(init_list, key=keyfunc)
+    print files
     for f in files[::1]:
         try:    
                 cfile = f
@@ -63,9 +70,13 @@ if reprocess_file:
     
 
     if make_plot:
-        plt.plot(np.array(corr_data))
-        plt.xlabel("File #")
-        plt.ylabel("Bead response to 10V [V]")
+	#nfiles = len(np.array(corr_data)[:,0])
+	#t = np.linspace(0, nfiles-1, nfiles) * 10 
+        plt.plot(np.array(corr_data)[:,0] / 0.013, linewidth=1.5, color='k')
+	plt.grid()
+	#plt.ylim(-5,5)
+        #plt.xlabel("Time [s]")
+        plt.ylabel("Bead response [# of e$^{-}$]")
         plt.show()
 
  
