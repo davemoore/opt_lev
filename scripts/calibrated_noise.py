@@ -7,10 +7,11 @@ import numpy as np
 import bead_util as bu
 
 #path = r"C:\Data\20150825\Bead1"
-path = "/data/20150909/Bead1/redischarge/" \
-       + "URmbar_xyzcool_nofilters3_elec3_250mV41Hz250mVdc_20.h5"
+path = "/data/20150909/Bead1/recharge_cal/" \
+       + "URmbar_xyzcool_nofilters3_elec3_250mV41Hz250mVdc_55.h5"
 
-NFFT = 2**18
+# Use NFFT < total number of points to avoid windowing
+NFFT = 2**14
 
 drive_freq = 41
 drive_voltage = 50
@@ -31,7 +32,7 @@ binwidth = freqs[1]-freqs[0]
 
 index = np.argmin(np.abs(freqs - drive_freq))
 
-response_power = ypsd[index] * binwidth
+response_power = (ypsd[index] + ypsd[index-1] + ypsd[index+1]) * binwidth
      
 force = (drive_voltage / trap_dim) * (e0 * e_charges)
 
