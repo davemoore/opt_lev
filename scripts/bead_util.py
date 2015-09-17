@@ -6,6 +6,7 @@ import datetime as dt
 import matplotlib.pyplot as plt
 import scipy.optimize as opt
 import scipy.signal as sp
+import scipy.interpolate as interp
 
 bead_radius = 2.53e-6 ##m
 bead_rho = 2.0e3 ## kg/m^3
@@ -32,6 +33,11 @@ prime_freqs = [23,29,31,37,41,
                73,79,83,89,97,101,103,107,109,113, 
                127,131,137,139,149,151,157,163,167,173, 
                179,181,191,193,197,199]
+
+## get the shape of the chameleon force vs. distance from Maxime's calculation
+cforce = np.loadtxt("data/chameleon_force.txt", delimiter=",")
+## fit a spline to the data
+cham_spl = interp.UnivariateSpline( cforce[::5,0], cforce[::5,1], s=0 )
 
 def gain_fac( val ):
     ### Return the gain factor corresponding to a given voltage divider
@@ -209,7 +215,7 @@ def corr_func(drive, response, fsamp, fdrive, good_pts = [], filt = False, band_
 
     #First subtract of mean of signals to avoid correlating dc
     drive = drive-np.mean(drive)
-    response  = response - np.mean(response)
+    response  = response-np.mean(response)
 
     #bandpass filter around drive frequency if desired.
     if filt:
@@ -228,8 +234,8 @@ def corr_func(drive, response, fsamp, fdrive, good_pts = [], filt = False, band_
         lentrace = np.sum(good_pts)    
 
 
-    corr_full = good_corr(drive, response, fsamp, fdrive)/(lentrace*drive_amp**2)
-    #corr_full = good_corr(drive, response, fsamp, fdrive)/(lentrace)
+    #corr_full = good_corr(drive, response, fsamp, fdrive)/(lentrace*drive_amp**2)
+    corr_full = good_corr(drive, response, fsamp, fdrive)/(lentrace)
     return corr_full
 
 def corr_blocks(drive, response, fsamp, fdrive, good_pts = [], filt = False, band_width = 1, N_blocks = 20):
@@ -638,3 +644,6 @@ def calibrate_dc(path, charge, dist = 0.01, make_plt = False):
         plt.ylabel('Measured response [V]')
         plt.show()
     return 1./bf[0]
+
+def get_chameleon_force( sep ):
+    return cham_spl(sep)

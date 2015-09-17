@@ -6,9 +6,11 @@ import matplotlib.pyplot as plt
 import scipy.optimize as sp
 import matplotlib.mlab as mlab
 
-data_dir = "/data/20150903/Bead1/cant_elec_bias_sweep_all2"
+#data_dir = "/data/20150903/Bead1/cant_elec_bias_sweep_all2"
+#data_dir = "/data/20150908/Bead4/cant_elec_bias"
+data_dir = "/data/20150909/Bead1/electrode_zero"
 
-NFFT = 2**19
+NFFT = 2**15
 
 mod_freq = 0 ##3.05
 
@@ -17,7 +19,7 @@ conv_fac = 1.6e-15/0.11 * (1./0.1) # N to V, assume 10
 def sort_fun( s ):
     return float(re.findall("-?\d+mVdc", s)[0][:-4])
 
-flist = sorted(glob.glob(os.path.join(data_dir, "urmbar_xyzcool_withmon_econf_*mVdc_stageX0nmY2500nmZ9000nm.h5")), key = sort_fun)
+flist = sorted(glob.glob(os.path.join(data_dir, "*mVdc_stageX*nmY*nmZ*nm.h5")), key = sort_fun)
 
 elec_list = [1,2,3,4,5,6]
 dcol_list = [0,1,2]
@@ -99,6 +101,7 @@ plt.plot( elec_list, pot_arr[:,1], 'rs', label="y response" )
 plt.plot( elec_list, pot_arr[:,2], 'gs', label="z response" )
 plt.title( "electrode potentials" )
 plt.xlim([0,6])
+
 
 print "X best potentials:"
 print pot_arr[:,0]

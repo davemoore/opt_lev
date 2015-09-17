@@ -137,14 +137,14 @@ ax.add_patch(Polygon(zippts,closed=True,fill=False,hatch='...',color=[0.5, 0.5, 
 
 
 #yukawa messengers
-ll = plt.plot([1e-1, 6.3e0], [74267.9, 74267.9],color=[0.25,0.25,0.25],ls='dotted',linewidth=2)
-seq = [5, 3]
-ll[0].set_dashes(seq)
+#ll = plt.plot([1e-1, 6.3e0], [74267.9, 74267.9],color=[0.25,0.25,0.25],ls='dotted',linewidth=2)
+#seq = [5, 3]
+#ll[0].set_dashes(seq)
 
 #dilaton
-seq = [10, 4]
-ll=plt.plot([1e-1, 1.15e1], [6752.4, 6752.4],color=[0.25,0.25,0.25],ls='dotted',linewidth=2)
-ll[0].set_dashes(seq)
+#seq = [10, 4]
+#ll=plt.plot([1e-1, 1.15e1], [6752.4, 6752.4],color=[0.25,0.25,0.25],ls='dotted',linewidth=2)
+#ll[0].set_dashes(seq)
 
 #prev meas
 cmeas = np.loadtxt('prev_meas/master.txt',delimiter=",",skiprows=1)
@@ -240,14 +240,14 @@ ax.add_patch(Polygon(zippts,closed=True,fill=False,hatch='...',color=[0.5, 0.5, 
 
 
 #yukawa messengers
-ll = plt.plot([1e-1, 6.3e0], [74267.9, 74267.9],color=[0.25,0.25,0.25],ls='dotted',linewidth=2)
-seq = [5, 3]
-ll[0].set_dashes(seq)
+#ll = plt.plot([1e-1, 6.3e0], [74267.9, 74267.9],color=[0.25,0.25,0.25],ls='dotted',linewidth=2)
+#seq = [5, 3]
+#ll[0].set_dashes(seq)
 
 #dilaton
-seq = [10, 4]
-ll=plt.plot([1e-1, 1.15e1], [6752.4, 6752.4],color=[0.25,0.25,0.25],ls='dotted',linewidth=2)
-ll[0].set_dashes(seq)
+#seq = [10, 4]
+#ll=plt.plot([1e-1, 1.15e1], [6752.4, 6752.4],color=[0.25,0.25,0.25],ls='dotted',linewidth=2)
+#ll[0].set_dashes(seq)
 
 #prev meas
 cmeas = np.loadtxt('prev_meas/master.txt',delimiter=",",skiprows=1)

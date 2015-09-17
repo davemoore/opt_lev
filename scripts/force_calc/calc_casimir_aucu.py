@@ -8,8 +8,8 @@ import matplotlib.pyplot as plt
 omega_p = 1.4e16 ## Au, rad/s
 gamma = 5.3e13 ## Au, rad/s
 
-omega_p_Cu = omega_p ## same as gold
-gamma_Cu = 4.6e13 ## slightly smaller
+omega_p_Cu = 1.4e16 ## slightly smaller than gold
+gamma_Cu = 5.3e13 ## slightly smaller than gold
 
 D1 = 5e-6 ## mirror thickness, m
 D1_is_Au = False
@@ -20,7 +20,7 @@ c = 3e8 ## m/s
 hbar = 1.05e-34 ## J s
 G = 6.67e-11
 
-tot_thick_list = np.logspace(-7, np.log10(10e-6), 80)
+tot_thick_list = np.logspace(-7, np.log10(10e-6), 40)
 L_list = [0.2e-6, 0.5e-6, 1e-6, 2e-6]
 #tot_thick_list = L_list
 
@@ -28,28 +28,39 @@ def int_func(Omeg, K):
     
     omega = Omeg*c/L
     kappa = K/L
-    
     eps_iw = (1 + omega_p**2/(omega*(omega + gamma)))
     
     rho_perp = -(np.sqrt( omega**2 * (eps_iw - 1) + c**2 * kappa**2) - c*kappa)/(np.sqrt( omega**2 * (eps_iw - 1) + c**2 * kappa**2) + c*kappa)
     rho_par = -(np.sqrt( omega**2 * (eps_iw - 1) + c**2 * kappa**2) - c*kappa*eps_iw)/(np.sqrt( omega**2 * (eps_iw - 1) + c**2 * kappa**2) + c*kappa*eps_iw)
 
     del0 = np.sqrt( omega**2 * (eps_iw - 1) + c**2 * kappa**2 )
+    #if( D1_is_Au ):
     if( D1_is_Au ):
         delta1 = D1/c * del0
     else:
-        eps_si = 2.0
-        rho_perp_si = -(np.sqrt( omega**2 * (eps_si - 1) + c**2 * kappa**2) - c*kappa)/(np.sqrt( omega**2 * (eps_si - 1) + c**2 * kappa**2) + c*kappa)
-        rho_par_si = -(np.sqrt( omega**2 * (eps_si - 1) + c**2 * kappa**2) - c*kappa*eps_si)/(np.sqrt( omega**2 * (eps_si - 1) + c**2 * kappa**2) + c*kappa*eps_si)
-        delta1 = D1/c * np.sqrt( omega**2 * (eps_si - 1) + c**2 * kappa**2 )
+        # eps_si = 2.0
+        # rho_perp_si = -(np.sqrt( omega**2 * (eps_si - 1) + c**2 * kappa**2) - c*kappa)/(np.sqrt( omega**2 * (eps_si - 1) + c**2 * kappa**2) + c*kappa)
+        # rho_par_si = -(np.sqrt( omega**2 * (eps_si - 1) + c**2 * kappa**2) - c*kappa*eps_si)/(np.sqrt( omega**2 * (eps_si - 1) + c**2 * kappa**2) + c*kappa*eps_si)
+        # delta1 = D1/c * np.sqrt( omega**2 * (eps_si - 1) + c**2 * kappa**2 )
+
+        eps_iw = (1 + omega_p_Cu**2/(omega*(omega + gamma_Cu)))    
+        rho_perp_Cu = -(np.sqrt( omega**2 * (eps_iw - 1) + c**2 * kappa**2) - c*kappa)/(np.sqrt( omega**2 * (eps_iw - 1) + c**2 * kappa**2) + c*kappa)
+        rho_par_Cu = -(np.sqrt( omega**2 * (eps_iw - 1) + c**2 * kappa**2) - c*kappa*eps_iw)/(np.sqrt( omega**2 * (eps_iw - 1) + c**2 * kappa**2) + c*kappa*eps_iw)
+        delta1 = D1/c * np.sqrt( omega**2 * (eps_iw - 1) + c**2 * kappa**2 )
+
+
     delta2 = D2/c * del0
 
-    r1_perp = rho_perp*(1 - np.exp(-2*delta1))/(1-rho_perp**2*np.exp(-2*delta1))
-    r1_par = rho_par*(1 - np.exp(-2*delta1))/(1-rho_par**2*np.exp(-2*delta1))
+    if( D1_is_Au ):
+        r1_perp = rho_perp*(1 - np.exp(-2*delta1))/(1-rho_perp**2*np.exp(-2*delta1))
+        r1_par = rho_par*(1 - np.exp(-2*delta1))/(1-rho_par**2*np.exp(-2*delta1))
+    else:
+        r1_perp = rho_perp_Cu*(1 - np.exp(-2*delta1))/(1-rho_perp_Cu**2*np.exp(-2*delta1))
+        r1_par = rho_par_Cu*(1 - np.exp(-2*delta1))/(1-rho_par_Cu**2*np.exp(-2*delta1))
     r2_perp = rho_perp*(1 - np.exp(-2*delta2))/(1-rho_perp**2*np.exp(-2*delta2))
     r2_par = rho_par*(1 - np.exp(-2*delta2))/(1-rho_par**2*np.exp(-2*delta2))
 
-    return 120/np.pi**4 * K**2 * ( r1_perp*r2_perp/(np.exp(2*K)-r1_perp*r2_perp)
+    return 1./110 * 120/np.pi**4 * K**2 * ( r1_perp*r2_perp/(np.exp(2*K)-r1_perp*r2_perp)
                     + r1_par*r2_par/(np.exp(2*K)-r1_par*r2_par) )
 
 ## casimir force for 5 um thick at 5 um
@@ -62,7 +73,7 @@ Fcas = cint * np.pi**3 * D1/2.0 * hbar * c/(360*L**3)
 print "Casimir force: ", Fcas
 
 
-if(True):
+if(False):
     out_mat = np.zeros((len(tot_thick_list), len(L_list)))
     for j, tot_thick in enumerate(tot_thick_list):
         print "Working on tot_thick: ", tot_thick
@@ -70,22 +81,27 @@ if(True):
             D_s = tot_thick - L
             if( D_s <= 0 ): continue
 
-            D2 = D_s
-            cint, err = integrate.dblquad(int_func, 0., 20, lambda x: 0, lambda x: x, epsabs=1e-8, epsrel=1e-8)
+            D1_is_Au = True
             D2 = D_s+D_a
-            cint2, err2 = integrate.dblquad(int_func, 0., 20, lambda x: 0, lambda x: x, epsabs=1e-8, epsrel=1e-8)
+            cint, err = integrate.dblquad(int_func, 0., 20, lambda x: 0, lambda x: x, epsabs=1e-10, epsrel=1e-10)
+            
+            D1_is_Au = False
+            D2 = D_s
+            cint2, err2 = integrate.dblquad(int_func, 0., 20, lambda x: 0, lambda x: x, epsabs=1e-10, epsrel=1e-10)
+            
+            print cint2, cint
 
             Fcas = cint2 * np.pi**3 * D1/2.0 * hbar * c/(360*L**3)
-            Fdiffcas = (cint2-cint) * np.pi**3 * D1/2.0 * hbar * c/(360*L**3)
+            Fdiffcas = abs(cint2-cint) * np.pi**3 * D1/2.0 * hbar * c/(360*L**3)
 
             print "For L=%.1f um, D_s = %.1f um: F_cas = %.3e, dF_cas = %.3e" % (L*1e6, D_s*1e6, Fcas, Fdiffcas)
 
             out_mat[j,i] = Fdiffcas
 
     #print "For D1=%.1f um, D2=%.1f um, L=%.1f um: eta=%.10f +/- %.10f"%(D1*1e6, D2*1e6, L*1e6, cint, err)
-    np.save("cas_mat.npy", out_mat)
+    np.save("cas_mat_aucu.npy", out_mat)
 else:
-    out_mat = np.load("cas_mat.npy")
+    out_mat = np.load("cas_mat_aucu.npy")
 
 out_mat = np.array(out_mat)
 
@@ -95,13 +111,14 @@ for i in range( len(L_list) ):
     gpts = cdat > 0
 
     if(i == 1):
-        fit_pts = np.logical_and(tot_thick_list > 1e-6, tot_thick_list < 6e-6)
+        fit_pts = np.logical_and(tot_thick_list > 1.15e-6, tot_thick_list < 1.55e-6)
         p = np.polyfit( np.log10(tot_thick_list[fit_pts]), np.log10(cdat[fit_pts]), 1)
-        cdat[tot_thick_list > 3.7e-6] = 10**np.polyval(p, np.log10(tot_thick_list[tot_thick_list > 3.7e-6]))
-    if(i == 2):
-        fit_pts = np.logical_and(tot_thick_list > 3e-6, tot_thick_list < 7e-6)
-        p = np.polyfit( np.log10(tot_thick_list[fit_pts]), np.log10(cdat[fit_pts]), 1)
-        cdat[tot_thick_list > 5e-6] = 10**np.polyval(p, np.log10(tot_thick_list[tot_thick_list > 5e-6]))
+        p[0] *= 1.004
+        cdat[tot_thick_list > 1.7e-6] = 10**np.polyval(p, np.log10(tot_thick_list[tot_thick_list > 1.7e-6]))
+    # if(i == 2):
+    #     fit_pts = np.logical_and(tot_thick_list > 3e-6, tot_thick_list < 7e-6)
+    #     p = np.polyfit( np.log10(tot_thick_list[fit_pts]), np.log10(cdat[fit_pts]), 1)
+    #     cdat[tot_thick_list > 5e-6] = 10**np.polyval(p, np.log10(tot_thick_list[tot_thick_list > 5e-6]))
 
     plt.loglog(tot_thick_list[gpts]*1e6, cdat[gpts], linewidth=1.5, label="$s = %.1f\ \mu\mathrm{m}$"%(L_list[i]*1e6))
 
@@ -116,7 +133,7 @@ r = tot_thick_list + (2.5e-6+5e-6)  ##center of the cube
 F = G*m1*m2/r**2
 plt.plot(tot_thick_list*1e6, F, 'k', linewidth=1.5)
 
-plt.ylim([1e-25, 1e-12])
+plt.ylim([1e-25, 1e-14])
 
 
 
@@ -141,7 +158,7 @@ plt.legend(prop={"size": 13})
 
 fig.set_size_inches(5, 3.75)
 plt.subplots_adjust(bottom=0.13, top=0.95, left=0.15, right=0.97)
-plt.savefig("diff_casimir.pdf")
+plt.savefig("diff_casimir_au_cu.pdf")
 
 plt.show()
 

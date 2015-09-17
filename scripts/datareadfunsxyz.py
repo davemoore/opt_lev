@@ -6,10 +6,10 @@ import os
 import scipy.signal as sp
 
 
-refname = r"urmbar_xyzcool_50mV_200Hz_83.h5"
-fname0 = r"urmbar_xyzcool_50mV_200Hz_83.h5"
+refname = r"URmbar_xyzcool_nofilters3_elec3_250mV41Hz250mVdc_55.h5"
+fname0 = r"URmbar_xyzcool_nofilters3_elec3_250mV41Hz250mVdc_55.h5"
 
-path = "/data/20140803/Bead8/chargelp_cal/"
+path = "/data/20150909/Bead1/recharge_cal"
 d2plt = 1
 if fname0 == "":
 	filelist = os.listdir(path)
@@ -28,7 +28,7 @@ if fname0 == "":
 		 
 
 Fs = 5e3  ## this is ignored with HDF5 files
-NFFT = 2**17
+NFFT = 2**15
 def getdata(fname):
 	print "Opening file: ", fname
 	## guess at file type from extension
@@ -47,6 +47,7 @@ def getdata(fname):
 		dat = numpy.loadtxt(fname, skiprows = 5, usecols = [2, 3, 4, 5] )
 
 	xpsd, freqs = matplotlib.mlab.psd(dat[:, 0]-np.mean(dat[:,0]), Fs = Fs, NFFT = NFFT) 
+        print len(dat[:,0])
 	#xpsd = numpy.abs(numpy.fft.rfft(dat[:, 0]))
         ypsd, freqs = matplotlib.mlab.psd(dat[:, 1]-np.mean(dat[:,1]), Fs = Fs, NFFT = NFFT)
         zpsd, freqs = matplotlib.mlab.psd(dat[:, 2]-np.mean(dat[:,2]), Fs = Fs, NFFT = NFFT)
@@ -64,19 +65,20 @@ def rotate(vec1, vec2, theta):
 if refname:
 	data1 = getdata(os.path.join(path, refname))
 #Fs = 5000
-#b, a = sp.butter(3, [2*35./Fs, 2*45./Fs], btype = 'bandpass')
+b, a = sp.butter(3, [2*36./Fs, 2*46./Fs], btype = 'bandpass')
 
 if d2plt:	
 	fig = plt.figure()
 	#rotated = rotate(data0[3][:, 0],data0[3][:, 1], numpy.pi*(0))
-	rotated = [data0[3][:,0], data0[3][:,1]]
+	#rotated = [data0[3][:,0], data0[3][:,1]]
         #plt.plot(rotated[0])
         #plt.plot(rotated[1])
-        #plt.plot(sp.filtfilt(b, a, rotated[0]))
-        #plt.plot(sp.filtfilt(b, a, rotated[1]))
-        plt.plot(data0[3][:, 0])
-        plt.plot(data0[3][:, 1])
-        plt.plot(data0[3][:, 2])
+        plt.plot(sp.filtfilt(b, a, data0[3][:,1])/(2**15-1.)*10.)
+        
+        #plt.plot(sp.filtfilt(b, a, rotated[1))
+        #plt.plot(data0[3][:, 0])
+        #plt.plot(data0[3][:, 1])
+        #plt.plot(data0[3][:, 2])
         #plt.plot(data0[3][:, 5])
         #if refname:
         #    plt.plot(data1[3][:, 0])
