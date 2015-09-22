@@ -9,13 +9,13 @@ import matplotlib.cm as cmx
 import matplotlib.colors as colors
 
 #data_dir = "/data/20150908/Bead2/cant_mod"
-data_dir = "/data/20150916/Bead3"
+data_dir = "/data/20150921/Bead1"
 
 savefig = True
 
-NFFT = 2**13
+NFFT = 2**15
 
-conv_fac = 3.2e-14 ## N/V
+conv_fac = 2.5e-14 ## N/V
 
 def sort_fun( s ):
     cs = re.findall("_\d+.h5", s)
@@ -35,6 +35,7 @@ def sort_fun( s ):
         return int(cs[0][1:-3])
 
 flist = sorted(glob.glob(os.path.join(data_dir, "*.h5")), key = sort_fun)
+print flist
 
 fig=plt.figure()
 tot_dat = []
@@ -51,6 +52,7 @@ for i,f in enumerate(flist):
 
     #if( "elec" in f ): continue
 
+    #if( len(re.findall("morning", f)) == 0): continue
     print f 
 
     cdat, attribs, _ = bu.getdata( f )
@@ -65,7 +67,7 @@ for i,f in enumerate(flist):
 ax = plt.gca()
 box = ax.get_position()
 ax.set_position([box.x0, box.y0, box.width * 0.6, box.height])
-ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+ax.legend(loc='center left', bbox_to_anchor=(1, 0.7), prop={"size": 9})
 plt.xlim([1, 2.5e3])
 plt.xlabel('Freq [Hz]')
 plt.ylabel('Force [N Hz$^{-1/2}$]')

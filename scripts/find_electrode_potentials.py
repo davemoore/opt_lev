@@ -8,7 +8,7 @@ import matplotlib.mlab as mlab
 
 #data_dir = "/data/20150903/Bead1/cant_elec_bias_sweep_all2"
 #data_dir = "/data/20150908/Bead4/cant_elec_bias"
-data_dir = "/data/20150909/Bead1/electrode_zero"
+data_dir = "/data/20150921/Bead1/electrode_bias_close5"
 
 NFFT = 2**15
 

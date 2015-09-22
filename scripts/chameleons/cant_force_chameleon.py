@@ -8,9 +8,9 @@ import matplotlib.mlab as mlab
 import matplotlib.dates as mdates
 import scipy.interpolate as interp
 
-data_dir = "/data/20150909/Bead1/chameleons_zeroed5"
+data_dir = "/data/20150921/Bead1/chameleons_35um"
 remake_files = True
-cant_pos_at_5V = 60e-6 ## distance from bead at 5 V, m
+cant_pos_at_5V = 40e-6 ## distance from bead at 5 V, m
 cant_step_per_V = 8.e-6 
 
 NFFT = 2**18
@@ -18,7 +18,7 @@ NFFT = 2**18
 mod_freq = 3.05
 
 #conv_fac = 1.6e-15/0.11 * (1./0.1) # N to V, assume 10 
-conv_fac = 4e-13 #* (1./0.2) # N to V 
+conv_fac = 2.5e-14 #* (1./0.2) # N to V 
 
 def sort_fun( s ):
     return float(re.findall("\d+.h5", s)[0][:-3])
@@ -33,9 +33,9 @@ cforce = np.loadtxt("data/chameleon_force.txt", delimiter=",")
 spl = interp.UnivariateSpline( cforce[::5,0], cforce[::5,1], s=0 )
 
 plt.figure()
-plt.plot(cforce[:,0], cforce[:,1], 'k.')
+plt.plot(cforce[:,0]*1e6, cforce[:,1], 'k.')
 xx = np.linspace(10e-6, 100e-6, 1e3)
-plt.plot( xx, spl(xx), 'r')
+plt.plot( xx*1e6, spl(xx), 'r')
 plt.show()
 
 
@@ -48,7 +48,7 @@ def make_sig_shape(drive_mon):
     
     return force_vs_time
 
-make_sig_shape(np.zeros(1e2))
+#make_sig_shape(np.zeros(1e2))
 
 if(remake_files):
     tot_dat = []
@@ -56,14 +56,16 @@ if(remake_files):
     npsd = 0
     for f in flist:
 
+        cdat, attribs, _ = bu.getdata( f )
+
+        ## get the drive frequency from the attributes
         cpos = float(re.findall("Z\d+nm", f)[0][1:-2])
-        drive_freq = float(re.findall("\d+Hz",f)[0][:-2])
+        #drive_freq = float(re.findall("\d+Hz",f)[0][:-2])
+        drive_freq = attribs["stage_settings"][6]
         sig_freq = drive_freq + mod_freq
         sig_freq2 = drive_freq - mod_freq
 
         print "Signal freq is: ", sig_freq, " Hz"
-
-        cdat, attribs, _ = bu.getdata( f )
 
         ctime = bu.labview_time_to_datetime(attribs['Time'])
 
@@ -106,7 +108,7 @@ if(remake_files):
         dtype = 0 if not "lowfb" in f else 1
         pp2 = np.sqrt(cpsd[freq_idx2])*bw
         pp3 = np.sqrt(cpsd[freq_idx3])*bw
-        tot_dat.append( [cpos, np.sqrt(cpsd[freq_idx])*bw, dtype, pp2, pp3, ctime, resp] )
+        tot_dat.append( [cpos, np.sqrt(cpsd[freq_idx])*bw, dtype, pp2, pp3, ctime, of_amp] )
 
     tot_dat = np.array(tot_dat)
     np.save("plots/chameleon_data_by_run.npy", tot_dat)
@@ -128,7 +130,7 @@ print "Total traces used: ", npsd
 cpsd = np.sqrt(tot_psd/npsd)
 
 #bw_fac = 1./np.sqrt( 50. * npsd )
-bw_fac = bw
+bw_fac = 1
 
 plt.figure()
 plt.semilogy( freqs, cpsd*conv_fac*bw_fac )

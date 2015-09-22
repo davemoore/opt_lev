@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 import scipy.optimize as opt
 import scipy.signal as sp
 import scipy.interpolate as interp
+import matplotlib.cm as cmx
+import matplotlib.colors as colors
 
 bead_radius = 2.53e-6 ##m
 bead_rho = 2.0e3 ## kg/m^3
@@ -647,3 +649,9 @@ def calibrate_dc(path, charge, dist = 0.01, make_plt = False):
 
 def get_chameleon_force( sep ):
     return cham_spl(sep)
+
+def get_color_map( n ):
+    jet = plt.get_cmap('jet') 
+    cNorm  = colors.Normalize(vmin=0, vmax=n)
+    scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=jet)
+    return scalarMap

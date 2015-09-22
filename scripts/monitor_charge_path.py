@@ -11,7 +11,7 @@ import scipy.optimize as opt
 import cPickle as pickle
 
 #path = r"D:\Data\20150202\Bead3\cantidrive\mon"
-path = "/data/20150916/Bead3/chargelp_cal"
+path = "/data/20150921/Bead1/chargelp_cal"
 ts = 10.
 
 fdrive = 41.
@@ -23,7 +23,7 @@ data_columns = [0, 1] ## column to calculate the correlation against
 drive_column = 12 ## column containing drive signal
 
 drive_millivolt = 250
-scale_fac = 0.0065
+scale_fac = 0.0095
 
 force = (drive_millivolt/1000.)*200*bu.e_charge/4e-3 ## N
 
@@ -47,6 +47,11 @@ def getdata(fname, maxv):
         lentrace = len(xdat)
         ## zero pad one cycle
         corr_full = bu.corr_func( dat[:,drive_column], xdat, fsamp, fdrive)
+
+        # plt.figure()
+        # plt.plot(xdat)
+        # plt.plot( dat )
+        # plt.show()
 
         return corr_full[0], np.max(corr_full), fnum
 
@@ -78,13 +83,15 @@ if reprocess_file:
 
     corr_data = np.array(corr_data)
 
-    sing_charge = np.abs(np.abs( corr_data[:,0]/scale_fac ) - 1) < 0.1
+    sing_charge = np.abs(np.abs( corr_data[:,0]/scale_fac ) - 1) < 0.25
+    #sing_charge = np.zeros_like(corr_data[:,0])
 
     if make_plot:
 	#nfiles = len(np.array(corr_data)[:,0])
 	#t = np.linspace(0, nfiles-1, nfiles) * 10 
         plt.plot(corr_data[:,2], corr_data[:,0]/scale_fac, linewidth=1.5, color='k')
-        plt.plot(corr_data[sing_charge,2], corr_data[sing_charge,0]/scale_fac, 'ro', linewidth=1.5)
+        if( np.sum(sing_charge) > 0):
+                plt.plot(corr_data[sing_charge,2], corr_data[sing_charge,0]/scale_fac, 'ro', linewidth=1.5)
 	plt.grid()
 	#plt.ylim(-5,5)
         #plt.xlabel("Time [s]")
@@ -98,46 +105,48 @@ if reprocess_file:
 
     ## now for each file, do a time domain fit to the filtered trace to
     ## get the amplitude
-     
-    fnum_list = corr_data[sing_charge,2]
- 
-    amp_list = []
-    for fname in files[::1]:
-
-        fnum = keyfunc( fname )
-        if fnum not in fnum_list: continue 
-       
-        dat, attribs, cf = bu.getdata(os.path.join(path, fname))
-        nyquist = attribs['Fsamp']/2.
-        b,a = sp.butter(3, [(fdrive-5.)/nyquist, (fdrive+5.)/nyquist], btype="bandpass") 
-        xdat = dat[:,data_columns[1]]        
-        xf = sp.filtfilt(b,a,xdat)
-
-        amp_list.append([fnum, np.sqrt(2)*np.std(xf)])
 
 
-    amp_list = np.array(amp_list)
-    plt.figure()
-    mean_cal =  np.mean( amp_list[:,1] )
-    mean_err =  np.std( amp_list[:,1] )/np.sqrt( len(amp_list[:,1]) )
-    ax = plt.gca()
-    ax.fill_between( amp_list[:,0], mean_cal-mean_err, mean_cal+mean_err, facecolor='r', edgecolor='None', alpha=0.5 )
-    plt.plot( amp_list[:,0], mean_cal*np.ones_like(amp_list[:,0]), 'r--' )
-    plt.plot( amp_list[:,0], amp_list[:,1], 'ko')
 
-    plt.xlim([amp_list[0,0], amp_list[-1,0]])
+    if( np.sum(sing_charge) > 0):
+            fnum_list = corr_data[sing_charge,2]
+            amp_list = []
+            for fname in files[::1]:
 
-    force_err = force*( 1./(mean_cal-mean_err) - 1./(mean_cal+mean_err) )
+                fnum = keyfunc( fname )
+                if fnum not in fnum_list: continue 
 
-    force_str = "Cal fac: %.2e +/- %.3e [N/V] " % (force/mean_cal, force_err)
-    plt.title( force_str )
-    print force_str
+                dat, attribs, cf = bu.getdata(os.path.join(path, fname))
+                nyquist = attribs['Fsamp']/2.
+                b,a = sp.butter(3, [(fdrive-5.)/nyquist, (fdrive+5.)/nyquist], btype="bandpass") 
+                xdat = dat[:,data_columns[1]]        
+                xf = sp.filtfilt(b,a,xdat)
 
-    plt.xlabel("File number")
-    plt.ylabel("Response [V]")
-    plt.title(folder_name)
+                amp_list.append([fnum, np.sqrt(2)*np.std(xf)])
 
-    if(savefig):
-            plt.savefig("plots/charge_cal_%s.pdf"%folder_name)
+
+            amp_list = np.array(amp_list)
+            plt.figure()
+            mean_cal =  np.mean( amp_list[:,1] )
+            mean_err =  np.std( amp_list[:,1] )/np.sqrt( len(amp_list[:,1]) )
+            ax = plt.gca()
+            ax.fill_between( amp_list[:,0], mean_cal-mean_err, mean_cal+mean_err, facecolor='r', edgecolor='None', alpha=0.5 )
+            plt.plot( amp_list[:,0], mean_cal*np.ones_like(amp_list[:,0]), 'r--' )
+            plt.plot( amp_list[:,0], amp_list[:,1], 'ko')
+
+            plt.xlim([amp_list[0,0], amp_list[-1,0]])
+
+            force_err = force*( 1./(mean_cal-mean_err) - 1./(mean_cal+mean_err) )
+
+            force_str = "Cal fac: %.2e +/- %.3e [N/V] " % (force/mean_cal, force_err)
+            plt.title( force_str )
+            print force_str
+
+            plt.xlabel("File number")
+            plt.ylabel("Response [V]")
+            plt.title(folder_name)
+
+            if(savefig):
+                    plt.savefig("plots/charge_cal_%s.pdf"%folder_name)
 
     plt.show()
