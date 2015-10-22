@@ -10,7 +10,7 @@ import scipy.optimize as opt
 ############################################################
 do_mean_subtract = True  ## subtract mean position from data
 do_poly_fit = False  ## fit data to 1/r^2 (for DC bias data)
-idx_to_plot = [23,] ## indices from dir file below to use
+idx_to_plot = [23,24,25] ## indices from dir file below to use
 
 plot_title = 'Force vs. position'
 nbins = 80  ## number of bins vs. bead position

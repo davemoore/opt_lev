@@ -663,7 +663,7 @@ def load_dir_file( f ):
     out_dict = {}
     for l in lines: 
         
-        lparts = l.split(",")
+        lparts = l.split(";")
         
         if( len( lparts ) < 8 ):
             continue
