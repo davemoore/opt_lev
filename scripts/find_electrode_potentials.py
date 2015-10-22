@@ -6,29 +6,23 @@ import matplotlib.pyplot as plt
 import scipy.optimize as sp
 import matplotlib.mlab as mlab
 
-#data_dir = "/data/20150903/Bead1/cant_elec_bias_sweep_all2"
-#data_dir = "/data/20150908/Bead4/cant_elec_bias"
-data_dir = "/data/20150921/Bead1/electrode_bias_close5"
+data_dir = "/data/20150921/Bead1/electrode_zero_cant_10VDCbiasT4"
 
 NFFT = 2**15
-
-mod_freq = 0 ##3.05
-
-conv_fac = 1.6e-15/0.11 * (1./0.1) # N to V, assume 10 
 
 def sort_fun( s ):
     return float(re.findall("-?\d+mVdc", s)[0][:-4])
 
-flist = sorted(glob.glob(os.path.join(data_dir, "*mVdc_stageX*nmY*nmZ*nm.h5")), key = sort_fun)
 
-elec_list = [1,2,3,4,5,6]
+#flist = sorted(glob.glob(os.path.join(data_dir, "*mVdc_stageX*nmY*nmZ*nm.h5")), key = sort_fun)
+flist = sorted(glob.glob(os.path.join(data_dir, "*.h5")), key = sort_fun)
+
+elec_list = [0,] #1,2,3,4,5,6]
 dcol_list = [0,1,2]
 tot_dat = np.zeros( [len(flist), len(elec_list), len(dcol_list), 3])
 for fidx,f in enumerate(flist):
 
     cpos = sort_fun(f)
-    #drive_freq = float(re.findall("\d+Hz",f)[0][:-2])
-    #sig_freq = drive_freq + mod_freq
 
     print "Vdc = ", cpos
 
@@ -44,9 +38,12 @@ for fidx,f in enumerate(flist):
         for didx,dcol in enumerate(dcol_list):
 
             response = cdat[:, dcol]
-            drive = cdat[:, 7+elec]
+            drive = cdat[:, 8+elec]
             drive2 = drive**2
             drive2 -= np.mean(drive2)
+
+            response -= np.mean(response)
+            drive -= np.mean(drive)
 
             dummy_freq = 41 ## freq doesn't matter since we do 0 offset only
             corr_dr = bu.corr_func(drive, response, Fs, dummy_freq)[0]
@@ -56,15 +53,15 @@ for fidx,f in enumerate(flist):
             tot_dat[fidx, eidx, didx, 1] = corr_dr
             tot_dat[fidx, eidx, didx, 2] = corr_dr2
 
-            # if( elec == 2 ):
-            #     plt.figure()
-            #     plt.plot( drive )
-            #     plt.plot( response )
-            #     plt.show()
+            if( False and elec == 0 ):
+                plt.figure()
+                plt.plot( drive )
+                plt.plot( response )
+                plt.show()
 
 tot_dat = np.array(tot_dat)
 
-frange = [-2000, 2000] ## fit range
+frange = [5000, 15000] ## fit range
 
 def make_plot( x,y ):
     plt.plot(x,y, 'ks', label = "Drive")
@@ -86,12 +83,18 @@ for eidx, elec in enumerate(elec_list):
     plt.subplot(3,1,1)
     xpot = make_plot(tot_dat[:,eidx,0,0], tot_dat[:,eidx,0,1]) 
     plt.title("Electrode %d" % elec)
+    xvals=tot_dat[:,eidx,0,0]
+    plt.xlim(np.min(xvals)-10, np.max(xvals)+10)
 
     plt.subplot(3,1,2)
     ypot = make_plot(tot_dat[:,eidx,1,0], tot_dat[:,eidx,1,1]) 
+    xvals=tot_dat[:,eidx,1,0]
+    plt.xlim(np.min(xvals)-10, np.max(xvals)+10)
 
     plt.subplot(3,1,3)
     zpot = make_plot(tot_dat[:,eidx,2,0], tot_dat[:,eidx,2,1]) 
+    xvals=tot_dat[:,eidx,2,0]
+    plt.xlim(np.min(xvals)-10, np.max(xvals)+10)
 
     pot_arr[eidx,:] =  [xpot, ypot, zpot]
 

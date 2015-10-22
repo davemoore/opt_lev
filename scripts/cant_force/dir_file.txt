@@ -1,0 +1,33 @@
+1, /data/20150928/backgrounds/next_dat/turbo_base_later_3_7Hz2, 2015/09/28, 19, 7, 0, 10, 15, 9.1e-14
+2, /data/20150928/backgrounds/next_dat/5e-5mbar3_7Hz, 5e-5 mbar, 19, 7, 0, 10, 15, 9.1e-14
+3, /data/20150928/backgrounds/next_dat/5e-4mbar3_7Hz, 5e-4 mbar, 19, 7, 0, 10, 15, 9.1e-14
+4, /data/20150928/backgrounds/next_dat/1e-3mbar3_7Hz, 1e-3 mbar, 19, 7, 0, 10, 15, 9.1e-14
+5, /data/20150928/backgrounds/next_dat/5e-3mbar3_7Hz, 5e-3 mbar, 19, 7, 0, 10, 15, 9.1e-14
+6, /data/20150928/backgrounds/next_dat/1e-2mbar3_7Hz, 1e-2 mbar, 19, 7, 0, 10, 15, 9.1e-14
+7, /data/20150928/backgrounds/next_dat/5e-2mbar3_7Hz, 5e-2 mbar, 19, 7, 0, 10, 15, 9.1e-14
+
+8, /data/20150921/Bead1/chameleons_35um_diff, 35um diff, 19, 7, 0, 10, 0, 3.7e-14
+9, /data/20150921/Bead1/chameleons_1_7Hz, 2015/09/21, 19, 7, 0, 10, 0, 3.7e-14
+
+10, /data/20150908/Bead4/chameleons_16Hz_4, 2015/09/08, 19, 7, 0, 10, 20, 2.1e-13
+
+11, /data/20151014/bead1/cant_sweep_20_70, 2015/10/14, 19, 7, 0, 10, -10, 8.0e-14
+12, /data/20151014/bead2/cant_sweep_20_70, 2015/10/14, 19, 7, 0, 10, -10, 8.0e-14
+
+## these are tests with no bead, various apertures
+13, /data/20151021/nobead_noaperture, No aperture, 19, 7, 0, 10, 0, 2.0e-14
+14, /data/20151021/nobead_withaperture, No bead, 19, 7, 0, 10, 0, 2.0e-14
+15, /data/20151021/nobead_withaperture_farout, Far out, 19, 7, 0, 10, 0, 2.0e-14
+16, /data/20151021/nobead_withaperture_superfarout, Super far out, 19, 7, 0, 10, 0, 2.0e-14
+17, /data/20151021/nobead_withaperture_superfarout_nomon, No mon, 19, 7, 0, 10, 0, 2.0e-14
+
+##all grounded, first sweep with this bead
+18, /data/20151021/bead1/cantmove_turbobase_3_7Hz, 2015/10/21, 19, 7, 0, 10, 0, 3.1e-14
+##sweep over cantilever DC bias
+19, /data/20151021/bead1/cantmove_3_7Hz_cantbias, Cant bias, 19, 7, 0, 10, 0, 3.1e-14
+##changing z-feedback
+20, /data/20151021/bead1/cantmove_3_7Hz_zfeed0_16, zfb = 0.16, 19, 7, 0, 10, 0, 3.1e-14
+21, /data/20151021/bead1/cantmove_3_7Hz_zfeed0_12, zfb = 0.12, 19, 7, 0, 10, 0, 3.1e-14
+22, /data/20151021/bead1/cantmove_3_7Hz_zfeed0_08, zfb = 0.08, 19, 7, 0, 10, 0, 3.1e-14
+## still changing z-feedback, more data per dir
+23, /data/20151021/bead1/cantmove_3_7Hz_zfeed0_16_more, zfb = 0.16, 19, 7, 0, 10, 0, 3.1e-14

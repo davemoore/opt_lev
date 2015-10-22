@@ -28,7 +28,7 @@ flist = sorted(glob.glob(os.path.join(data_dir, "*.h5")), key = sort_fun)
 
 
 ## get the shape of the chameleon force vs. distance from Maxime's calculation
-cforce = np.loadtxt("data/chameleon_force.txt", delimiter=",")
+cforce = np.loadtxt("../data/chameleon_force.txt", delimiter=",")
 ## fit a spline to the data
 spl = interp.UnivariateSpline( cforce[::5,0], cforce[::5,1], s=0 )
 

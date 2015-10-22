@@ -37,7 +37,7 @@ prime_freqs = [23,29,31,37,41,
                179,181,191,193,197,199]
 
 ## get the shape of the chameleon force vs. distance from Maxime's calculation
-cforce = np.loadtxt("data/chameleon_force.txt", delimiter=",")
+cforce = np.loadtxt("/home/dcmoore/opt_lev/scripts/data/chameleon_force.txt", delimiter=",")
 ## fit a spline to the data
 cham_spl = interp.UnivariateSpline( cforce[::5,0], cforce[::5,1], s=0 )
 
@@ -655,3 +655,20 @@ def get_color_map( n ):
     cNorm  = colors.Normalize(vmin=0, vmax=n)
     scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=jet)
     return scalarMap
+
+def load_dir_file( f ):
+
+    lines = [line.rstrip('\n') for line in open(f)]
+
+    out_dict = {}
+    for l in lines: 
+        
+        lparts = l.split(",")
+        
+        if( len( lparts ) < 8 ):
+            continue
+
+        idx = lparts[0]
+        out_dict[idx] = [lparts[1].strip(), lparts[2].strip(), int(lparts[3]), int(lparts[4]), int(lparts[5]), int(lparts[6]), int(lparts[7]), float(lparts[8])]
+
+    return out_dict
