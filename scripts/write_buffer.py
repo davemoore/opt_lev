@@ -83,6 +83,8 @@ np.savetxt(r"C:\GitHub\opt_lev\labview\fpga\two_traps.txt", dtot, delimiter=",",
 
 ## gauss_dist
 
+mod_z = True
+
 n = 9
 
 t = np.linspace(np.pi/2., 2.*np.pi + np.pi/2., half_length/2**n + 1.)
@@ -101,23 +103,30 @@ s = np.interp(triangletot, cdf, xint, left = np.min(xint), right = np.max(xint))
 
 t2 = np.linspace(0, 2.*np.pi, 2.*half_length + 1)
 modx = np.cos(t2 - np.pi) + 1.
-mody = np.sin(t2 - np.pi/2.) + 1.
+mody = np.cos(t2 - np.pi) + 1.
 
 xtot = modx[: -1]*np.hstack([s, s])
 ytot = mody[: -1]*np.hstack([s, s])
 
 dtot = np.transpose( np.vstack( (xtot, ytot, np.zeros(len(ytot))) ) )
 
-dtot = 1.0*max_val*dtot/np.max(dtot)
+## just use a gaussian for z
+dtot[:,2] = sp.norm.pdf(np.linspace(-3,3,len(xtot)))
+dtot[:,2] -= dtot[0,2]
+
+for d in range(3):
+    dtot[:,d]= 1.0*max_val*dtot[:,d]/np.max(dtot[:,d])
 
 emp_vec = np.load("z_template.npy")
 emptot = np.interp( np.linspace(0,1,2*half_length),np.linspace(0,1,len(emp_vec)), emp_vec)*max_val
+if not mod_z:
+    emptot = np.interp( np.linspace(0,1,2*half_length),np.linspace(0,1,len(emp_vec)), emp_vec)*0.
 
-## set y mod to zero for now
-dtot[:,1] = 0
+## set x mod to zero for now
+#dtot[:,0] = 0
 
-dtot[:,2] = emptot[::-1]
-#dtot[:,2] = np.roll(dtot[:,2], -550)
+#dtot[:,2] = emptot[::-1]
+#dtot[:,2] = np.roll(dtot[:,2], 0)
 
 plt.plot(dtot)
 plt.plot(emptot)

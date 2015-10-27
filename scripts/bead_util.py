@@ -107,7 +107,7 @@ def get_calibration(refname, fit_freqs, make_plot=False,
     dat, attribs, cf = getdata(refname)
     if( len(attribs) > 0 ):
         fsamp = attribs["Fsamp"]
-    xdat = dat[:,data_columns[0]]
+    xdat = dat[:,data_columns[1]]
     xpsd, freqs = matplotlib.mlab.psd(xdat, Fs = fsamp, NFFT = NFFT) 
 
     ##first, fit for the absolute calibration
@@ -209,27 +209,27 @@ def fit_spec(refname, fit_freqs, make_plot=False,
     noise_val = np.median( xpsd[bin_low:bin_hi] )
     return noise_val, bp, bcov, press
 
-
 def find_str(str):
     """ Function to sort files.  Assumes that the filename ends
         in #mV_#Hz[_#].h5 and sorts by end index first, then
         by voltage """
-    idx_offset = 1e10 ## large number to ensure sorting by index first
+    #idx_offset = 1e10 ## large number to ensure sorting by index first
 
-    fname, _ = os.path.splitext(str)
+    #fname, _ = os.path.splitext(str)
 
-    endstr = re.findall("\d+mV_\d+Hz[_]?[\d+]*", fname)
-    if( len(endstr) != 1 ):
+    endstr = int(re.findall("\d+", str)[-2])
+    #if( len(endstr) != 1 ):
         ## couldn't find the expected pattern, just return the 
         ## second to last number in the string
-        return int(re.findall('\d+', fname)[-2])
+        #return int(re.findall('\d+', fname)[-2])
         
     ## now check to see if there's an index number
-    sparts = endstr[0].split("_")
-    if( len(sparts) == 3 ):
-        return idx_offset*int(sparts[2]) + int(sparts[0][:-2])
-    else:
-        return int(sparts[0][:-2])
+    #sparts = endstr[0].split("_")
+    #if( len(sparts) == 3 ):
+        #return idx_offset*int(sparts[2]) + int(sparts[0][:-2])
+    #else:
+        #return int(sparts[0][:-2])
+    return endstr
     
 def unwrap_phase(cycles):
     #Converts phase in cycles from ranging from 0 to 1 to ranging from -0.5 to 0.5 

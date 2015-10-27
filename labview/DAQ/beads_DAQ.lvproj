@@ -10,7 +10,10 @@
 		<Property Name="server.vi.callsEnabled" Type="Bool">true</Property>
 		<Property Name="server.vi.propertiesEnabled" Type="Bool">true</Property>
 		<Property Name="specify.custom.address" Type="Bool">false</Property>
+		<Item Name="AG-UC2-UC8_Close.vi" Type="VI" URL="../../agilis/move_stage/AG-UC2-UC8_Close.vi"/>
 		<Item Name="beads_DAQ.vi" Type="VI" URL="../beads_DAQ.vi"/>
+		<Item Name="move_stage.vi" Type="VI" URL="../../agilis/move_stage/move_stage.vi"/>
+		<Item Name="total_valve_control.vi" Type="VI" URL="../../valve_control/total_valve_control.vi"/>
 		<Item Name="Dependencies" Type="Dependencies">
 			<Item Name="instr.lib" Type="Folder">
 				<Item Name="Agilent E364X Series Output Single Channel DC Volts.vi" Type="VI" URL="/&lt;instrlib&gt;/Agilent E364X Series/Examples/Agilent E364X Series Output Single Channel DC Volts.vi"/>
@@ -238,6 +241,7 @@
 				<Item Name="Error Code Database.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Error Code Database.vi"/>
 				<Item Name="ErrWarn.ctl" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/ErrWarn.ctl"/>
 				<Item Name="eventvkey.ctl" Type="VI" URL="/&lt;vilib&gt;/event_ctls.llb/eventvkey.ctl"/>
+				<Item Name="ex_CorrectErrorChain.vi" Type="VI" URL="/&lt;vilib&gt;/express/express shared/ex_CorrectErrorChain.vi"/>
 				<Item Name="Find First Error.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Find First Error.vi"/>
 				<Item Name="Find Tag.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Find Tag.vi"/>
 				<Item Name="Format Message String.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Format Message String.vi"/>
@@ -258,7 +262,9 @@
 				<Item Name="LVBoundsTypeDef.ctl" Type="VI" URL="/&lt;vilib&gt;/Utility/miscctls.llb/LVBoundsTypeDef.ctl"/>
 				<Item Name="LVRectTypeDef.ctl" Type="VI" URL="/&lt;vilib&gt;/Utility/miscctls.llb/LVRectTypeDef.ctl"/>
 				<Item Name="NI_AALBase.lvlib" Type="Library" URL="/&lt;vilib&gt;/Analysis/NI_AALBase.lvlib"/>
+				<Item Name="NI_AALPro.lvlib" Type="Library" URL="/&lt;vilib&gt;/Analysis/NI_AALPro.lvlib"/>
 				<Item Name="NI_FileType.lvlib" Type="Library" URL="/&lt;vilib&gt;/Utility/lvfile.llb/NI_FileType.lvlib"/>
+				<Item Name="NI_Gmath.lvlib" Type="Library" URL="/&lt;vilib&gt;/gmath/NI_Gmath.lvlib"/>
 				<Item Name="NI_MABase.lvlib" Type="Library" URL="/&lt;vilib&gt;/measure/NI_MABase.lvlib"/>
 				<Item Name="NI_PackedLibraryUtility.lvlib" Type="Library" URL="/&lt;vilib&gt;/Utility/LVLibp/NI_PackedLibraryUtility.lvlib"/>
 				<Item Name="Not Found Dialog.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Not Found Dialog.vi"/>
@@ -274,6 +280,7 @@
 				<Item Name="Set Bold Text.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Set Bold Text.vi"/>
 				<Item Name="Set String Value.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Set String Value.vi"/>
 				<Item Name="Simple Error Handler.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Simple Error Handler.vi"/>
+				<Item Name="subDisplayMessage.vi" Type="VI" URL="/&lt;vilib&gt;/express/express output/DisplayMessageBlock.llb/subDisplayMessage.vi"/>
 				<Item Name="subTimeDelay.vi" Type="VI" URL="/&lt;vilib&gt;/express/express execution control/TimeDelayBlock.llb/subTimeDelay.vi"/>
 				<Item Name="TagReturnType.ctl" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/TagReturnType.ctl"/>
 				<Item Name="Three Button Dialog CORE.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Three Button Dialog CORE.vi"/>
@@ -282,6 +289,7 @@
 				<Item Name="VISA Open Access Mode.ctl" Type="VI" URL="/&lt;vilib&gt;/Instr/_visa.llb/VISA Open Access Mode.ctl"/>
 				<Item Name="whitespace.ctl" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/whitespace.ctl"/>
 			</Item>
+			<Item Name="AG-UC2-UC8_Open.vi" Type="VI" URL="../../agilis/move_stage/AG-UC2-UC8_Open.vi"/>
 			<Item Name="ag33xxx - Close.vi" Type="VI" URL="../../a33120a/ag33xxx.llb/ag33xxx - Close.vi"/>
 			<Item Name="ag33xxx - Config Waveform.vi" Type="VI" URL="../../a33120a/ag33xxx.llb/ag33xxx - Config Waveform.vi"/>
 			<Item Name="ag33xxx - Error Message.vi" Type="VI" URL="../../a33120a/ag33xxx.llb/ag33xxx - Error Message.vi"/>
@@ -290,17 +298,23 @@
 			<Item Name="ag33xxx - Reset.vi" Type="VI" URL="../../a33120a/ag33xxx.llb/ag33xxx - Reset.vi"/>
 			<Item Name="ag33xxx - Select User Def Wfm.vi" Type="VI" URL="../../a33120a/ag33xxx.llb/ag33xxx - Select User Def Wfm.vi"/>
 			<Item Name="ag33xxx - Utility Default Instrument Setup.vi" Type="VI" URL="../../a33120a/ag33xxx_u.llb/ag33xxx - Utility Default Instrument Setup.vi"/>
+			<Item Name="AgilisCmdLib.dll" Type="Document" URL="../../../../../Program Files/Newport/Piezo Motion Control/Newport AG-UC2-UC8 Applet/Samples/LabVIEW 2009/AgilisCmdLib.dll"/>
 			<Item Name="arange (SubVI).vi" Type="VI" URL="../arange (SubVI).vi"/>
 			<Item Name="check_folder (SubVI).vi" Type="VI" URL="../check_folder (SubVI).vi"/>
 			<Item Name="check_if_should_flash (SubVI).vi" Type="VI" URL="../check_if_should_flash (SubVI).vi"/>
+			<Item Name="check_valve_status.vi" Type="VI" URL="../../valve_control/check_valve_status.vi"/>
+			<Item Name="ChooseCorrectInstrument.vi" Type="VI" URL="../../agilis/move_stage/ChooseCorrectInstrument.vi"/>
 			<Item Name="clean_up_data_tasks (SubVI).vi" Type="VI" URL="../clean_up_data_tasks (SubVI).vi"/>
 			<Item Name="clean_up_in_loop (SubVI).vi" Type="VI" URL="../clean_up_in_loop (SubVI).vi"/>
 			<Item Name="clean_up_instruments (SubVI).vi" Type="VI" URL="../clean_up_instruments (SubVI).vi"/>
 			<Item Name="cold_cathode_control.vi" Type="VI" URL="../../valve_control/cold_cathode_control.vi"/>
 			<Item Name="create_file_name (SubVI).vi" Type="VI" URL="../create_file_name (SubVI).vi"/>
 			<Item Name="create_process_list (SubVI).vi" Type="VI" URL="../create_process_list (SubVI).vi"/>
+			<Item Name="create_subarray (SubVI).vi" Type="VI" URL="../create_subarray (SubVI).vi"/>
 			<Item Name="display_environ (SubVI).vi" Type="VI" URL="../../valve_control/display_environ (SubVI).vi"/>
 			<Item Name="flash_lamp (SubVI).vi" Type="VI" URL="../flash_lamp (SubVI).vi"/>
+			<Item Name="gate_valve1.vi" Type="VI" URL="../../valve_control/gate_valve1.vi"/>
+			<Item Name="gate_valve_combo.vi" Type="VI" URL="../../valve_control/gate_valve_combo.vi"/>
 			<Item Name="Get Full Terminal Name.vi" Type="VI" URL="../../Get Full Terminal Name.vi"/>
 			<Item Name="initialize_instruments (SubVI).vi" Type="VI" URL="../initialize_instruments (SubVI).vi"/>
 			<Item Name="lvanlys.dll" Type="Document" URL="/&lt;resource&gt;/lvanlys.dll"/>
@@ -314,6 +328,8 @@
 			<Item Name="read_data (SubVI).vi" Type="VI" URL="../read_data (SubVI).vi"/>
 			<Item Name="read_environment (SubVI).vi" Type="VI" URL="../../read_environment (SubVI).vi"/>
 			<Item Name="read_pressures.vi" Type="VI" URL="../read_pressures.vi"/>
+			<Item Name="replace_sub_array (SubVI).vi" Type="VI" URL="../replace_sub_array (SubVI).vi"/>
+			<Item Name="RVC300_open_control.vi" Type="VI" URL="../../valve_control/RVC300_open_control.vi"/>
 			<Item Name="save_data (SubVI).vi" Type="VI" URL="../save_data (SubVI).vi"/>
 			<Item Name="set_dc_supply (SubVI).vi" Type="VI" URL="../set_dc_supply (SubVI).vi"/>
 			<Item Name="set_electrodes (SubVI).vi" Type="VI" URL="../set_electrodes (SubVI).vi"/>
@@ -322,6 +338,7 @@
 			<Item Name="SR630_subvi.vi" Type="VI" URL="../../SR630_subvi.vi"/>
 			<Item Name="synth_set (SubVI).vi" Type="VI" URL="../synth_set (SubVI).vi"/>
 			<Item Name="take_data (SubVI).vi" Type="VI" URL="../take_data (SubVI).vi"/>
+			<Item Name="valve_state (SubVI).vi" Type="VI" URL="../../valve_control/valve_state (SubVI).vi"/>
 		</Item>
 		<Item Name="Build Specifications" Type="Build"/>
 	</Item>

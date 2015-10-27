@@ -10,7 +10,7 @@ import scipy.signal as sp
 import scipy.optimize as opt
 import cPickle as pickle
 
-path = r"D:\Data\20150202\Bead1\cantidrive\mon"
+path = r"C:\Data\20150917\Bead1\chargelp2"
 ts = 10.
 
 fdrive = 41.
@@ -18,7 +18,8 @@ make_plot = True
 reprocess_file = True
 
 data_columns = [0, 1] ## column to calculate the correlation against
-drive_column = -1 ## column containing drive signal
+drive_column = 12 ## column containing drive signal
+
 
 
 
@@ -30,15 +31,19 @@ def getdata(fname, maxv):
         if( len(attribs) > 0 ):
             fsamp = attribs["Fsamp"]
 
-        xdat = dat[:,data_columns[0]]
+        xdat = dat[:,data_columns[1]]
 
         lentrace = len(xdat)
         ## zero pad one cycle
         corr_full = bu.corr_func( dat[:,drive_column], xdat, fsamp, fdrive)
+
+        #plt.figure()
+        #plt.plot( xdat)
+        #plt.plot(dat[:,drive_column])
+        #plt.show()
         
 
-        return corr_full[0], np.max(corr_full) 
-
+        return corr_full[0], np.max(corr_full)
 
 
 best_phase = None
@@ -51,7 +56,7 @@ if make_plot:
 
 if reprocess_file:
 
-    init_list = glob.glob(path + "\*200mV*.h5")
+    init_list = glob.glob(path + "\*.h5")
     files = sorted(init_list, key = bu.find_str)
     for f in files[::1]:
         try:    

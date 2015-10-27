@@ -4,11 +4,14 @@ import matplotlib.pyplot as plt
 import os
 import scipy.signal as sp
 import numpy as np
+import bead_util as bu
 
-refname = r"UR_mbar_xyzcool.h5"
-fname0 = r""
-path = r"C:\Data\20150825\Bead3"
+
+refname = r"1_5mbar_zcool.h5"
+fname0 = r"1_5mbar_zcool.h5"
+path = r"C:\data\20151026\bead7"
 d2plt = 1
+conv_fac = 2.08e-14
 if fname0 == "":
 	filelist = os.listdir(path)
 
@@ -26,7 +29,7 @@ if fname0 == "":
 		 
 
 Fs = 5e3  ## this is ignored with HDF5 files
-NFFT = 2**17
+NFFT = 2**13
 
 def getdata(fname):
 	print "Opening file: ", fname
@@ -41,7 +44,8 @@ def getdata(fname):
 		Fs = dset.attrs['Fsamp']
 		
 		#dat = 1.0*dat*max_volt/nbit
-
+                dat = dat * 10./(2**15 - 1)
+                
 	else:
 		dat = numpy.loadtxt(fname, skiprows = 5, usecols = [2, 3, 4, 5, 6] )
 
@@ -70,29 +74,36 @@ b, a = sp.butter(1, [2*5./Fs, 2*10./Fs], btype = 'bandpass')
 if d2plt:	
 
         fig = plt.figure()
-        plt.plot(data0[3][:, 0])
-        plt.plot(data0[3][:, 1])
-        plt.plot(data0[3][:, 3])
+        plt.plot(data0[3][:, 2] - np.mean(data0[3][:, 2]) )
+        #plt.plot(data0[3][:, 1])
+        plt.plot(data0[3][:, 3] - np.mean(data0[3][:, 3]) )
        # plt.plot(np.abs(data0[3][:, 3])-np.mean(np.abs(data0[3][:, 3])))
        
 
+r, bp, pcov = bu.get_calibration(os.path.join(path, refname), [1, 1000], make_plot = True)
 
+k = (bp[1]*2.*np.pi)**2*bu.bead_mass
+fu = r*k
+
+print fu
+
+fu = conv_fac
 
 fig = plt.figure()
 plt.subplot(3, 1, 1)
-plt.loglog(data0[0], data0[1],label="Data")
+plt.loglog(data0[0], fu*np.sqrt(data0[1]),label="~10^-6 mbar")
 if refname:
-	plt.loglog(data1[0], data1[1],label="Ref")
+	plt.loglog(data1[0], fu*np.sqrt(data1[1]),label=" 1.6 mbar")
 plt.ylabel("V$^2$/Hz")
-plt.legend()
+plt.legend(loc=3)
 plt.subplot(3, 1, 2)
-plt.loglog(data0[0], data0[2])
+plt.loglog(data0[0], fu*np.sqrt(data0[2]))
 if refname:
-	plt.loglog(data1[0], data1[2])
+	plt.loglog(data1[0], fu*np.sqrt(data1[2]))
 plt.subplot(3, 1, 3)
-plt.loglog(data0[0], data0[4])
+plt.loglog(data0[0],  fu*np.sqrt(data0[4]))
 if refname:
-	plt.loglog(data1[0], data1[4])
+	plt.loglog(data1[0], fu*np.sqrt(data1[4]))
 plt.ylabel("V$^2$/Hz")
 plt.xlabel("Frequency[Hz]")
 plt.show()
