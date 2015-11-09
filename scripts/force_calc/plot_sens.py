@@ -107,7 +107,7 @@ xtot = np.hstack((x,x[-1::-1]))
 ytot = np.hstack((y1,y2[-1::-1]))
 zippts = zip(xtot,ytot)
 ax = plt.gca()
-#ax.add_patch(Polygon(zippts,closed=True,fill=False,hatch='//'))
+ax.add_patch(Polygon(zippts,closed=True,fill=False,hatch='//'))
 
 
 ##gluon modulus
@@ -137,7 +137,7 @@ ax.add_patch(Polygon(zippts,closed=True,fill=False,hatch='...',color=[0.5, 0.5, 
 
 
 #yukawa messengers
-ll = plt.plot([1e-1, 6.3e0], [74267.9, 74267.9],color=[0.25,0.25,0.25],ls='dotted',linewidth=2)
+ll = plt.plot([1e-1, 7.84e0], [74267.9, 74267.9],color=[0.25,0.25,0.25],ls='dotted',linewidth=2)
 seq = [5, 3]
 ll[0].set_dashes(seq)
 
@@ -152,18 +152,15 @@ cmeas = np.loadtxt('prev_meas/master.txt',delimiter=",",skiprows=1)
 plt.fill_between(cmeas[:,0]*1e6,cmeas[:,1],1e20,color=[255./256,246./256,143/256.])
 
 cmeas = np.loadtxt('prev_meas/decca_prl_94_240401_2005.txt',delimiter=",",skiprows=1)
-#plt.loglog(cmeas[:,0]*1e6,cmeas[:,1],'k',linewidth=1.5)
+plt.loglog(cmeas[:,0]*1e6,cmeas[:,1],'k',linewidth=1.5)
 
 cmeas = np.loadtxt('prev_meas/sushkov_prl_107_171101_2011.txt',delimiter=",",skiprows=1)
-#plt.loglog(cmeas[:,0]*1e6,cmeas[:,1],'k',linewidth=1.5)
+plt.loglog(cmeas[:,0]*1e6,cmeas[:,1],'k',linewidth=1.5)
 
 cmeas = np.loadtxt('prev_meas/geraci_prd_78_022002_2008.txt',delimiter=",",skiprows=1)
 plt.loglog(cmeas[3:-3,0]*1e6,cmeas[3:-3,1],'k',linewidth=1.5)
 
 cmeas = np.loadtxt('prev_meas/kapner_prl_98_021101_2007.txt',delimiter=",",skiprows=1)
-plt.loglog(cmeas[:,0]*1e6,cmeas[:,1],'k',linewidth=1.5)
-
-cmeas = np.loadtxt('prev_meas/decca_2014.txt',delimiter=",",skiprows=0)
 plt.loglog(cmeas[:,0]*1e6,cmeas[:,1],'k',linewidth=1.5)
 
 col_list = ['b--', 'b', 'r--', 'r']
@@ -182,9 +179,8 @@ for i in range(len(gap_list)):
     np.save("data/sens_data_%.1f.npy"%(gap_list[i]*1e6), out_vals)
 
 plt.xlim([0.1, 100])
-plt.ylim([1,1e11])
-#plt.yticks(np.logspace(0,10,5))
-plt.yticks(np.logspace(0,10,6))
+plt.ylim([1,1e14])
+plt.yticks(np.logspace(0,14,8))
 plt.xlabel('Length scale, $\lambda$ [$\mu$m]')
 plt.ylabel(r'Strength parameter, $|\alpha|$')
 
@@ -210,7 +206,7 @@ xtot = np.hstack((x,x[-1::-1]))
 ytot = np.hstack((y1,y2[-1::-1]))
 zippts = zip(xtot,ytot)
 ax = plt.gca()
-#ax.add_patch(Polygon(zippts,closed=True,fill=False,hatch='//'))
+ax.add_patch(Polygon(zippts,closed=True,fill=False,hatch='//'))
 
 
 ##gluon modulus
@@ -240,7 +236,7 @@ ax.add_patch(Polygon(zippts,closed=True,fill=False,hatch='...',color=[0.5, 0.5, 
 
 
 #yukawa messengers
-ll = plt.plot([1e-1, 6.3e0], [74267.9, 74267.9],color=[0.25,0.25,0.25],ls='dotted',linewidth=2)
+ll = plt.plot([1e-1, 7.84e0], [74267.9, 74267.9],color=[0.25,0.25,0.25],ls='dotted',linewidth=2)
 seq = [5, 3]
 ll[0].set_dashes(seq)
 
@@ -255,10 +251,10 @@ cmeas = np.loadtxt('prev_meas/master.txt',delimiter=",",skiprows=1)
 plt.fill_between(cmeas[:,0]*1e6,cmeas[:,1],1e20,color=[255./256,246./256,143/256.])
 
 cmeas = np.loadtxt('prev_meas/decca_prl_94_240401_2005.txt',delimiter=",",skiprows=1)
-#plt.loglog(cmeas[:,0]*1e6,cmeas[:,1],'k',linewidth=1.5)
+plt.loglog(cmeas[:,0]*1e6,cmeas[:,1],'k',linewidth=1.5)
 
 cmeas = np.loadtxt('prev_meas/sushkov_prl_107_171101_2011.txt',delimiter=",",skiprows=1)
-#plt.loglog(cmeas[:,0]*1e6,cmeas[:,1],'k',linewidth=1.5)
+plt.loglog(cmeas[:,0]*1e6,cmeas[:,1],'k',linewidth=1.5)
 
 cmeas = np.loadtxt('prev_meas/geraci_prd_78_022002_2008.txt',delimiter=",",skiprows=1)
 plt.loglog(cmeas[3:-3,0]*1e6,cmeas[3:-3,1],'k',linewidth=1.5)
@@ -266,12 +262,9 @@ plt.loglog(cmeas[3:-3,0]*1e6,cmeas[3:-3,1],'k',linewidth=1.5)
 cmeas = np.loadtxt('prev_meas/kapner_prl_98_021101_2007.txt',delimiter=",",skiprows=1)
 plt.loglog(cmeas[:,0]*1e6,cmeas[:,1],'k',linewidth=1.5)
 
-cmeas = np.loadtxt('prev_meas/decca_2014.txt',delimiter=",",skiprows=0)
-plt.loglog(cmeas[:,0]*1e6,cmeas[:,1],'k',linewidth=1.5)
-
 plt.xlim([0.1, 100])
-plt.ylim([1,1e11])
-plt.yticks(np.logspace(0,10,6))
+plt.ylim([1,1e14])
+plt.yticks(np.logspace(0,14,8))
 plt.xlabel('Length scale, $\lambda$ [$\mu$m]')
 plt.ylabel(r'Strength parameter, $|\alpha|$')
 
@@ -287,18 +280,15 @@ cmeas = np.loadtxt('prev_meas/master.txt',delimiter=",",skiprows=1)
 plt.fill_between(cmeas[:,0],cmeas[:,1],1e20,color=[255./256,246./256,143/256.])
 
 cmeas = np.loadtxt('prev_meas/decca_prl_94_240401_2005.txt',delimiter=",",skiprows=1)
-#plt.loglog(cmeas[:,0],cmeas[:,1],'k',linewidth=1.5)
+plt.loglog(cmeas[:,0],cmeas[:,1],'k',linewidth=1.5)
 
 cmeas = np.loadtxt('prev_meas/sushkov_prl_107_171101_2011.txt',delimiter=",",skiprows=1)
-#plt.loglog(cmeas[:,0],cmeas[:,1],'k',linewidth=1.5)
+plt.loglog(cmeas[:,0],cmeas[:,1],'k',linewidth=1.5)
 
 cmeas = np.loadtxt('prev_meas/geraci_prd_78_022002_2008.txt',delimiter=",",skiprows=1)
 plt.loglog(cmeas[3:-3,0],cmeas[3:-3,1],'k',linewidth=1.5)
 
 cmeas = np.loadtxt('prev_meas/kapner_prl_98_021101_2007.txt',delimiter=",",skiprows=1)
-plt.loglog(cmeas[:,0],cmeas[:,1],'k',linewidth=1.5)
-
-cmeas = np.loadtxt('prev_meas/decca_2014.txt',delimiter=",",skiprows=1)
 plt.loglog(cmeas[:,0],cmeas[:,1],'k',linewidth=1.5)
 
 cmeas = np.loadtxt('prev_meas/mid_range.txt',delimiter=",",skiprows=1)
@@ -320,13 +310,13 @@ plt.loglog(cmeas[:,0],cmeas[:,1],'k',linewidth=1.5)
 plt.plot([1e-7, 1e15], [1, 1], 'k--', linewidth=1.5)
 
 plt.xlim([1e-7,  1e15])
-plt.ylim([1e-12, 1e12])
+plt.ylim([1e-14, 1e14])
 
 plt.xlabel('Length scale, $\lambda$ [m]')
 plt.ylabel(r'Strength parameter, $|\alpha|$')
 
 fig_tot.set_size_inches(6,4.5)
-plt.yticks(np.logspace(-12,12,9))
+plt.yticks(np.logspace(-15,15,11))
 #plt.gca().tick_params(axis='y',which='minor',bottom='off')
 plt.minorticks_off()
 plt.gcf().subplots_adjust(bottom=0.14,left=0.16,right=0.95,top=0.95)

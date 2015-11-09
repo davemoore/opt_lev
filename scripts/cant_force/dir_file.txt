@@ -1,3 +1,4 @@
+## index, directory, legend label, stage mon column, num harmonics, min volt, max volt, pos at 10 V, cal fac
 1; /data/20150928/backgrounds/next_dat/turbo_base_later_3_7Hz2; 2015/09/28; 19; 7; 0; 10; 15; 9.1e-14
 2; /data/20150928/backgrounds/next_dat/5e-5mbar3_7Hz; 5e-5 mbar; 19; 7; 0; 10; 15; 9.1e-14
 3; /data/20150928/backgrounds/next_dat/5e-4mbar3_7Hz; 5e-4 mbar; 19; 7; 0; 10; 15; 9.1e-14
@@ -33,3 +34,97 @@
 23; /data/20151021/bead1/cantmove_3_7Hz_zfeed0_16_more; zfb = 0.16; 19; 7; 0; 10; 0; 3.1e-14
 24; /data/20151021/bead1/cantmove_3_7Hz_zfeed0_08_more; zfb = 0.08; 19; 7; 0; 10; 0; 3.1e-14
 25; /data/20151021/bead1/cantmove_3_7Hz_zfeed0_08_razor; zfb = 0.08, razor; 19; 7; 0; 10; 0; 3.1e-14
+26; /data/20151021/bead1/cantmove_3_7Hz_zfeed0_03_razor; zfb = 0.03, razor; 19; 7; 0; 10; 0; 3.1e-14
+27; /data/20151021/bead1/cantmove_3_7Hz_zfeed0_16_razor; zfb = 0.16, razor; 19; 7; 0; 10; 0; 3.1e-14
+28; /data/20151021/bead1/cantmove_3_7Hz_zfeed0_25_razor; zfb = 0.25, razor; 19; 7; 0; 10; 0; 3.1e-14
+## changing cantilver y position
+29; /data/20151021/bead1/cantmove_3_7Hz_midY; Y=6 V; 19; 7; 0; 10; 0; 3.1e-14
+30; /data/20151021/bead1/cantmove_3_7Hz_hiY; Y=10 V; 19; 7; 0; 10; 0; 3.1e-14
+31; /data/20151021/bead1/cantmove_3_7Hz_lowY; Y=0 V; 19; 7; 0; 10; 0; 3.1e-14
+32; /data/20151021/bead1/cantmove_3_7Hz_Ysweep; Y=0 V; 18; 7; 0; 10; 0; 3.1e-14
+
+##new bead, starting with integral gain turned up
+33; /data/20151022/bead1/cant_sweep_noblade_3V; No blade; 19; 7; 0; 10; 0; 3.2e-14
+34; /data/20151022/bead1/cant_sweep_blade_3V; Blade; 19; 7; 0; 10; 0; 3.2e-14
+## changing integral gain
+35; /data/20151022/bead1/cant_sweep_blade_int_4e-4; ig=5e-4; 19; 7; 0; 10; 0; 3.2e-14
+36; /data/20151022/bead1/cant_sweep_blade_int_1e-5; ig=1e-5; 19; 7; 0; 10; 0; 3.2e-14
+37; /data/20151022/bead1/cant_sweep_blade_int_6e-4; ig=6e-4; 19; 7; 0; 10; 0; 3.2e-14
+38; /data/20151022/bead1/cant_sweep_blade_int_2e-3; ig=2e-3; 19; 7; 0; 10; 0; 3.2e-14
+##no bead
+39; /data/20151022/bead1/cant_sweep_nobead; no bead; 19; 7; 0; 10; 0; 3.2e-14
+
+## new bead, changing Z sweep amplitude
+## bad time dependent noise for the first dir
+40; /data/20151026/bead7/cant_sweep_1_1; Z=1V; 19; 7; 0; 10; 0; 3.5e-14
+41; /data/20151026/bead7/cant_sweep_2_2; Z=2V; 19; 7; 0; 10; 0; 3.5e-14
+42; /data/20151026/bead7/cant_sweep_1_1_v2; Z=1V; 19; 7; 0; 10; 0; 3.5e-14
+43; /data/20151026/bead7/cant_sweep_3_3; Z=3V; 19; 7; 0; 10; 0; 3.5e-14
+44; /data/20151026/bead7/cant_sweep_2_5; Z=2.5V; 19; 7; 0; 10; 0; 3.5e-14
+45; /data/20151026/bead7/cant_sweep_2_5_no_osc; Z=2.5V, no osc; 19; 7; 0; 10; 0; 3.5e-14
+46; /data/20151026/bead7/cant_sweep_2_5_ig1e-4; Z=2.5V, ig=1e-4; 19; 7; 0; 10; 0; 3.5e-14
+47; /data/20151026/bead7/cant_sweep_2_5_overnight; Z=2.5V, long; 19; 7; 0; 10; 0; 3.5e-14
+48; /data/20151026/bead7/cant_sweep_2_overnight; Z=2V, long; 19; 7; 0; 10; 0; 3.5e-14
+## biasing the cantilever to mimic a chameleon force
+49; /data/20151026/bead7/cant_sweep_2_cham_bias; Z=2V, cham bias; 19; 7; 0; 10; 0; 3.5e-14
+50; /data/20151026/bead7/cant_sweep_2_cham_bias_beta1e7; Z=2V, beta=1e7; 19; 7; 0; 10; 0; 3.5e-14
+51; /data/20151026/bead7/cant_sweep_2_cham_bias_beta1e6; Z=2V, beta=1e6; 19; 7; 0; 10; 0; 3.5e-14
+52; /data/20151026/bead7/cant_sweep_2_cham_bias_beta1e5; Z=2V, beta=1e5; 19; 7; 0; 10; 0; 3.5e-14
+53; /data/20151026/bead7/cant_sweep_2_cham_bias_beta1e7_recal; Z=2V, beta=1e7; 19; 7; 0; 10; 0; 3.5e-14
+54; /data/20151026/bead7/cant_sweep_2_cham_bias_beta1e6_recal; Z=2V, beta=1e6; 19; 7; 0; 10; 0; 3.5e-14
+55; /data/20151026/bead7/cant_sweep_2_ig1e-5; Z=2V, ig=1e-5; 19; 7; 0; 10; 0; 3.5e-14
+## changing frequency
+56; /data/20151026/bead7/cant_sweep_2_ig3e-4; 3.7 Hz; 19; 7; 0; 10; 0; 3.5e-14
+57; /data/20151026/bead7/cant_sweep_2_ig3e-4_11Hz; 11 Hz; 19; 7; 0; 10; 0; 3.5e-14
+58; /data/20151026/bead7/cant_sweep_2_ig3e-4_17Hz; 17 Hz; 19; 7; 0; 10; 0; 3.5e-14
+## testing effect of zeroing cantilever bias, 11Hz, ig=3e-4
+59; /data/20151026/bead7/cant_sweep_2_elec0; All elec 0V; 19; 7; 0; 10; 0; 3.5e-14
+60; /data/20151026/bead7/cant_sweep_2_elec_biases; Elecs zeroed; 19; 7; 0; 10; 0; 3.5e-14
+61; /data/20151026/bead7/cant_sweep_2_small_biases; Small biases; 19; 7; 0; 10; 0; 3.5e-14
+62; /data/20151026/bead7/cant_sweep_2_small_biases2; Small biases2; 19; 7; 0; 10; 0; 3.5e-14
+63; /data/20151026/bead7/cant_sweep_2_small_biases3; Small biases3; 19; 7; 0; 10; 0; 3.5e-14
+64; /data/20151026/bead7/cant_sweep_2_small_biases4; All zeroed 2; 19; 7; 0; 10; 0; 3.5e-14
+65; /data/20151026/bead7/cant_sweep_2_terminated_3_7Hz; Teminated; 19; 7; 0; 10; 0; 3.5e-14
+66; /data/20151026/bead7/cant_sweep_2_tetrapus; Tetrapus; 19; 7; 0; 10; 0; 3.5e-14
+67; /data/20151026/bead7/cant_sweep_2_tetrapus2; Tetrapus2; 19; 7; 0; 10; 0; 3.5e-14
+## messed with setpoint
+68; /data/20151026/bead7/cant_sweep_setpoint; set point; 19; 7; 0; 10; 0; 3.5e-14
+69; /data/20151026/bead7/cant_sweep_setpoint_11Hz; set point; 19; 7; 0; 10; 0; 3.5e-14
+70; /data/20151026/bead7/cant_sweep_setpoint_hifb; set point; 19; 7; 0; 10; 0; 3.5e-14
+
+## new bead, this time trying to sync up with camera image
+## no razor blade on input side yet
+71; /data/20151029/bead2/cant_sweep_noinputrazor_1; no razor, 1V; 19; 7; 0; 10; 0; 4.7e-14
+72; /data/20151029/bead2/cant_sweep_noinputrazor_2; no razor, 2V; 19; 7; 0; 10; 0; 4.7e-14
+73; /data/20151029/bead2/cant_sweep_noinputrazor_2_withcam; no razor, 2V; 19; 7; 0; 10; 0; 4.7e-14
+74; /data/20151029/bead2/cant_sweep_noinputrazor_2_withcam_beta1e7; no razor, beta=1e7; 19; 7; 0; 10; 0; 4.7e-14
+## add bias for chameleon with beta=1e7
+75; /data/20151029/bead2/cant_sweep_noinputrazor_2_withcam_beta1e7_2; no razor, beta=1e7; 19; 7; 0; 10; 0; 4.7e-14
+
+## new bead, this time trying to sync up with camera image
+## razor blade on input side
+76; /data/20151030/bead1/cant_sweep_2; input razor; 19; 7; 0; 10; 0; 4.2e-14
+77; /data/20151030/bead1/cant_sweep_2_11Hz; input razor, 11Hz; 19; 7; 0; 10; 0; 4.2e-14
+78; /data/20151030/bead1/next_day/non_retarded/cant_sweep3; input razor, 4.7Hz; 19; 7; 0; 10; 0; 4.2e-14
+79; /data/20151030/bead1/next_day/non_retarded/1v_ac_bias/; 1v bias; 19; 7; 0; 10; 0; 4.2e-14
+80; /data/20151030/bead1/next_day/non_retarded/cant_sweep_long/; cant sweep; 19; 7; 0; 10; 0; 4.2e-14
+
+## measuring xtalk between feedback and y for previous bead
+81; /data/20151030/bead1/fbxtalk_long/; xtalk; 19; 7; 0; 10; 0; 4.2e-14
+
+## new bead, z prop and int gain off
+82; /data/20151106/bead1/cant_sweep; no z fb; 19; 7; 0; 10; 0; 3.1e-14
+83; /data/20151106/bead1/cant_sweep2; no z fb; 19; 7; 0; 10; 20; 3.1e-14
+84; /data/20151106/bead1/cant_sweep_zeroed; elec0=-100 mV; 19; 7; 0; 10; 20; 3.1e-14
+85; /data/20151106/bead1/cant_bias_sweep3; elec sweep; 19; 7; 0; 10; 20; 3.1e-14
+86; /data/20151106/bead1/cant_zeroed_sunday; elec zeroed; 19; 7; 0; 10; 20; 3.1e-14
+87; /data/20151106/bead1/all_termed_sunday; terminated; 19; 7; 0; 10; 20; 3.1e-14
+88; /data/20151106/bead1/elec_sweep_sunday; elec sweep; 19; 7; 0; 10; 20; 3.1e-14
+89; /data/20151106/bead1/elec_sweep_sunday_psup; dc supply; 19; 7; 0; 10; 20; 3.1e-14
+90; /data/20151106/bead1/elec_sweep_sunday_psup2; dc supply; 19; 7; 0; 10; 20; 3.1e-14
+91; /data/20151106/bead1/cant_sweep_stage_out30k; cant back 30k; 19; 7; 0; 10; 20; 3.1e-14
+92; /data/20151106/bead1/cant_sweep_stage_fully_out; cant fully back; 19; 7; 0; 10; 20; 3.1e-14
+93; /data/20151106/bead1/monday/cant_sweep1; cant fully out; 19; 7; 0; 10; 20; 3.1e-14
+94; /data/20151106/bead1/monday/cant_sweep1_back500; cant back 500; 19; 7; 0; 10; 20; 3.1e-14
+95; /data/20151106/bead1/monday/cant_sweep_yz_diff; diff, 7 Hz; 19; 7; 0; 10; 20; 3.1e-14
+96; /data/20151106/bead1/monday/cant_sweep_yz_diff_14Hz; diff, 14 Hz; 19; 7; 0; 10; 20; 3.1e-14
