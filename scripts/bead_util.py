@@ -1,11 +1,14 @@
 ## set of utility functions useful for analyzing bead data
 
-import h5py, os, matplotlib, re
+import h5py, os, matplotlib, re, glob
 import numpy as np
 import datetime as dt
 import matplotlib.pyplot as plt
 import scipy.optimize as opt
 import scipy.signal as sp
+import scipy.interpolate as interp
+import matplotlib.cm as cmx
+import matplotlib.colors as colors
 
 bead_radius = 2.53e-6 ##m
 bead_rho = 2.0e3 ## kg/m^3
@@ -32,6 +35,23 @@ prime_freqs = [23,29,31,37,41,
                73,79,83,89,97,101,103,107,109,113, 
                127,131,137,139,149,151,157,163,167,173, 
                179,181,191,193,197,199]
+
+## get the shape of the chameleon force vs. distance from Maxime's calculation
+cforce = np.loadtxt("/home/dcmoore/opt_lev/scripts/data/chameleon_force.txt", delimiter=",")
+## fit a spline to the data
+cham_spl = interp.UnivariateSpline( cforce[::5,0], cforce[::5,1], s=0 )
+
+## cv2 propId enumeration:
+CV_CAP_PROP_POS_FRAMES = 1
+CV_CAP_PROP_FPS = 5
+CV_CAP_PROP_FRAME_COUNT = 7
+
+## work around inability to pickle lambda functions
+class ColFFT(object):
+    def __init__(self, vid):
+        self.vid = vid
+    def __call__(self, idx):
+        return np.fft.rfft( self.vid[idx[0], idx[1], :] )
 
 def gain_fac( val ):
     ### Return the gain factor corresponding to a given voltage divider
@@ -209,7 +229,7 @@ def corr_func(drive, response, fsamp, fdrive, good_pts = [], filt = False, band_
 
     #First subtract of mean of signals to avoid correlating dc
     drive = drive-np.mean(drive)
-    response  = response - np.mean(response)
+    response  = response-np.mean(response)
 
     #bandpass filter around drive frequency if desired.
     if filt:
@@ -228,8 +248,8 @@ def corr_func(drive, response, fsamp, fdrive, good_pts = [], filt = False, band_
         lentrace = np.sum(good_pts)    
 
 
-    corr_full = good_corr(drive, response, fsamp, fdrive)/(lentrace*drive_amp**2)
-    #corr_full = good_corr(drive, response, fsamp, fdrive)/(lentrace)
+    #corr_full = good_corr(drive, response, fsamp, fdrive)/(lentrace*drive_amp**2)
+    corr_full = good_corr(drive, response, fsamp, fdrive)/(lentrace)
     return corr_full
 
 def corr_blocks(drive, response, fsamp, fdrive, good_pts = [], filt = False, band_width = 1, N_blocks = 20):
@@ -593,3 +613,122 @@ def get_noise_direction_ratio( noise_list, weight_func ):
     print rat_out
 
     return rat_out
+
+def fsin(x, p0, p1, p2):
+    return p0*np.sin(2.*np.pi*p1*x + p2)
+
+def get_mod(dat, mod_column = 3):
+    b, a = sp.butter(3, 0.1)
+    cdrive = np.abs(dat[:, mod_column] - np.mean(dat[:, mod_column]))
+    cdrive = sp.filtfilt(b, a, cdrive)
+    cdrive -= np.mean(cdrive)
+    xx = np.arange(len(cdrive))
+    spars = [np.std(cdrive)*2, 6.1e-4, 0]
+    bf, bc = opt.curve_fit( fsin, xx, cdrive, p0 = spars)
+    return fsin(xx, bf[0], bf[1], bf[2])/np.abs(bf[0])
+
+def lin(x, m, b):
+    return m*x + b
+
+def get_DC_force(path, ind, column = 0, fmod = 6.):
+    files = glob.glob(path + "/*.h5")
+    n = len(files)
+    amps = np.zeros(n)
+    DCs = np.zeros(n)
+    for i in range(n):
+        dat, attribs, cf = getdata(os.path.join(path, files[i]))
+        fs = attribs['Fsamp']
+        cf.close()
+        amps[i] = corr_func(get_mod(dat), dat[:, column], fs, fmod)[0]
+        lst = re.findall('-?\d+', files[i])
+        DCs[i] = int(lst[ind])
+    return amps, DCs
+
+def calibrate_dc(path, charge, dist = 0.01, make_plt = False):
+    amps, DCs = get_DC_force(path, -5)
+    Fs = DCs*e_charge*charge/dist
+    spars = [1e15, 0.]
+    bf, bc = opt.curve_fit(lin, Fs, amps, p0 = spars)
+    if make_plt:
+        
+        plt.plot(Fs, lin(Fs, bf[0], bf[1]), 'r', label = 'linear fit', linewidth = 5)
+        plt.plot(Fs, amps, 'x', label = 'data', markersize = 10, linewidth = 5)
+        plt.legend()
+        plt.xlabel('Applied Force [N]')
+        plt.ylabel('Measured response [V]')
+        plt.show()
+    return 1./bf[0]
+
+def get_chameleon_force( sep ):
+    return cham_spl(sep)
+
+def get_color_map( n ):
+    jet = plt.get_cmap('jet') 
+    cNorm  = colors.Normalize(vmin=0, vmax=n)
+    scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=jet)
+    return scalarMap
+
+def load_dir_file( f ):
+
+    lines = [line.rstrip('\n') for line in open(f)]
+
+    out_dict = {}
+    for l in lines: 
+        
+        lparts = l.split(";")
+        
+        if( len( lparts ) < 8 ):
+            continue
+
+        idx = lparts[0]
+        out_dict[idx] = [lparts[1].strip(), lparts[2].strip(), int(lparts[3]), int(lparts[4]), int(lparts[5]), int(lparts[6]), int(lparts[7]), float(lparts[8])]
+
+    return out_dict
+
+def data_list_to_dict( d ):
+    out_dict = {"path": d[0], "label": d[1], "drive_idx": d[2],
+                "calib_fac": d[7]}
+    return out_dict
+
+def make_histo_vs_time(x,y,xlab="File number",ylab="Force [N]",lab="",col="k"):
+    ## take x and y data and plot the time series as well as a Gaussian fit
+    ## to the distro
+
+    ## now do the inset plot
+    iax = plt.axes([0.1,0.1,0.5,0.8])
+    fmtstr = 'o-' if( len(y) < 200 ) else '.'
+    ms = 4 if( len(y) < 200 ) else 2
+    plt.plot( x, y, fmtstr, color=col, mec="none", markersize=ms )
+    plt.xlabel(xlab)
+    plt.ylabel(ylab)
+    
+    yy=plt.ylim()
+
+    iax2 = plt.axes([0.6,0.1,0.3,0.8])
+    iax2.yaxis.set_visible(False)
+
+    crange = [np.percentile(y,5.)-np.std(y), np.percentile(y,95.)+np.std(y)]
+    hh, be = np.histogram( y, bins = 30, range=crange )
+    bc = be[:-1]+np.diff(be)/2.0
+    cmu, cstd = np.median(y), np.std(y)
+    amp0 = np.sum(hh)/np.sqrt(2*np.pi*cstd)
+    bp, bcov = opt.curve_fit( gauss_fun, bc, hh, p0=[amp0, cmu, cstd] )
+
+    xx = np.linspace(crange[0], crange[1], 1e3)
+
+    plt.errorbar( hh, bc, xerr=np.sqrt(hh), yerr=0, fmt='.', color=col, linewidth=1.5 )
+    plt.plot( gauss_fun(xx, bp[0], bp[1], bp[2]), xx, color=col, linewidth=1.5, label=r"$\beta$ = %.1e$\pm$%.1e"%(bp[1], np.sqrt(bcov[1,1])))
+    plt.xlabel("Counts")
+
+    plt.ylim(yy)
+
+    plt.subplots_adjust(top=0.96, right=0.99, bottom=0.15, left=0.075)
+
+
+def simple_sort( s ):
+    ## simple sort function that sorts by last number in the file name
+    ss = re.findall("\d+.h5", s)
+    if( not ss ):
+        return 0.
+    else:
+        return float(ss[0][:-3])

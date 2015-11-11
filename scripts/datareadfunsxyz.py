@@ -7,10 +7,9 @@ import scipy.signal as sp
 import numpy as np
 import bead_util as bu
 
-refname = "URmbar_xyzcool_nofilters3_elec3_250mV41Hz250mVdc_20.h5"
-fname0 = "URmbar_xyzcool_nofilters3_elec3_250mV41Hz250mVdc_55.h5"
-#path = r"C:\Data\20150825\Bead1"
-path = "/data/20150909/Bead1/recharge_cal"
+refname = "URmbar_xyzcool_discharged_stageX0nmY5500nmZ2000nmZ2000mVAC11Hz.h5"
+fname0 = 'URmbar_xyzcool_discharged_stageX0nmY5500nmZ2000nmZ2000mVAC11Hz.h5'
+path = '/data/20151030/bead1/next_day/non_retarded/cant_sweep/'
 d2plt = 0
 if fname0 == "":
 	filelist = os.listdir(path)
@@ -24,10 +23,10 @@ if fname0 == "":
 			mtime = os.path.getmtime(f) 
  
 	fname0 = mrf		
-
+print fname0
 		 
 
-NFFT = 2**12
+NFFT = 2**18
 
 def getpsd(data, attribs):
         Fs = attribs['Fsamp']
@@ -40,6 +39,7 @@ data0, attribs0, handle0 = bu.getdata(os.path.join(path, fname0))
 freqs0, xpsd0, ypsd0, zpsd0 = getpsd(data0, attribs0)
 
 if refname:
+        print "ref", refname
 	data1, attribs1, handle1 = bu.getdata(os.path.join(path, refname))
         freqs1, xpsd1, ypsd1, zpsd1 = getpsd(data1, attribs1)
 
@@ -49,10 +49,16 @@ if d2plt:
         plt.plot(data0[:, 0])
         plt.plot(data0[:, 1])
         plt.plot(data0[:, 3])
-       # plt.plot(np.abs(data0[3][:, 3])-np.mean(np.abs(data0[3][:, 3])))
        
-f = open('volt_to_newton_conv.txt')
-conv = float(f.readline())
+#f = open('volt_to_newton_conv.txt')
+#conv = float(f.readline())
+
+norm_rat, bp, bcov = bu.get_calibration(os.path.join(path, refname),\
+                                        [1, 0.5e3], make_plot=True) 
+
+k = bu.bead_mass * (2 * np.pi * bp[1])**2
+
+conv = norm_rat * k
 
 print conv
 

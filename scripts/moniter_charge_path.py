@@ -11,7 +11,7 @@ import scipy.optimize as opt
 import cPickle as pickle
 
 #path = r"D:\Data\20150202\Bead3\cantidrive\mon"
-path = "/data/20150909/Bead1/recharge_cal"
+path = "/data/20150921/Bead1/chargelp_cal"
 ts = 10.
 
 fdrive = 41.
@@ -20,6 +20,8 @@ reprocess_file = True
 
 data_columns = [0, 1] ## column to calculate the correlation against
 drive_column = 12 ## column containing drive signal
+
+scaling = 0.155
 
 
 def keyfunc(s):
@@ -59,7 +61,7 @@ if reprocess_file:
     init_list = glob.glob(path + "/*xyzcool*_250mV*.h5")
     print "SANITY"
     files = sorted(init_list, key=keyfunc)
-    print files
+    #print files
     for f in files[::1]:
         try:    
                 cfile = f
@@ -72,7 +74,7 @@ if reprocess_file:
     if make_plot:
 	#nfiles = len(np.array(corr_data)[:,0])
 	#t = np.linspace(0, nfiles-1, nfiles) * 10 
-        plt.plot(np.array(corr_data)[:,0] / 0.013, linewidth=1.5, color='k')
+        plt.plot(np.array(corr_data)[:,0] / scaling, linewidth=1.5, color='k')
 	plt.grid()
 	#plt.ylim(-5,5)
         #plt.xlabel("Time [s]")

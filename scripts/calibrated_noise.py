@@ -7,8 +7,8 @@ import numpy as np
 import bead_util as bu
 
 #path = r"C:\Data\20150825\Bead1"
-path = "/data/20150909/Bead1/recharge_cal/" \
-       + "URmbar_xyzcool_nofilters3_elec3_250mV41Hz250mVdc_55.h5"
+path = "/data/20150921/Bead1/chargelp_cal/" \
+       + "URmbar_xyzcool_elec3_250mV41Hz250mVdc_20.h5"
 
 # Use NFFT < total number of points to avoid windowing
 NFFT = 2**14
@@ -18,7 +18,7 @@ drive_voltage = 50
 
 trap_dim = 4e-3
 
-e_charges = 1
+e_charges = 2
 e0 = 1.602e-19
 
 	
