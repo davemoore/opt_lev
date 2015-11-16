@@ -36,10 +36,17 @@ prime_freqs = [23,29,31,37,41,
                127,131,137,139,149,151,157,163,167,173, 
                179,181,191,193,197,199]
 
+
+chamfil = h5py.File('/home/charles/opt_lev/scripts/chamsdata/2D_chameleon_force.h5')
+cham_xforce = interp.RectBivariateSpline(chamfil['xcoord'],\
+                                         chamfil['ycoord'], chamfil['xforce'])
+cham_yforce = interp.RectBivariateSpline(chamfil['xcoord'],\
+                                         chamfil['ycoord'], chamfil['yforce'])
+
 ## get the shape of the chameleon force vs. distance from Maxime's calculation
-cforce = np.loadtxt("/home/dcmoore/opt_lev/scripts/data/chameleon_force.txt", delimiter=",")
+#cforce = np.loadtxt("/home/dcmoore/opt_lev/scripts/data/chameleon_force.txt", delimiter=",")
 ## fit a spline to the data
-cham_spl = interp.UnivariateSpline( cforce[::5,0], cforce[::5,1], s=0 )
+#cham_spl = interp.UnivariateSpline( cforce[::5,0], cforce[::5,1], s=0 )
 
 ## cv2 propId enumeration:
 CV_CAP_PROP_POS_FRAMES = 1
@@ -659,8 +666,13 @@ def calibrate_dc(path, charge, dist = 0.01, make_plt = False):
         plt.show()
     return 1./bf[0]
 
-def get_chameleon_force( sep ):
-    return cham_spl(sep)
+def get_chameleon_force(xpoints, y=0, yforce=False):
+    xcomponent = cham_xforce(xpoints, y)
+    ycomponent = cham_yforce(xpoints, y)
+    if yforce:
+        return xcomponent, ycomponent
+    else:
+        return xcomponent
 
 def get_color_map( n ):
     jet = plt.get_cmap('jet') 
