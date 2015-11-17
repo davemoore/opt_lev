@@ -41,6 +41,18 @@ cforce = np.loadtxt("/home/dcmoore/opt_lev/scripts/data/chameleon_force.txt", de
 ## fit a spline to the data
 cham_spl = interp.UnivariateSpline( cforce[::5,0], cforce[::5,1], s=0 )
 
+## cv2 propId enumeration:
+CV_CAP_PROP_POS_FRAMES = 1
+CV_CAP_PROP_FPS = 5
+CV_CAP_PROP_FRAME_COUNT = 7
+
+## work around inability to pickle lambda functions
+class ColFFT(object):
+    def __init__(self, vid):
+        self.vid = vid
+    def __call__(self, idx):
+        return np.fft.rfft( self.vid[idx[0], idx[1], :] )
+
 def gain_fac( val ):
     ### Return the gain factor corresponding to a given voltage divider
     ### setting.  These numbers are from the calibration of the voltage
@@ -672,3 +684,51 @@ def load_dir_file( f ):
         out_dict[idx] = [lparts[1].strip(), lparts[2].strip(), int(lparts[3]), int(lparts[4]), int(lparts[5]), int(lparts[6]), int(lparts[7]), float(lparts[8])]
 
     return out_dict
+
+def data_list_to_dict( d ):
+    out_dict = {"path": d[0], "label": d[1], "drive_idx": d[2],
+                "calib_fac": d[7]}
+    return out_dict
+
+def make_histo_vs_time(x,y,xlab="File number",ylab="Force [N]",lab="",col="k"):
+    ## take x and y data and plot the time series as well as a Gaussian fit
+    ## to the distro
+
+    ## now do the inset plot
+    iax = plt.axes([0.1,0.1,0.5,0.8])
+    fmtstr = 'o-' if( len(y) < 200 ) else '.'
+    ms = 4 if( len(y) < 200 ) else 2
+    plt.plot( x, y, fmtstr, color=col, mec="none", markersize=ms )
+    plt.xlabel(xlab)
+    plt.ylabel(ylab)
+    
+    yy=plt.ylim()
+
+    iax2 = plt.axes([0.6,0.1,0.3,0.8])
+    iax2.yaxis.set_visible(False)
+
+    crange = [np.percentile(y,5.)-np.std(y), np.percentile(y,95.)+np.std(y)]
+    hh, be = np.histogram( y, bins = 30, range=crange )
+    bc = be[:-1]+np.diff(be)/2.0
+    cmu, cstd = np.median(y), np.std(y)
+    amp0 = np.sum(hh)/np.sqrt(2*np.pi*cstd)
+    bp, bcov = opt.curve_fit( gauss_fun, bc, hh, p0=[amp0, cmu, cstd] )
+
+    xx = np.linspace(crange[0], crange[1], 1e3)
+
+    plt.errorbar( hh, bc, xerr=np.sqrt(hh), yerr=0, fmt='.', color=col, linewidth=1.5 )
+    plt.plot( gauss_fun(xx, bp[0], bp[1], bp[2]), xx, color=col, linewidth=1.5, label=r"$\beta$ = %.1e$\pm$%.1e"%(bp[1], np.sqrt(bcov[1,1])))
+    plt.xlabel("Counts")
+
+    plt.ylim(yy)
+
+    plt.subplots_adjust(top=0.96, right=0.99, bottom=0.15, left=0.075)
+
+
+def simple_sort( s ):
+    ## simple sort function that sorts by last number in the file name
+    ss = re.findall("\d+.h5", s)
+    if( not ss ):
+        return 0.
+    else:
+        return float(ss[0][:-3])
