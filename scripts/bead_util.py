@@ -667,12 +667,13 @@ def calibrate_dc(path, charge, dist = 0.01, make_plt = False):
     return 1./bf[0]
 
 def get_chameleon_force(xpoints, y=0, yforce=False):
-    xcomponent = cham_xforce(xpoints, y)
-    ycomponent = cham_yforce(xpoints, y)
+    ypoints = np.zeros(len(xpoints)) + y
+    xcomponent = cham_xforce.ev(xpoints, ypoints)
+    ycomponent = cham_yforce.ev(xpoints, ypoints)
     if yforce:
-        return xcomponent, ycomponent
+        return xcomponent.flatten(), ycomponent.flatten()
     else:
-        return xcomponent
+        return xcomponent.flatten()
 
 def get_color_map( n ):
     jet = plt.get_cmap('jet') 
