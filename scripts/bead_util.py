@@ -37,7 +37,7 @@ prime_freqs = [23,29,31,37,41,
                179,181,191,193,197,199]
 
 
-chamfil = h5py.File('/home/charles/opt_lev/scripts/chamsdata/2D_chameleon_force_fullgeom.h5')
+chamfil = h5py.File('/home/charles/opt_lev/scripts/chamsdata/2D_chameleon_force_fullgeom.h5', 'r')
 cham_xforce = interp.RectBivariateSpline(chamfil['xcoord'],\
                                          chamfil['ycoord'], chamfil['xforce'])
 cham_yforce = interp.RectBivariateSpline(chamfil['xcoord'],\
