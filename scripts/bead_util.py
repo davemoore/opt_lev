@@ -6,7 +6,7 @@ import datetime as dt
 import matplotlib.pyplot as plt
 import scipy.optimize as opt
 import scipy.signal as sp
-
+import scipy.interpolate as interp
 
 bead_radius = 2.53e-6 ##m
 bead_rho = 2.0e3 ## kg/m^3
@@ -17,6 +17,11 @@ bead_mass = 4./3*np.pi*bead_radius**3 * bead_rho
 data_columns = [0, 1] ## column to calculate the correlation against
 drive_column = -1
 laser_column = 3
+
+## get the shape of the chameleon force vs. distance from Maxime's calculation
+cforce = np.loadtxt(r"c:\GitHub\opt_lev\scripts\data\chameleon_force.txt", delimiter=",")
+## fit a spline to the data
+cham_spl = interp.UnivariateSpline( cforce[::5,0], cforce[::5,1], s=0 )
 
 def gain_fac( val ):
     ### Return the gain factor corresponding to a given voltage divider
@@ -283,7 +288,7 @@ def corr_func(drive, response, fsamp, fdrive, good_pts = [], filt = False, band_
         lentrace = np.sum(good_pts)    
 
 
-    corr_full = good_corr(drive, response, fsamp, fdrive)/(lentrace*drive_amp**2)
+    corr_full = good_corr(drive, response, fsamp, fdrive)/(lentrace*drive_amp)
     return corr_full
 
 def corr_blocks(drive, response, fsamp, fdrive, good_pts = [], filt = False, band_width = 1, N_blocks = 20):
@@ -302,3 +307,5 @@ def corr_blocks(drive, response, fsamp, fdrive, good_pts = [], filt = False, ban
 def gauss_fun(x, A, mu, sig):
     return A*np.exp( -(x-mu)**2/(2*sig**2) )
 
+def get_chameleon_force( sep ):
+    return cham_spl(sep)

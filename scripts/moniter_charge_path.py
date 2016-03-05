@@ -10,7 +10,7 @@ import scipy.signal as sp
 import scipy.optimize as opt
 import cPickle as pickle
 
-path = r"C:\Data\20150917\Bead1\chargelp2"
+path = r"C:\Data\20160227\Bead1\chareglp_course"
 ts = 10.
 
 fdrive = 41.
@@ -58,6 +58,7 @@ if reprocess_file:
 
     init_list = glob.glob(path + "\*.h5")
     files = sorted(init_list, key = bu.find_str)
+    print files
     for f in files[::1]:
         try:    
                 cfile = f
@@ -66,11 +67,15 @@ if reprocess_file:
         except:
                 print "uninformative error message"
     
-
-    if make_plot:
-        plt.plot(np.array(corr_data))
-        plt.xlabel("File #")
-        plt.ylabel("Bead response to 10V [V]")
+cal = 2.3e-14/(0.01*1.6e-19*2525)
+tarr = np.linspace(0, 10*len(np.array(corr_data)[:, 0]), len(np.array(corr_data)[:, 0]))
+       
+if make_plot:
+        plt.plot(tarr, np.array(corr_data)[:, 0]*cal,'o', markersize = 4, label = "Response at Max Phase")
+        plt.plot(tarr, np.array(corr_data)[:, 1]*cal,'o',markersize = 4, label = "Response at 0 deg Phase")
+        plt.xlabel("Time [s]")
+        plt.ylabel("Bead charge [e]")
+        plt.legend()
         plt.show()
 
  

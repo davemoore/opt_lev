@@ -7,11 +7,11 @@ import numpy as np
 import bead_util as bu
 
 
-refname = r"1_5mbar_zcool.h5"
-fname0 = r"1_5mbar_zcool.h5"
-path = r"C:\data\20151026\bead7"
+refname = r"2mbar_zcool_stageX10000nmY5000nmZ2500nm.h5"
+fname0 = r""
+path = r"C:\Data\20160304\bead3"
 d2plt = 1
-conv_fac = 2.08e-14
+conv_fac = 5e-14
 if fname0 == "":
 	filelist = os.listdir(path)
 
@@ -29,7 +29,7 @@ if fname0 == "":
 		 
 
 Fs = 5e3  ## this is ignored with HDF5 files
-NFFT = 2**13
+NFFT = 2**14
 
 def getdata(fname):
 	print "Opening file: ", fname
@@ -91,9 +91,9 @@ fu = conv_fac
 
 fig = plt.figure()
 plt.subplot(3, 1, 1)
-plt.loglog(data0[0], fu*np.sqrt(data0[1]),label="~10^-6 mbar")
+plt.loglog(data0[0], fu*np.sqrt(data0[1]),label="test")
 if refname:
-	plt.loglog(data1[0], fu*np.sqrt(data1[1]),label=" 1.6 mbar")
+	plt.loglog(data1[0], fu*np.sqrt(data1[1]),label="ref")
 plt.ylabel("V$^2$/Hz")
 plt.legend(loc=3)
 plt.subplot(3, 1, 2)
