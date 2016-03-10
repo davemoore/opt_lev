@@ -465,7 +465,8 @@ plot.tick_params(axis='both', labelsize=16)
 
 ## function to fit data vs position
 def ffn(x,A,B):
-    return A * (1./x)**2 + B
+    #return A * (1./x)**2 + B
+    return A * (1./x)**1 + B
 
 ## function to fit force vs voltage
 def ffn2(x,A):
@@ -486,7 +487,7 @@ for i in range(len(data)):
     else:
         gpts = data[i][12] != 0
         ydat = data[i][11][gpts]
-        plt.errorbar(data[i][10][gpts], ydat-ydat[-1], data[i][12][gpts], fmt='o-', \
+        plt.errorbar(data[i][10][gpts], ydat, data[i][12][gpts], fmt='o-', \
                      color=colors_yeay[i], label=label)
 
     ## fit 1/r^2 to the dipole response
@@ -495,7 +496,6 @@ for i in range(len(data)):
             xdat, ydat = data[i][0][gpts], data[i][2][gpts]
         else:
             xdat, ydat = data[i][10][gpts], data[i][11][gpts]
-            ydat -= ydat[-1]
         A, Aerr = opt.curve_fit( ffn, xdat, ydat, p0=[1.,0] )
 
         try:

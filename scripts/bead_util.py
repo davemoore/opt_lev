@@ -37,11 +37,11 @@ prime_freqs = [23,29,31,37,41,
                179,181,191,193,197,199]
 
 
-chamfil = h5py.File('/home/charles/opt_lev/scripts/chamsdata/2D_chameleon_force.h5')
+chamfil = h5py.File('/home/charles/opt_lev/scripts/chamsdata/2D_chameleon_force.h5', 'r')
 cham_xforce = interp.RectBivariateSpline(chamfil['xcoord'],\
-                                         chamfil['ycoord'], chamfil['xforce'])
+                                        chamfil['ycoord'], chamfil['xforce'])
 cham_yforce = interp.RectBivariateSpline(chamfil['xcoord'],\
-                                         chamfil['ycoord'], chamfil['yforce'])
+                                        chamfil['ycoord'], chamfil['yforce'])
 
 ## get the shape of the chameleon force vs. distance from Maxime's calculation
 #cforce = np.loadtxt("/home/dcmoore/opt_lev/scripts/data/chameleon_force.txt", delimiter=",")

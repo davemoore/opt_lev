@@ -271,4 +271,4 @@
 
 
 ## new bead
-215; /data/20160310/bead1/cant_volt_sweep2; dc bias; 19; 7; 0; 10; 20; 9.4e-14
+215; /data/20160310/bead1/cant_volt_sweep4; dc bias; 19; 7; 0; 10; 20; 9.4e-14

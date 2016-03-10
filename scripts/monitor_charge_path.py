@@ -11,7 +11,7 @@ import scipy.optimize as opt
 import cPickle as pickle
 
 #path = r"D:\Data\20150202\Bead3\cantidrive\mon"
-path = "/data/20151021/bead1/chargelp_cal"
+path = "/data/20151106/bead1/chargelp_cal"
 ts = 10.
 
 fdrive = 41.
@@ -23,7 +23,7 @@ data_columns = [0, 1] ## column to calculate the correlation against
 drive_column = 12 ## column containing drive signal
 
 drive_millivolt = 250
-scale_fac = 0.001
+scale_fac = 2.9/1000.
 
 force = (drive_millivolt/1000.)*200*bu.e_charge/4e-3 ## N
 
@@ -83,8 +83,8 @@ if reprocess_file:
 
     corr_data = np.array(corr_data)
 
-    #sing_charge = np.abs(np.abs( corr_data[:,0]/scale_fac ) - 1) < 0.25
-    sing_charge = np.zeros_like(corr_data[:,0])
+    sing_charge = np.abs(np.abs( corr_data[:,0]/scale_fac ) - 1) < 0.25
+    #sing_charge = np.zeros_like(corr_data[:,0])
 
     if make_plot:
 	#nfiles = len(np.array(corr_data)[:,0])

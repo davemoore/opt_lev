@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import scipy.optimize as sp
 import matplotlib.mlab as mlab
 
-data_dir = "/data/20151208/bead1/dc_sweep2"
+data_dir = "/data/20151208/bead1/dc_sweep3"
 
 using_dc_supply = True
 
@@ -20,6 +20,8 @@ def sort_fun( s ):
 
 #flist = sorted(glob.glob(os.path.join(data_dir, "*mVdc_stageX*nmY*nmZ*nm.h5")), key = sort_fun)
 flist = sorted(glob.glob(os.path.join(data_dir, "*.h5")), key = sort_fun)
+
+avg_dict = {}
 
 elec_list = [3,] ##[1,2,3,4,5,6]
 dcol_list = [0,1,2]
@@ -52,6 +54,14 @@ for fidx,f in enumerate(flist):
             dummy_freq = 41 ## freq doesn't matter since we do 0 offset only
             corr_dr = bu.corr_func(drive, response, Fs, dummy_freq)[0]
             corr_dr2 = bu.corr_func(drive2, response, Fs, dummy_freq)[0]
+            #cpsd, freqs = mlab.psd(response, Fs = Fs, NFFT = 2**16) 
+            #dfidx = np.argmin( np.abs(freqs-dummy_freq) )
+            #corr_dr = cpsd[ dfidx ]
+
+            #plt.figure()
+            #plt.loglog( freqs, cpsd )
+            #plt.loglog( freqs[dfidx], cpsd[dfidx], 'ro' )
+            #plt.show()
 
             tot_dat[fidx, eidx, didx, 0] = cpos
             tot_dat[fidx, eidx, didx, 1] = corr_dr
@@ -63,9 +73,24 @@ for fidx,f in enumerate(flist):
                 plt.plot( response )
                 plt.show()
 
+            ## save the average
+            if( elec == 3 and dcol == 1 ):
+                if( cpos in avg_dict ):
+                    avg_dict[cpos].append( corr_dr )
+                else:
+                    avg_dict[cpos] = [corr_dr,]
+
+
 tot_dat = np.array(tot_dat)
 
 frange = [-200, 8000] ## fit range
+
+avg_vals = []
+for cc in avg_dict:
+    avg_vals.append( [cc, np.mean( avg_dict[cc] ), np.std( avg_dict[cc] )/len(avg_dict[cc]) ] )
+avg_vals = np.array(avg_vals)
+
+print avg_vals
 
 def make_plot( x,y,plot=True ):
     if(plot):
@@ -97,6 +122,7 @@ for eidx, elec in enumerate(elec_list):
     ypot = make_plot(tot_dat[:,eidx,1,0], tot_dat[:,eidx,1,1]) 
     xvals=tot_dat[:,eidx,1,0]
     plt.xlim(np.min(xvals)-10, np.max(xvals)+10)
+    plt.errorbar( avg_vals[:,0], avg_vals[:,1], yerr=avg_vals[:,2], fmt='b.', linewidth=1.5)
 
     # plt.subplot(3,1,3)
     zpot = make_plot(tot_dat[:,eidx,2,0], tot_dat[:,eidx,2,1], plot=False) 
@@ -105,20 +131,18 @@ for eidx, elec in enumerate(elec_list):
 
     pot_arr[eidx,:] =  [xpot, ypot, zpot]
 
-plt.figure()
-plt.plot( elec_list, pot_arr[:,0], 'ks', label="x response" )
-plt.plot( elec_list, pot_arr[:,1], 'rs', label="y response" )
-plt.plot( elec_list, pot_arr[:,2], 'gs', label="z response" )
-plt.title( "electrode potentials" )
-plt.xlim([0,6])
+# plt.figure()
+# plt.plot( elec_list, pot_arr[:,0], 'ks', label="x response" )
+# plt.plot( elec_list, pot_arr[:,1], 'rs', label="y response" )
+# plt.plot( elec_list, pot_arr[:,2], 'gs', label="z response" )
+# plt.title( "electrode potentials" )
+# plt.xlim([0,6])
 
 
-print "X best potentials:"
-print pot_arr[:,0]
-print "Y best potentials:"
-print pot_arr[:,1]
-
-
+# print "X best potentials:"
+# print pot_arr[:,0]
+# print "Y best potentials:"
+# print pot_arr[:,1]
 
 plt.show()
 
