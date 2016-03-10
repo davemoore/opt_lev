@@ -3,30 +3,42 @@ import glob, os, re
 import numpy as np
 import bead_util as bu
 import matplotlib.pyplot as plt
+import matplotlib.mlab as mlab
 import scipy.signal as signal
 import scipy.interpolate as interp
 import scipy.optimize as opt
 
+<<<<<<< HEAD
 ############################################################
 do_mean_subtract = True  ## subtract mean position from data
 do_poly_fit = False  ## fit data to 1/r^2 (for DC bias data)
 sep_forward_backward = True ## handle forward and backward separately
 idx_to_plot = [97] ## indices from dir file below to use
 diff_dir = 'Y' ## if set, take difference between two positions
+=======
+###################################################################################
+do_mean_subtract = False  ## subtract mean position from data
+do_poly_fit = True  ## fit data to 1/r^2 (for DC bias data)
+sep_forward_backward = False ## handle forward and backward separately
+idx_to_plot = [215,] ## indices from dir file below to use
+diff_dir = None ##'Y' ## if set, take difference between two positions
+>>>>>>> origin/dcm
 
 data_column = 1 ## data to plot, x=0, y=1, z=2
-
+mon_columns = [3,7]  # columns used to monitor position, empty to ignore
 plot_title = 'Force vs. position'
 nbins = 40  ## number of bins vs. bead position
 
-max_files = 100 ## max files to process per directory
+max_files = 20 ## max files to process per directory
 force_remake_file = True ## force recalculation over all files
+
+buffer_points = 1000 ## number of points to cut from beginning and end of file
 
 make_opt_filt_plot = True
 
 ## load the list of data from a text file into a dict
 ddict = bu.load_dir_file( "/home/dcmoore/opt_lev/scripts/cant_force/dir_file.txt" )
-############################################################
+###################################################################################
 
 cant_step_per_V = 8. ##um
 colors_yeay = ['b', 'r', 'g', 'k', 'c', 'm', 'y', [0.5,0.5,0.5], [0, 0.5, 1], [1, 0.5, 0], [0.5, 1,0]]
@@ -40,7 +52,11 @@ print dirs
 sbins = 4  # number of bins to either side of drive_freq to integrate
 
 def sort_fun( s ):
-    return float(re.findall("-?\d+.h5", s)[0][:-3])
+    cc = re.findall("-?\d+.h5", s)
+    if( len(cc) > 0 ):
+        return float(cc[0][:-3])
+    else:
+        return -1.
 
 
 def bin(xvec, yvec, binmin=0, binmax=10, n=300):
@@ -70,7 +86,50 @@ def get_stage_dir_pos( s, d ):
             return None
         else:
             return int(coord[0][3:-2])
-            
+
+def get_mon_amp_and_phase( dat, drive_freq, Fs ):
+    mon_data_x = dat[:,mon_columns[0]][buffer_points:-buffer_points]
+    mon_data_y = dat[:,mon_columns[1]][buffer_points:-buffer_points]
+    ctdat = dat[:,data_column][buffer_points:-buffer_points]
+
+    ## First orthogonalize the mon vectors
+    mon_data_xo = 1.0*mon_data_x
+    mon_data_yo = 1.0*mon_data_y - np.dot(mon_data_x, mon_data_y)/np.dot(mon_data_x, mon_data_x)*mon_data_x
+
+    ftd_dag = np.conjugate( np.fft.rfft( ctdat ) )
+    fmdx = np.fft.rfft( mon_data_xo )
+    fmdy = np.fft.rfft( mon_data_yo )
+    N = len( ctdat )
+    cpsdx = fmdx * ftd_dag
+    cpsdy = fmdy * ftd_dag
+    freqs = np.fft.rfftfreq( len(mon_data_xo), d=1.0/Fs )
+
+    if( False ):
+        plt.figure()
+        gpts = np.logical_and( freqs>6, freqs<8 )
+        fpt = np.argmin( np.abs( freqs-7.1 ) )
+        ax = plt.subplot(111, projection='polar')
+        ax.plot( np.angle(cpsdx[gpts]), np.abs(cpsdx[gpts]), 'k.' )
+        ax.plot( np.angle(cpsdx[fpt]), np.abs(cpsdx[fpt]), 'rx', markeredgewidth=2 )
+        ax.plot( np.angle(cpsdy[gpts]), np.abs(cpsdy[gpts]), 'g.' )
+        ax.plot( np.angle(cpsdy[fpt]), np.abs(cpsdy[fpt]), 'cx', markeredgewidth=2 )
+        #ax.set_rmax(5e-6)
+        #plt.ylim([-5e-6, 5e-6])
+        plt.show()
+        
+    dfidx = np.argmin( np.abs( freqs - drive_freq ) )
+
+    ## notch out the frequency we want
+    cpsdx[:dfidx-1] = 1e-15
+    cpsdx[dfidx+1:] = 1e-15
+    cpsdy[:dfidx-1] = 1e-15
+    cpsdy[dfidx+1:] = 1e-15
+
+    sub_x = np.fft.irfft( np.conjugate(cpsdx) )
+    sub_y = np.fft.irfft( np.conjugate(cpsdy) )
+
+    return sub_x, sub_y
+
 
 def process_files(data_dir, num_files, numharmonics, \
                   monmin, monmax, drive_indx=19, dc_val=-1, pos_at_10V=0., conv_fac=1.):
@@ -128,18 +187,50 @@ def process_files(data_dir, num_files, numharmonics, \
             print "Skipping: ", f
             continue         
 
-        cmonz = cdat[:,drive_indx][1000:len(cdat[:,drive_indx])-1000] 
-        truncdata = cdat[:,data_column][1000:len(cdat[:,data_column])-1000]
+        Fs = attribs['Fsamp']        
+        cmonz = cdat[:,drive_indx][buffer_points:-buffer_points] 
+        truncdata = cdat[:,data_column][buffer_points:-buffer_points]
 
+        ## check correlation with beam used to monitor trap tilt
+        if( len(mon_columns) == 2 and not diff_dir):
+            mx, my = get_mon_amp_and_phase( cdat, drive_freq, Fs )
+            
+            if( False ):
+                b2,a2 = signal.butter(1,[(drive_freq-0.1)/(Fs/2),(drive_freq+0.1)/(Fs/2)], btype='bandpass')
+                plt.figure()
+                plt.plot(signal.filtfilt(b2,a2,truncdata))
+                plt.plot(mx)
+                #plt.plot(my)
+                
+                # plt.figure()
+                # plt.plot(truncdata)
+                # plt.plot(truncdata - (mx + my) )
+
+                plt.show()
+            
+            #truncdata -= (mx + my)
+            #truncdata -= (mx)
+
+            ## chop off windowing artifacts
+            #truncdata = truncdata[2*buffer_points:-2*buffer_points]
+            #cmonz = cmonz[2*buffer_points:-2*buffer_points]
+
+
+        ## if we want to take the difference with a reference file, check that the file
+        ## exists, and if so, subtract off the reference                             
         if( diff_dir ):
             cdat1, attribs1, fhand1 = bu.getdata( flist1[fidx] )   
             if( len(cdat1) == 0 ):
                 print "Couldn't find matching file: ", f
                 continue
-            truncdata_diff = cdat1[:,data_column][1000:len(cdat1[:,data_column])-1000]
-            #truncdata -= truncdata_diff
+            truncdata_diff = cdat1[:,data_column][buffer_points:-buffer_points]
+            if( len(mon_columns) == 2 ):
+                mxd, myd = get_mon_amp_and_phase( cdat1, drive_freq, Fs )
 
-        Fs = attribs['Fsamp']        
+                truncdata -= (mxd + myd)
+            else:
+                truncdata -= truncdata_diff
+            
         ntrace += 1
 
         ## Compute the FFT and frequency bins
@@ -184,7 +275,8 @@ def process_files(data_dir, num_files, numharmonics, \
 
         ## optimal filter 
         cpos = pos_at_10V + cant_step_per_V*(10. - cmonz)
-        cdrive = bu.get_chameleon_force( cpos*1e-6 )
+        #cdrive = bu.get_chameleon_force( cpos*1e-6 )
+        cdrive = np.ones_like(cpos)
         cdrive -= np.mean(cdrive)
         ## convert newtons to V
         cdrive /= conv_fac
@@ -242,12 +334,16 @@ def process_files(data_dir, num_files, numharmonics, \
         binned_errors.append(cerr)
 
         ## Add to the PSDs
-        bw_fac = 2.0/(len(cfft)*Fs)
+        bw_fac = 1. ##2.0/(len(cfft)*Fs)
         if( len(tot_psdi) == 0 ):
-            tot_psdi = bw_fac*cfft * cfft.conj() * conv_fac**2
+            p1,f1 = mlab.psd(  truncdata, NFFT=len(truncdata), Fs=Fs )
+            tot_psdi = p1 * conv_fac**2
+            #tot_psdi = bw_fac*cfft * cfft.conj() * conv_fac**2
             tot_psdf = bw_fac*fft_filt * fft_filt.conj() * conv_fac**2
         else:
-            tot_psdi += bw_fac * cfft * cfft.conj() * conv_fac**2
+            p2,f2 = mlab.psd(  truncdata, NFFT=len(truncdata), Fs=Fs )
+            tot_psdi += p2*conv_fac**2
+            #tot_psdi += bw_fac * cfft * cfft.conj() * conv_fac**2
             tot_psdf += bw_fac * fft_filt * fft_filt.conj() * conv_fac**2
 
         fhand.close()
@@ -327,7 +423,7 @@ for cdir in dirs:
             ersf *= conv_fac
             ersr *= conv_fac
             ers *= conv_fac
-            if( dc_val > -999999 ):
+            if( dc_val > -99999 and True):
                 clab = str(dc_val) + " mV DC"
             else:
                 clab = cdir[1]
@@ -351,8 +447,10 @@ plt.figure(1)
 for i in range(len(data)):
     #label = dirs[i][1]
     label = data[i][9]
-    plt.loglog(data[i][6], np.sqrt(data[i][7]), label=label)
+    plt.loglog(data[i][6], np.sqrt(data[i][7]), label=label, color=colors_yeay[i])
     #plt.loglog(data[i][6], np.sqrt(data[i][8]))
+    plt.xlabel("Freq [Hz]")
+    plt.ylabel("Force PSD [N/rtHz]")
 plt.legend(loc=0)
 
 of_fig = plt.figure(11)
@@ -360,7 +458,7 @@ for i in range(len(data)):
     label = data[i][9]
     of_amps = data[i][13]
 
-    if( len(of_amps) > 2 and make_opt_filt_plot):
+    if( False and len(of_amps) > 2 and make_opt_filt_plot):
         bu.make_histo_vs_time( range(len(of_amps)), of_amps,lab=label,col=colors_yeay[i] )
     else:
         plt.plot(range(len(of_amps)), of_amps, 'o-', label=label, color=colors_yeay[i])
@@ -396,7 +494,8 @@ for i in range(len(data)):
                      color=colors_yeay[i])
     else:
         gpts = data[i][12] != 0
-        plt.errorbar(data[i][10][gpts], data[i][11][gpts], data[i][12][gpts], fmt='o-', \
+        ydat = data[i][11][gpts]
+        plt.errorbar(data[i][10][gpts], ydat-ydat[-1], data[i][12][gpts], fmt='o-', \
                      color=colors_yeay[i], label=label)
 
     ## fit 1/r^2 to the dipole response
@@ -405,6 +504,7 @@ for i in range(len(data)):
             xdat, ydat = data[i][0][gpts], data[i][2][gpts]
         else:
             xdat, ydat = data[i][10][gpts], data[i][11][gpts]
+            ydat -= ydat[-1]
         A, Aerr = opt.curve_fit( ffn, xdat, ydat, p0=[1.,0] )
 
         try:
