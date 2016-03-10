@@ -11,7 +11,7 @@ import scipy.optimize as opt
 do_mean_subtract = True  ## subtract mean position from data
 do_poly_fit = False  ## fit data to 1/r^2 (for DC bias data)
 sep_forward_backward = True ## handle forward and backward separately
-idx_to_plot = [95,96,] ## indices from dir file below to use
+idx_to_plot = [97] ## indices from dir file below to use
 diff_dir = 'Y' ## if set, take difference between two positions
 
 data_column = 1 ## data to plot, x=0, y=1, z=2
