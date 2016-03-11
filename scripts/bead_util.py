@@ -38,10 +38,15 @@ prime_freqs = [23,29,31,37,41,
 
 
 chamfil = h5py.File('/home/charles/opt_lev/scripts/chamsdata/2D_chameleon_force.h5', 'r')
+## these don't work if the data is not in ascending order
 cham_xforce = interp.RectBivariateSpline(chamfil['xcoord'],\
                                         chamfil['ycoord'], chamfil['xforce'])
 cham_yforce = interp.RectBivariateSpline(chamfil['xcoord'],\
                                         chamfil['ycoord'], chamfil['yforce'])
+#cham_xforce = interp.interp2d(chamfil['xcoord'],\
+#                                        chamfil['ycoord'], chamfil['xforce'])
+#cham_yforce = interp.interp2d(chamfil['xcoord'],\
+#                                        chamfil['ycoord'], chamfil['yforce'])
 
 ## get the shape of the chameleon force vs. distance from Maxime's calculation
 #cforce = np.loadtxt("/home/dcmoore/opt_lev/scripts/data/chameleon_force.txt", delimiter=",")
@@ -666,9 +671,25 @@ def calibrate_dc(path, charge, dist = 0.01, make_plt = False):
         plt.show()
     return 1./bf[0]
 
-def get_chameleon_force(xpoints, y=0, yforce=False):
-    xcomponent = cham_xforce(xpoints, y)
-    ycomponent = cham_yforce(xpoints, y)
+def get_chameleon_force(xpoints_in, y=0, yforce=False):
+
+    ## Chas's controlling nature forces us to sort the array 
+    ## before we can interpolate in order to use his 
+    ## fancy 2d function.  I don't want to sort before I pass
+    ## to this function!
+
+    sorted_idx = np.argsort(xpoints_in)
+    xpoints = xpoints_in[sorted_idx]
+
+    xcomponent_out = cham_xforce(xpoints, y)
+    ycomponent_out = cham_yforce(xpoints, y)
+
+    ## now unsort
+    xcomponent = np.zeros_like(xcomponent_out)
+    ycomponent = np.zeros_like(ycomponent_out)
+    xcomponent[sorted_idx] = xcomponent_out
+    ycomponent[sorted_idx] = ycomponent_out
+
     if yforce:
         return xcomponent, ycomponent
     else:
