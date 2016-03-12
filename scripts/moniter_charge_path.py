@@ -10,8 +10,8 @@ import scipy.signal as sp
 import scipy.optimize as opt
 import cPickle as pickle
 
-path = r"C:\Data\20160227\Bead1\chareglp_course"
-ts = 10.
+path = r"C:\Data\20160307\bead7\chargelp_cal"
+ts = 100.
 
 fdrive = 41.
 make_plot = True
@@ -58,21 +58,24 @@ if reprocess_file:
 
     init_list = glob.glob(path + "\*.h5")
     files = sorted(init_list, key = bu.find_str)
-    print files
     for f in files[::1]:
         try:    
                 cfile = f
-                corr = getdata( cfile, 10. )
+                print cfile
+                corr = getdata( cfile, ts )
+                
                 corr_data.append(corr )
         except:
                 print "uninformative error message"
     
 cal = 2.3e-14/(0.01*1.6e-19*2525)
-tarr = np.linspace(0, 10*len(np.array(corr_data)[:, 0]), len(np.array(corr_data)[:, 0]))
-       
+tarr = np.linspace(0, ts*len(np.array(corr_data)[:, 0]), len(np.array(corr_data)[:, 0]))
+
+print np.shape(corr_data)
+
 if make_plot:
-        plt.plot(tarr, np.array(corr_data)[:, 0]*cal,'o', markersize = 4, label = "Response at Max Phase")
-        plt.plot(tarr, np.array(corr_data)[:, 1]*cal,'o',markersize = 4, label = "Response at 0 deg Phase")
+        plt.plot(tarr,np.array(corr_data)[:, 0]*cal,'o', markersize = 4, label = "Response at Max Phase")
+        plt.plot(tarr,np.array(corr_data)[:, 1]*cal,'o',markersize = 4, label = "Response at 0 deg Phase")
         plt.xlabel("Time [s]")
         plt.ylabel("Bead charge [e]")
         plt.legend()

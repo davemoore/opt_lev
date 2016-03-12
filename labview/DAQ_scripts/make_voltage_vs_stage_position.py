@@ -6,9 +6,9 @@ import bead_util as bu
 import matplotlib.pyplot as plt
 
 ##############################################
-output_file = r"C:\GitHub\opt_lev\labview\DAQ_settings\chameleon_force.txt"
-cant_pos_at_10V = 40. ## um
-beta = 1e4 ## pick a reasonable beta to give observable force at 1V
+output_file = r"C:\Data\20160310\bead1\chameleon_force_20160310.txt"
+cant_pos_at_10V = 20. ## um
+beta = 1e6 ## pick a reasonable beta to give observable force at 1V
 ##############################################
 
 cant_V_per_um = 1./8
@@ -27,12 +27,13 @@ cham_force = np.hstack( (cham_force[::-1], cham_force[0]) )
 ## now find the voltage that's needed to give the desired chameleon
 ## force at each position.  Here we just use a 1/r^2 fit to get
 ## roughly the right thing
-Afit = 4.86e-11  #coefficients for DC bias at 10V
+bias_for_fit = 5.0 #volts
+Afit = 1.2e-11  #coefficients for DC bias at 10V
 def ffn(x):
-    return Afit*(1./x)**2
+    return Afit*(1./(x+50.))**2
 
 ## make force curve for 1V
-elec_force = ffn( cant_pos*1e6 ) * (1./10.)**2
+elec_force = ffn( cant_pos*1e6 ) * (1./bias_for_fit)**2
 elec_force = np.hstack( (elec_force[::-1], elec_force[0]) )
 
 force_ratio = cham_force / elec_force

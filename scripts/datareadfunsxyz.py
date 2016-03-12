@@ -7,11 +7,11 @@ import numpy as np
 import bead_util as bu
 
 
-refname = r"2mbar_zcool_stageX10000nmY5000nmZ2500nm.h5"
-fname0 = r""
-path = r"C:\Data\20160304\bead3"
+refname = r"urmbar_xyzcool4_stageX0nmY6000nmZ5000nmZ5000mVAC13Hz_0.h5"
+fname0 = r"urmbar_xyzcool4_stageX0nmY6000nmZ5000nmZ5000mVAC13Hz_0.h5"
+path = r"C:\Data\20160310\bead1\no_bead_13_3Hz"
 d2plt = 1
-conv_fac = 5e-14
+conv_fac = 4.4e-14
 if fname0 == "":
 	filelist = os.listdir(path)
 
@@ -29,7 +29,7 @@ if fname0 == "":
 		 
 
 Fs = 5e3  ## this is ignored with HDF5 files
-NFFT = 2**14
+NFFT = 2**17
 
 def getdata(fname):
 	print "Opening file: ", fname
