@@ -9,7 +9,7 @@ import matplotlib.cm as cmx
 import matplotlib.colors as colors
 
 #data_dir = "/data/20150908/Bead2/cant_mod"
-data_dir = "/data/20151020/bead1/red_power"
+data_dir = "/data/20160320/bead1/cant_sweep_150um_dcsweep"
 
 # name_list = [['URmbar_xyzcool_cantiout_stageX0nmY0nmZ0nm.h5', "~5e-6"],
 #              ['URmbar_xyzcool_after_lunch.h5', "~1e-5"],
@@ -22,9 +22,9 @@ name_list = []
 
 savefig = True
 
-NFFT = 2**13
+NFFT = 2**17
 
-conv_fac = 8e-14 ## N/V
+conv_fac = 2.7e-14 ## N/V
 
 def sort_fun( s ):
     ## sort by pressure, then index

@@ -48,6 +48,22 @@ cham_yforce = interp.RectBivariateSpline(chamfil['xcoord'],\
 #cham_yforce = interp.interp2d(chamfil['xcoord'],\
 #                                        chamfil['ycoord'], chamfil['yforce'])
 
+cham_dat = np.loadtxt("/home/dcmoore/opt_lev/scripts/cant_force/cham_vs_x.txt", skiprows=9)
+cham_dat[:,0] = 0.0015 - cham_dat[:,0] ## distance from cant face in m
+cham_dat[:,0] = cham_dat[::-1,0]
+cham_dat[:,1] = cham_dat[::-1,1]
+sfac = (cham_xforce(1e-5,0)/np.interp(1e-5,cham_dat[:,0],cham_dat[:,1]))
+cham_dat[:,1] = cham_dat[:,1]*sfac
+cham_spl = interp.UnivariateSpline( cham_dat[:,0], cham_dat[:,1], s=1e-46)
+
+# plt.figure()
+# xx = np.linspace(0,1e-3,1e3)
+# #plt.semilogy( xx, cham_xforce(xx,0), '.-' )
+# plt.semilogy(cham_dat[:,0], cham_dat[:,1], '.')
+# plt.semilogy(xx, cham_spl(xx), '-')
+# plt.show()
+
+
 ## get the shape of the chameleon force vs. distance from Maxime's calculation
 #cforce = np.loadtxt("/home/dcmoore/opt_lev/scripts/data/chameleon_force.txt", delimiter=",")
 ## fit a spline to the data
@@ -261,7 +277,7 @@ def corr_func(drive, response, fsamp, fdrive, good_pts = [], filt = False, band_
 
 
     #corr_full = good_corr(drive, response, fsamp, fdrive)/(lentrace*drive_amp**2)
-    corr_full = good_corr(drive, response, fsamp, fdrive)/(lentrace)
+    corr_full = good_corr(drive, response, fsamp, fdrive)/(lentrace*drive_amp)
     return corr_full
 
 def corr_blocks(drive, response, fsamp, fdrive, good_pts = [], filt = False, band_width = 1, N_blocks = 20):
@@ -671,7 +687,11 @@ def calibrate_dc(path, charge, dist = 0.01, make_plt = False):
         plt.show()
     return 1./bf[0]
 
-def get_chameleon_force(xpoints_in, y=0, yforce=False):
+def get_chameleon_force( xpoints_in ):
+    #return np.interp( xpoints_in, cham_dat[:,0], cham_dat[:,1] )
+    return cham_spl( xpoints_in )
+
+def get_chameleon_force_chas(xpoints_in, y=0, yforce=False):
 
     ## Chas's controlling nature forces us to sort the array 
     ## before we can interpolate in order to use his 
@@ -699,7 +719,10 @@ def get_color_map( n ):
     jet = plt.get_cmap('jet') 
     cNorm  = colors.Normalize(vmin=0, vmax=n)
     scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=jet)
-    return scalarMap
+    outmap = []
+    for i in range(n):
+        outmap.append( scalarMap.to_rgba(i) )
+    return outmap
 
 def load_dir_file( f ):
 
@@ -723,39 +746,53 @@ def data_list_to_dict( d ):
                 "calib_fac": d[7]}
     return out_dict
 
-def make_histo_vs_time(x,y,xlab="File number",ylab="Force [N]",lab="",col="k"):
+def make_histo_vs_time(x,y,xlab="File number",ylab="beta",lab="",col="k",axs=[],isbot=False):
     ## take x and y data and plot the time series as well as a Gaussian fit
     ## to the distro
 
     ## now do the inset plot
-    iax = plt.axes([0.1,0.1,0.5,0.8])
+    #iax = plt.axes([0.1,0.1,0.5,0.8])
+    plt.sca(axs[0])
     fmtstr = 'o-' if( len(y) < 200 ) else '.'
-    ms = 4 if( len(y) < 200 ) else 2
+    ms = 4 if( len(y) < 200 ) else 3
     plt.plot( x, y, fmtstr, color=col, mec="none", markersize=ms )
-    plt.xlabel(xlab)
+    if(isbot):
+        plt.xlabel(xlab)
     plt.ylabel(ylab)
     
     yy=plt.ylim()
 
-    iax2 = plt.axes([0.6,0.1,0.3,0.8])
-    iax2.yaxis.set_visible(False)
+    plt.sca(axs[1])
+    #iax2=plt.gca()
 
     crange = [np.percentile(y,5.)-np.std(y), np.percentile(y,95.)+np.std(y)]
     hh, be = np.histogram( y, bins = 30, range=crange )
     bc = be[:-1]+np.diff(be)/2.0
     cmu, cstd = np.median(y), np.std(y)
     amp0 = np.sum(hh)/np.sqrt(2*np.pi*cstd)
-    bp, bcov = opt.curve_fit( gauss_fun, bc, hh, p0=[amp0, cmu, cstd] )
+    spars=[amp0, cmu, cstd]
+    try:
+        bp, bcov = opt.curve_fit( gauss_fun, bc, hh, p0=spars )
+    except RuntimeError:
+        bp = spars
+        bcov = np.eye(len(bp))
+        bcov[1,1] = cstd/np.sqrt( len(y) )
+
+    if( not np.shape(bcov) ):
+        bcov = np.eye(len(bp))
+        bcov[1,1] = cstd/np.sqrt( len(y) )        
 
     xx = np.linspace(crange[0], crange[1], 1e3)
 
     plt.errorbar( hh, bc, xerr=np.sqrt(hh), yerr=0, fmt='.', color=col, linewidth=1.5 )
     plt.plot( gauss_fun(xx, bp[0], bp[1], bp[2]), xx, color=col, linewidth=1.5, label=r"$\beta$ = %.1e$\pm$%.1e"%(bp[1], np.sqrt(bcov[1,1])))
-    plt.xlabel("Counts")
+    if(isbot):
+        plt.xlabel("Counts")
+        plt.legend(loc=0,prop={"size": 10})
 
     plt.ylim(yy)
 
-    plt.subplots_adjust(top=0.96, right=0.99, bottom=0.15, left=0.075)
+    #plt.subplots_adjust(top=0.96, right=0.99, bottom=0.15, left=0.075)
 
 
 def simple_sort( s ):
@@ -765,3 +802,6 @@ def simple_sort( s ):
         return 0.
     else:
         return float(ss[0][:-3])
+
+def prev_pow_2( x ):
+    return 2**(x-1).bit_length() - 1
