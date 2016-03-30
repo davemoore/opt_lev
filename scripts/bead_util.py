@@ -37,11 +37,19 @@ prime_freqs = [23,29,31,37,41,
                179,181,191,193,197,199]
 
 
-chamfil = h5py.File('/home/charles/opt_lev/scripts/chamsdata/2D_chameleon_force.h5')
+#font = {'family' : 'normal', 'weight' : 'bold', 'size' : 22}
+#matplotlib.rc('font', **font)
+
+chamfil = h5py.File('/home/charles/opt_lev/scripts/chamsdata/2D_chameleon_force.h5', 'r')
+## these don't work if the data is not in ascending order
 cham_xforce = interp.RectBivariateSpline(chamfil['xcoord'],\
-                                         chamfil['ycoord'], chamfil['xforce'])
+                                        chamfil['ycoord'], chamfil['xforce'])
 cham_yforce = interp.RectBivariateSpline(chamfil['xcoord'],\
-                                         chamfil['ycoord'], chamfil['yforce'])
+                                        chamfil['ycoord'], chamfil['yforce'])
+#cham_xforce = interp.interp2d(chamfil['xcoord'],\
+#                                        chamfil['ycoord'], chamfil['xforce'])
+#cham_yforce = interp.interp2d(chamfil['xcoord'],\
+#                                        chamfil['ycoord'], chamfil['yforce'])
 
 ## get the shape of the chameleon force vs. distance from Maxime's calculation
 #cforce = np.loadtxt("/home/dcmoore/opt_lev/scripts/data/chameleon_force.txt", delimiter=",")
@@ -194,7 +202,7 @@ def find_str(str):
     if( len(endstr) != 1 ):
         ## couldn't find the expected pattern, just return the 
         ## second to last number in the string
-        return int(re.findall('\d+', fname)[-2])
+        return int(re.findall('\d+', fname)[-1])
         
     ## now check to see if there's an index number
     sparts = endstr[0].split("_")
@@ -666,9 +674,25 @@ def calibrate_dc(path, charge, dist = 0.01, make_plt = False):
         plt.show()
     return 1./bf[0]
 
-def get_chameleon_force(xpoints, y=0, yforce=False):
-    xcomponent = cham_xforce(xpoints, y)
-    ycomponent = cham_yforce(xpoints, y)
+def get_chameleon_force(xpoints_in, y=0, yforce=False):
+
+    ## Chas's controlling nature forces us to sort the array 
+    ## before we can interpolate in order to use his 
+    ## fancy 2d function.  I don't want to sort before I pass
+    ## to this function!
+
+    sorted_idx = np.argsort(xpoints_in)
+    xpoints = xpoints_in[sorted_idx]
+
+    xcomponent_out = cham_xforce(xpoints, y)
+    ycomponent_out = cham_yforce(xpoints, y)
+
+    ## now unsort
+    xcomponent = np.zeros_like(xcomponent_out)
+    ycomponent = np.zeros_like(ycomponent_out)
+    xcomponent[sorted_idx] = xcomponent_out
+    ycomponent[sorted_idx] = ycomponent_out
+
     if yforce:
         return xcomponent, ycomponent
     else:
@@ -702,14 +726,14 @@ def data_list_to_dict( d ):
                 "calib_fac": d[7]}
     return out_dict
 
-def make_histo_vs_time(x,y,xlab="File number",ylab="Force [N]",lab="",col="k"):
+def make_histo_vs_time(x,y,xlab="File number",ylab= r'$\beta $',lab="",col="k"):
     ## take x and y data and plot the time series as well as a Gaussian fit
     ## to the distro
 
     ## now do the inset plot
     iax = plt.axes([0.1,0.1,0.5,0.8])
     fmtstr = 'o-' if( len(y) < 200 ) else '.'
-    ms = 4 if( len(y) < 200 ) else 2
+    ms = 4 if( len(y) < 200 ) else 3
     plt.plot( x, y, fmtstr, color=col, mec="none", markersize=ms )
     plt.xlabel(xlab)
     plt.ylabel(ylab)
@@ -731,7 +755,7 @@ def make_histo_vs_time(x,y,xlab="File number",ylab="Force [N]",lab="",col="k"):
     plt.errorbar( hh, bc, xerr=np.sqrt(hh), yerr=0, fmt='.', color=col, linewidth=1.5 )
     plt.plot( gauss_fun(xx, bp[0], bp[1], bp[2]), xx, color=col, linewidth=1.5, label=r"$\beta$ = %.1e$\pm$%.1e"%(bp[1], np.sqrt(bcov[1,1])))
     plt.xlabel("Counts")
-
+    plt.ylabel("beta")
     plt.ylim(yy)
 
     plt.subplots_adjust(top=0.96, right=0.99, bottom=0.15, left=0.075)

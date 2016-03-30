@@ -5,23 +5,67 @@ import scipy
 import os
 from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
+import glob
+import cPickle as pickle
+import copy
 
 #Define functions and classes for use processing and fitting data.
-def thermal_psd_spec(f, A, f0, g):
+def thermal_psd_spec(f, A, f0, g, n, s):
     #The position power spectrum of a microsphere normalized so that A = (volts/meter)^2*2kb*t/M
     w = 2.*np.pi*f #Convert to angular frequency.
     w0 = 2.*np.pi*f0
     num = g
     denom = ((w0**2 - w**2)**2 + w**2*g**2)
-    return A*num/denom
+    return A*num/denom + n + s*w
 
-class fit:
-    #holds the optimal parameters and errors from a fit
-    def __init__self(self, popt, pcov):
+def step_fun(x, q, x0):
+    #decreasing step function at x0 with step size q.
+    xs = np.array(x)
+    return q*(xs<=x0)
+
+def multi_step_fun(x, qs, x0s):
+    #Sum of step functions for fitting charge step calibration to.
+    rfun = 0.
+    for i, x0 in enumerate(x0s):
+        rfun += step_fun(x, qs[i], x0)
+    return rfun
+
+
+class Fit:
+    #holds the optimal parameters and errors from a fit. Contains methods to plot the fit, the fit data, and the residuals.
+    def __init__(self, popt, pcov, fun):
         self.popt = popt
-        self.errs = np.diagonal(pcov)
+        try:
+            self.errs = np.diagonal(pcov)
+        except ValueError:
+            self.errs = "Fit failed"
+        self.fun = fun
 
-def thermal_fit(psd, freqs, fit_freqs = [10., 300.], kelvin = 300., fudge_fact = 1e-6):
+    def plt_fit(self, xdata, ydata, ax, scale = 'linear', xlabel = 'X', ylabel = 'Y'):
+        #modifies an axis object to plot the fit.
+        ax.plot(xdata, ydata, 'o')
+        ax.plot(xdata, self.fun(xdata, *self.popt), 'r', linewidth = 3)
+        ax.set_yscale(scale)
+        ax.set_xscale(scale)
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+        ax.set_xlim([np.min(xdata), np.max(xdata)])
+    
+    def plt_residuals(self, xdata, ydata, ax, scale = 'linear', xlabel = 'X', ylabel = 'Residual', label = '', errs = []):
+        #modifies an axis object to plot the residuals from a fit.
+        if errs:
+            ax.errorbar(xdata, self.fun(xdata, *self.popt) - ydata, fmt = 'o')
+        else:
+            
+            ax.plot(xdata, (self.fun(xdata, *self.popt) - ydata), 'o')
+        
+        ax.set_xscale(scale)
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+        ax.set_xlim([np.min(xdata), np.max(xdata)])
+        
+
+def thermal_fit(psd, freqs, fit_freqs = [10., 400.], kelvin = 300., fudge_fact = 1e-6, noise_floor = 0., noise_slope = 0.):
     #Function to fit the thermal spectra of a bead's motion
     #First need good intitial guesses for fit parameters.
     fit_bool = bu.inrange(freqs, fit_freqs[0], fit_freqs[1]) #Boolian vector of frequencies over which the fit is performed
@@ -30,9 +74,12 @@ def thermal_fit(psd, freqs, fit_freqs = [10., 300.], kelvin = 300., fudge_fact =
     vpmsq = bu.bead_mass/(bu.kb*kelvin)*np.sum(psd[fit_bool])*df*len(psd)/np.sum(fit_bool) #Guess at volts per meter using equipartition
     g0 = 1./2.*f0 #Guess at damping assuming critical damping
     A0 = vpmsq*2.*bu.kb*kelvin/(bu.bead_mass*fudge_fact)
-    p0 = [A0, f0, g0] #Initial parameter vectors 
+    p0 = [A0, f0, g0, noise_floor, noise_slope] #Initial parameter vectors 
     popt, pcov = curve_fit(thermal_psd_spec, freqs[fit_bool], psd[fit_bool], p0 = p0)
-    return fit(popt, pcov)
+    if not np.shape(pcov):
+        print 'Warning: Bad fit'
+    f = Fit(popt, pcov, thermal_psd_spec)
+    return f
 
 
 def sbin(xvec, yvec, bin_size):
@@ -48,12 +95,39 @@ def sbin(xvec, yvec, bin_size):
         y_binned[i] = np.mean(yvec[idx])
         y_errors[i] = scipy.stats.sem(yvec[idx])
     return bins, y_binned, y_errors
-    
+
+
+def get_h5files(dir):
+    files = glob.glob(dir + '/*.h5') 
+    files = sorted(files, key = bu.find_str)
+    return files
+
+def pos_loader(fname, sep):
+    #Generate all of the position attibutes of interest for a single file. Returns a Data_file object.
+    print "Processing: ", fname
+    fobj = Data_file()
+    fobj.load(fname, sep)
+    fobj.ms()
+    fobj.spatial_bin()
+    fobj.close_dat()
+    return fobj
+
+def H_loader(fname, sep):
+    #Generates transfer func data for a single file. Returns a Data_file object.
+    print "Processing: ", fname
+    fobj = Data_file()
+    fobj.load(fname, sep)
+    freq = fobj.electrode_settings[19]
+    fobj.find_H(freq)
+    fobj.close_dat()
+    return fobj
+
+
 
 #define a class with all of the attributes and methods necessary for processing a single data file to 
     
 
-class data:
+class Data_file:
     #This is a class with all of the attributes and methods for a single data file.
 
     def __init__(self):
@@ -80,16 +154,16 @@ class data:
         self.fft_freqs = "fft freqs not computed"
         self.psd_freqs = "psd freqs not computed"
         self.thermal_cal = "Thermal calibration not computed"
+        self.H = "bead electrode transfer function not computed"
 
-    def load(self, fstr, sep, cant_cal = 8., stage_travel = 80.):
+
+    def load(self, fstr, sep, cant_cal = 8., stage_travel = 80., cut_samp = 2000):
         #Methods to load the attributes from a single data file. sep is a vector of the distances of closes approach for each direction ie. [xsep, ysep, zsep] 
         dat, attribs, f = bu.getdata(fstr)
+        
         self.fname = fstr
-
-        #Data vectors and their transforms
-        self.pos_data = np.transpose(dat[:, 0:3]) #x, y, z bead position
-        self.cant_data = np.transpose(np.resize(sep, np.shape(np.transpose(self.pos_data)))) + stage_travel - np.transpose(dat[:, 17:20])*cant_cal
-        self.electrode_data = dat[:, 8:16] #Record of voltages on the electrodes
+        
+        dat = dat[cut_samp:, :]
         
         #Attributes coming from Labview Front pannel settings
         self.separation = sep #Manually entreed distance of closest approach
@@ -103,8 +177,18 @@ class data:
         self.electrode_settings = attribs["electrode_settings"] #Electrode front pannel settings for all files in the directory.fist 8 are ac amps, second 8 are frequencies, 3rd 8 are dc vals 
         self.electrode_dc_vals = attribs["electrode_dc_vals"] #Front pannel settings applied to this particular file. Top boxes independent of the sweeps
         self.stage_settings = attribs['stage_settings'] #Front pannel settings for the stage for this particular file.
+        
+        #Data vectors and their transforms
+        self.pos_data = np.transpose(dat[:, 0:3]) #x, y, z bead position
+        self.cant_data = np.transpose(np.resize(sep, np.shape(np.transpose(self.pos_data)))) + stage_travel - np.transpose(dat[:, 17:20])*cant_cal
+        self.electrode_data = np.transpose(dat[:, 8:16]) #Record of voltages on the electrodes
+
         f.close()
 
+    def ms(self):
+        #mean subtracts the position data.
+        ms = lambda vec: vec - np.mean(vec)
+        self.pos_data  = map(ms, self.pos_data)
 
     def spatial_bin(self, bin_size = 0.5, cant_axis = 2):
         #Method for spatially binning data based on stage z  position.
@@ -123,33 +207,176 @@ class data:
         self.binned_pos_data = np.array(self.binned_pos_data)
         self.binned_data_errors = np.array(self.binned_data_errors)
 
-    def psd(self, NFFT = 2**15):
+    def psd(self, NFFT = 2**12):
         #uses matplotlib mlab psd to take a psd of the microsphere position data.
-        #Need to preallocate memory for psds
-        self.psds = [[], [], []]
-    
-        for i, v in enumerate(self.pos_data):
-            psd, freqs = matplotlib.mlab.psd(v, NFFT = NFFT, Fs = self.Fsamp)
-            
-            self.psds[i] = np.transpose(psd)[0]
-        
-        self.psds = np.array(self.psds)
-        self.psd_freqs = freqs
+        psder = lambda v: matplotlib.mlab.psd(v, NFFT = NFFT, Fs = self.Fsamp)[0]
+        self.psds = np.array(map(psder, self.pos_data))
+        self.psd_freqs = np.fft.rfftfreq(NFFT, d = 1./self.Fsamp)
 
-    def fft(self):
+    def get_fft(self):
         #Uses numpy fft rfft to compute the fft of the position data
-        self.fft = np.fft.rfft(self.pos_data)
+        self.data_fft = np.fft.rfft(self.pos_data)
         self.fft_freqs = np.fft.rfftfreq(np.shape(self.pos_data)[1])*self.Fsamp
 
 
-    def thermal_calibration(self, calf, make_plot = False):
+    def thermal_calibration(self):
         #Use thermal calibration calibrate voltage scale into physical units
         #Check to see if psds is computed and compute if not.
         if type(self.psds) == str:
             self.psd()
             
-        self.thermal_cal = []
-        for i, v in enumerate(self.psds):
-            p
-            
+        caler = lambda v: thermal_fit(v, self.psd_freqs) 
+        self.thermal_cal = map(caler, self.psds)
+    
+    def plt_thermal_fit(self, coordinate = 0):
+        #plots the thermal calibration and residuals
+        if type(self.thermal_cal) == str:
+            print "No thermal calibration"
+        else:
+            f, axarr = plt.subplots(2, sharex = True)
+            fit_obj = self.thermal_cal[coordinate]
+            fit_obj.plt_fit(self.psd_freqs, self.psds[coordinate], axarr[0]) 
+            fit_obj.plt_residuals(self.psd_freqs, self.psds[coordinate], axarr[1])
+            plt.show()
+
+    
+    def find_H(self, freq, d_axis = 4, resp_axis = 1):
+        #Finds the phase lag between the electrode drive and the respose at a given frequency.
+        #check to see if fft has been computed. Comput if not
+        if type(self.data_fft) == str:
+            self.get_fft()
+        dfft = np.fft.rfft(self.electrode_data[d_axis]) #fft of electrode drive in daxis.   
+        find = np.argmin(np.abs(freq - self.fft_freqs)) #index corresponding to freq
+        self.H = self.data_fft[resp_axis][find]/dfft[find]
+
+
+    def close_dat(self, p = True, psd = True, ft = True, elecs = True):
+        #Method to reinitialize the values of some lage attributes to avoid running out of memory.
+        if ft:
+            self.data_fft = 'fft cleared'
+            self.fft_freqs = 'fft freqs cleared'
+
+        if psd:
+            self.psds = 'psds cleared'
+            self.psd_freqs = 'psd freqs cleared'
+
+        if elecs:
+            self.electrode_data = 'electrode data cleared'
+        
+        if p:
+            self.cant_data = 'cantilever position data cleared'
+            self.pos_data = 'bead position data cleared'
+
+
+
 #Define a class to hold information about a whole directory of files.
+class Data_dir:
+    #Holds all of the information from a directory of data files.
+
+    def __init__(self, path, sep):
+        self.files = get_h5files(path)
+        self.sep = sep
+        self.fobjs = "Files not loaded"
+        self.Hs = "Transfer functions not loaded"
+        self.thermal_calibration = "No thermal calibration"
+        self.charge_step_calibration = "No charge step calibration"
+        self.ave_force_vs_pos = "Average force vs position not computed"
+        self.path = path
+        self.out_path = path.replace("/data/","/home/arider/analysis/")
+        if len(self.files) == 0:
+            print "Warning: empty directory"
+
+
+    def load_dir(self, loadfun):
+        #Extracts information from the files using the function loadfun which return a Data_file object given a separation and a filename.
+        l = lambda fname: loadfun(fname, self.sep)
+        self.fobjs = map(l, self.files)
+
+    def force_v_p(self):
+        #Calculates the force vs position for all of the files in the data directory.
+        #First check to make sure files are loaded and force vs position is computed.
+        if type(self.fobjs) == str:
+            self.load_dir(pos_loader)
+        
+        #self.load_dir(pos_loader)
+        
+    
+    def avg_force_v_p(self, axis = 1, bin_size = 0.5, cant_indx = 24):
+        #Averages force vs positon over files with the same potential. Returns a list of average force vs position for each cantilever potential in the directory.
+        if type(self.fobjs) == str:
+            self.load_dir(pos_loader)
+        
+        extractor = lambda fobj: [fobj.binned_cant_data[axis], fobj.binned_pos_data[axis], fobj.electrode_settings[cant_indx]] #extracts [cant data, pos data, cant voltage]
+        
+        extracted = np.array(map(extractor, self.fobjs))
+        self.ave_force_vs_pos = {}
+        for v in np.unique(extracted[:, 2]):
+            boolv = extracted[:, 2] == v
+            xout, yout, yerrs = sbin(np.hstack(extracted[boolv, 0]), np.hstack(extracted[boolv, 1]), bin_size)
+            self.ave_force_vs_pos[str(v)] =  [xout, yout, yerrs]
+
+    def H_vec(self):
+        #Generates an array of Hs for the whole directory.
+        #First check to make sure files are loaded and H is computed.
+        if type(self.fobjs) == str: 
+            self.load_dir(H_loader)
+        
+        if type(self.fobjs[0].H) == str:
+            self.load_dir(H_loader)
+            
+        Her = lambda fobj: fobj.H
+        self.Hs = map(Her, self.fobjs)
+        
+    def step_cal(self, dir_obj, n_phi = 5, plate_sep = 0.004, amp_gain = 200.):
+        #Produce a conversion between voltage and force given a directory with single electron steps.
+        #Check to see that Hs have been calculated.
+        if type(dir_obj.Hs) == str:
+            dir_obj.H_vec()
+        
+        phi = np.mean(np.angle(dir_obj.Hs[0:n_phi])) #measure the phase angle from the first n_phi samples.
+        yfit =  np.abs(dir_obj.Hs)*np.cos(np.angle(dir_obj.Hs) - phi)
+        plt.plot(yfit, 'o')
+        plt.show()
+        nstep = input("Enter guess at number of steps and charge at steps [[q1, q2, q3, ...], [x1, x2, x3, ...], vpq]: ")
+        
+        #function for fit with volts per charge as only arg.
+        def ffun(x, vpq):
+            qqs = vpq*np.array(nstep[0])
+            return multi_step_fun(x, qqs, nstep[1])
+
+        xfit = np.arange(len(dir_obj.Hs))
+        
+        #fit
+        p0 = nstep[2]#Initial guess for the fit
+        popt, pcov = curve_fit(ffun, xfit, yfit, p0 = p0)
+
+        fitobj = Fit(popt, pcov, ffun)#Store fit in object.
+
+        f, axarr = plt.subplots(2, sharex = True)#Plot fit
+        fitobj.plt_fit(xfit, yfit, axarr[0])
+        fitobj.plt_residuals(xfit, yfit, axarr[1])
+        plt.show()
+        
+        #Determine force calibration.
+        fitobj.popt *= 1./(amp_gain*bu.e_charge/plate_sep)
+        fitobj.errs *= 1./(amp_gain*bu.e_charge/plate_sep)
+        self.charge_step_calibration = fitobj
+        
+        
+    def save_dir(self):
+        #Method to save Data_dir object.
+        if(not os.path.isdir(self.out_path) ):
+            os.makedirs(self.out_path)
+        outfile = os.path.join(self.out_path, "dir_obj.p")       
+        pickle.dump(self, open(outfile, "wb"))
+
+    def load_from_file(self):
+        #Method to laod Data_dir object from a file.
+        fname = os.path.join(self.out_path, "dir_obj.p")       
+        temp_obj = pickle.load(open(fname, 'rb'))
+        self.fobjs = temp_obj.fobjs
+        self.Hs = temp_obj.Hs
+        self.thermal_calibration = temp_obj.thermal_calibration
+        self.charge_step_calibration = temp_obj.charge_step_calibration
+        self.ave_force_vs_pos = temp_obj.ave_force_vs_pos
+

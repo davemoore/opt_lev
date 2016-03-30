@@ -282,3 +282,30 @@
 223; /data/20160310/bead1/cham_data_25_3Hz; 25.3 Hz; 19; 7; 0; 10; 20; 9.0e-14
 224; /data/20160310/bead1/cham_data_13_3Hz; 13.3 Hz; 19; 7; 0; 10; 20; 9.0e-14
 225; /data/20160310/bead1/no_bead_13_3Hz; 13.3 Hz; 19; 7; 0; 10; 20; 9.0e-14
+
+## index, directory, legend label, stage mon column, num harmonics, min volt, max volt, pos at 10 V, cal fac
+
+226; /data/20160325/bead1/chargelp_cal2; 13.3 Hz; 19; 7; 0; 10; 20; 5e-14
+227; /data/20160325/bead1/cant_sweep_100um; 13.3 Hz; 19; 7; 0; 10; 100; 5e-14
+228; /data/20160325/bead1/cant_sweep_150um; 13.3 Hz; 19; 7; 0; 10; 150; 5e-14
+229; /data/20160325/bead1/cant_sweep_200um; 13.3 Hz; 19; 7; 0; 10; 200; 5e-14
+230; /data/20160325/bead1/cant_sweep_250um; 13.3 Hz; 19; 7; 0; 10; 250; 5e-14
+
+231; /data/20160325/bead1/cant_sweep_20um_cal_neg; 13.3 Hz; 19; 7; 0; 10; 20; 5e-14
+232; /data/20160325/bead1/cant_sweep_60um_cal_neg; 13.3 Hz; 19; 7; 0; 10; 60; 5e-14
+233; /data/20160325/bead1/cant_sweep_100um_cal_neg; 13.3 Hz; 19; 7; 0; 10; 100; 5e-14
+234; /data/20160325/bead1/cant_sweep_150um_cal_neg; 13.3 Hz; 19; 7; 0; 10; 150; 5e-14
+235; /data/20160325/bead1/cant_sweep_200um_cal_neg; 13.3 Hz; 19; 7; 0; 10; 200; 5e-14
+
+236; /data/20160327/bead1/cant_sweep_20um_cal_neg; 13.3 Hz; 19; 7; 0; 10; 20; 5e-14
+237; /data/20160327/bead1/cant_sweep_60um_cal_neg; 13.3 Hz; 19; 7; 0; 10; 60; 5e-14
+238; /data/20160327/bead1/cant_sweep_100um_cal_neg; 13.3 Hz; 19; 7; 0; 10; 100; 5e-14
+239; /data/20160327/bead1/cant_sweep_150um_cal_neg; 13.3 Hz; 19; 7; 0; 10; 150; 5e-14
+240; /data/20160327/bead1/cant_sweep_200um_cal_neg; 13.3 Hz; 19; 7; 0; 10; 200; 5e-14
+
+
+241; /data/20160327/bead1/cant_sweep_20um; 13.3 Hz; 19; 7; 0; 10; 20; 5e-14
+242; /data/20160327/bead1/cant_sweep_60um; 13.3 Hz; 19; 7; 0; 10; 60; 5e-14
+243; /data/20160327/bead1/cant_sweep_100um; 13.3 Hz; 19; 7; 0; 10; 100; 5e-14
+244; /data/20160327/bead1/cant_sweep_150um; 13.3 Hz; 19; 7; 0; 10; 150; 5e-14
+245; /data/20160327/bead1/cant_sweep_200um; 13.3 Hz; 19; 7; 0; 10; 200; 5e-14
