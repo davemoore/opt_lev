@@ -37,12 +37,7 @@ prime_freqs = [23,29,31,37,41,
                179,181,191,193,197,199]
 
 
-<<<<<<< HEAD
-#font = {'family' : 'normal', 'weight' : 'bold', 'size' : 22}
-#matplotlib.rc('font', **font)
 
-=======
->>>>>>> d87af76a3f9ea33789e9ad3ce281174f5b4e0959
 chamfil = h5py.File('/home/charles/opt_lev/scripts/chamsdata/2D_chameleon_force.h5', 'r')
 ## these don't work if the data is not in ascending order
 cham_xforce = interp.RectBivariateSpline(chamfil['xcoord'],\
@@ -53,25 +48,8 @@ cham_yforce = interp.RectBivariateSpline(chamfil['xcoord'],\
 #                                        chamfil['ycoord'], chamfil['xforce'])
 #cham_yforce = interp.interp2d(chamfil['xcoord'],\
 #                                        chamfil['ycoord'], chamfil['yforce'])
-<<<<<<< HEAD
-=======
 
-cham_dat = np.loadtxt("/home/dcmoore/opt_lev/scripts/cant_force/cham_vs_x.txt", skiprows=9)
-cham_dat[:,0] = 0.0015 - cham_dat[:,0] ## distance from cant face in m
-cham_dat[:,0] = cham_dat[::-1,0]
-cham_dat[:,1] = cham_dat[::-1,1]
-sfac = (cham_xforce(1e-5,0)/np.interp(1e-5,cham_dat[:,0],cham_dat[:,1]))
-cham_dat[:,1] = cham_dat[:,1]*sfac
-cham_spl = interp.UnivariateSpline( cham_dat[:,0], cham_dat[:,1], s=1e-46)
 
-# plt.figure()
-# xx = np.linspace(0,1e-3,1e3)
-# #plt.semilogy( xx, cham_xforce(xx,0), '.-' )
-# plt.semilogy(cham_dat[:,0], cham_dat[:,1], '.')
-# plt.semilogy(xx, cham_spl(xx), '-')
-# plt.show()
-
->>>>>>> d87af76a3f9ea33789e9ad3ce281174f5b4e0959
 
 ## get the shape of the chameleon force vs. distance from Maxime's calculation
 #cforce = np.loadtxt("/home/dcmoore/opt_lev/scripts/data/chameleon_force.txt", delimiter=",")
@@ -696,15 +674,13 @@ def calibrate_dc(path, charge, dist = 0.01, make_plt = False):
         plt.show()
     return 1./bf[0]
 
-<<<<<<< HEAD
-def get_chameleon_force(xpoints_in, y=0, yforce=False):
-=======
+
 def get_chameleon_force( xpoints_in ):
     #return np.interp( xpoints_in, cham_dat[:,0], cham_dat[:,1] )
     return cham_spl( xpoints_in )
 
 def get_chameleon_force_chas(xpoints_in, y=0, yforce=False):
->>>>>>> d87af76a3f9ea33789e9ad3ce281174f5b4e0959
+
 
     ## Chas's controlling nature forces us to sort the array 
     ## before we can interpolate in order to use his 
@@ -759,11 +735,9 @@ def data_list_to_dict( d ):
                 "calib_fac": d[7]}
     return out_dict
 
-<<<<<<< HEAD
-def make_histo_vs_time(x,y,xlab="File number",ylab= r'$\beta $',lab="",col="k"):
-=======
+
 def make_histo_vs_time(x,y,xlab="File number",ylab="beta",lab="",col="k",axs=[],isbot=False):
->>>>>>> d87af76a3f9ea33789e9ad3ce281174f5b4e0959
+
     ## take x and y data and plot the time series as well as a Gaussian fit
     ## to the distro
 
@@ -803,15 +777,13 @@ def make_histo_vs_time(x,y,xlab="File number",ylab="beta",lab="",col="k",axs=[],
 
     plt.errorbar( hh, bc, xerr=np.sqrt(hh), yerr=0, fmt='.', color=col, linewidth=1.5 )
     plt.plot( gauss_fun(xx, bp[0], bp[1], bp[2]), xx, color=col, linewidth=1.5, label=r"$\beta$ = %.1e$\pm$%.1e"%(bp[1], np.sqrt(bcov[1,1])))
-<<<<<<< HEAD
-    plt.xlabel("Counts")
-    plt.ylabel("beta")
-=======
+
+
     if(isbot):
         plt.xlabel("Counts")
         plt.legend(loc=0,prop={"size": 10})
 
->>>>>>> d87af76a3f9ea33789e9ad3ce281174f5b4e0959
+
     plt.ylim(yy)
 
     #plt.subplots_adjust(top=0.96, right=0.99, bottom=0.15, left=0.075)
