@@ -10,15 +10,17 @@ import cv2, sys, glob, os
 #
 ###############################################################
 
-idx_to_plot = 80 ## index from dir file below to use
-plot_pulse_locs = False ## plot the location of the laser flashes
+idx_to_plot = 199 ## index from dir file below to use
+plot_pulse_locs = True ## plot the location of the laser flashes
 plot_fft_image = True ## plot the image at the drive freq
 
-image_smoothing = 51 ## pixels, set to 0 to disable
+image_smoothing = 31 ## pixels, set to 0 to disable
 drive_type = 'stage' ## electrode, stage, or none
 
 data_column = 1 ## data to plot, x=0, y=1, z=2
 buffer_pts = 0 ## number of points at beginning and end of file to drop
+
+offset_freq = [3.,1.] ## number of Hz offset from drive, and bandwidth
 
 force_remake_file = False ## force recalculation of the ffts saved to disk
 
@@ -60,7 +62,7 @@ def find_flash( vdict ):
         gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         tot_amp[n] = np.sum(gray_frame)
 
-    thresh = np.mean(tot_amp) + 6.*np.std(tot_amp)
+    thresh = np.mean(tot_amp) + 4.*np.std(tot_amp)
     above_thresh = tot_amp > thresh
     goes_above_thresh = np.argwhere(np.logical_and( above_thresh, np.logical_not(np.roll( above_thresh, 1)) ))
     
@@ -72,17 +74,21 @@ def find_flash( vdict ):
         plt.plot( goes_above_thresh, tot_amp[goes_above_thresh], 'ro' )
         plt.show()
 
+    if( len(goes_above_thresh) == 0 ):
+        return np.array([0,])
+
     return goes_above_thresh
 
 def get_subvid( vdict, vidx ):
 
     ## go two frames back since we'll read one junk frame to get the size,
     ## and then read in loop advances one more before giving the desired frame
-    vdict['handle'].set(bu.CV_CAP_PROP_POS_FRAMES, vidx[0]-2)
+    vdict['handle'].set(bu.CV_CAP_PROP_POS_FRAMES, np.max([vidx[0]-2,0]) )
 
     ## preallocate array for speed
     ret, frame = vdict['handle'].read()
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    #out_arr = np.zeros( (np.shape(frame)[0], np.shape(frame)[1], vidx[1]), dtype=np.uint8 )
     out_arr = np.zeros( (np.shape(frame)[0], np.shape(frame)[1], vidx[1]) )
 
     for n in range(vidx[1]):
@@ -99,11 +105,12 @@ def get_fft_image( vdict, vid ):
 
     nx, ny, nz = np.shape(vid)
     fft_len = nz/2+1 if nz%2==0 else (nz+1)/2
-    output = np.zeros( (nx,ny,fft_len) ) + np.zeros( (nx,ny,fft_len) )*1j
+    output = np.zeros( (nx,ny,fft_len), dtype=np.float32 ) + np.zeros( (nx,ny,fft_len), dtype=np.float32 )*1j
     
-    print "Taking FFTs...."
+    print "Taking FFTs...., %d total"%nx
 
     for xidx in range(nx):
+        if( xidx % 10 == 0 ): print xidx
         for yidx in range(ny):
             output[xidx,yidx,:] = np.fft.rfft( vid[xidx,yidx,:].flatten() )
 
@@ -119,7 +126,7 @@ def make_image_plot( zin, tit="", clim=[] ):
     if( clim ):
         plt.clim(clim)
     else:
-        plt.clim([0, np.percentile( z.flatten(), 98 )])
+        plt.clim([np.percentile(z.flatten(), 2), np.percentile( z.flatten(), 98 )])
     #plt.clim([0, np.max(z)])
     plt.title(tit)
     plt.colorbar()
@@ -139,7 +146,7 @@ print "Found %d pulse(s) at indices: "%len(pulse_locs), pulse_locs.T
 if( len(pulse_locs) != len(dfiles) ):
     print "Error, number of data files doesn't match video chunks, exiting"
     print "%d data files, %d video flashes"%(len(pulse_locs),len(dfiles))
-    sys.exit(1)
+    #sys.exit(1)
 
 fft_image = []
 niter = 0.
@@ -184,7 +191,7 @@ for df,vidx in zip(dfiles, pulse_locs):
         if(plot_fft_image):
             ## This takes the fft of the time stream in each pixel
             ## if desired
-            curr_fft_image = np.abs(get_fft_image( vdict, cvid ))**2
+            curr_fft_image = np.abs( get_fft_image( vdict, cvid ) )**2
 
             if( len(fft_image) == 0):
                 fft_image = curr_fft_image
@@ -202,24 +209,41 @@ else:
 
 if( plot_fft_image ):
 
-    fft_freqs = np.fft.rfftfreq( np.shape(fft_image)[2], 1./vdict['fps'] )
+    fft_freqs = np.linspace( 0, vdict['fps']/2, np.shape(fft_image)[2] )
 
     ## first at drive freq
     drive_idx = np.argmin( np.abs(fft_freqs - drive_freq))
     drive_idx2 = np.argmin( np.abs(fft_freqs - 2*drive_freq))
-    offdrive_idx0 = np.argmin( np.abs(fft_freqs - drive_freq - 2))
-    offdrive_idx1 = np.argmin( np.abs(fft_freqs - drive_freq - 6))
+    f1, f2 = offset_freq[0]-offset_freq[1]/2.0, offset_freq[0]+offset_freq[1]/2.0
+    offdrive_idx0 = np.argmin( np.abs(fft_freqs - drive_freq - f1))
+    offdrive_idx1 = np.argmin( np.abs(fft_freqs - drive_freq - f2))
+
+    plt.figure()
+    #for idx in range(0,np.shape(fft_image)[1],10):
+    #    plt.loglog( fft_freqs, np.abs( fft_image[0,idx,:].flatten() ) )
+
+    curr_image = fft_image ##[30:70,30:70,:]
+    curr_arr = np.reshape( curr_image, (np.shape(curr_image)[0]*np.shape(curr_image)[1], np.shape(curr_image)[2]) )
+    plt.loglog(fft_freqs, np.sqrt(np.mean( np.abs(curr_arr)**2, axis=0 )) )
+    
+    plt.show()
 
 
     f1=make_image_plot(np.abs(fft_image[:,:,drive_idx]), 
-                       "Bead response, drive freq, %f Hz"%drive_freq, clim=[0,150])
+                       "Bead response, drive freq, %f Hz"%drive_freq)
+    cclim = plt.gci().get_clim()
     #f2=make_image_plot(np.abs(fft_image[:,:,drive_idx2]), 
     #                   "Bead response, 2*drive freq, %f Hz"%(2*drive_freq))
     z1 = np.abs(fft_image[:,:,drive_idx])
     z2 = np.mean(np.abs(fft_image[:,:,offdrive_idx0:offdrive_idx1]), 2)
     f3=make_image_plot(z2, 
-                       "Bead response, off drive, %f Hz"%(drive_freq+2), clim=[0,150])
-    f4=make_image_plot((z1-z2)/z2,
-                       "Bead response, [(drive freq) - (off drive freq)]/(off drive freq)",
-                       clim=[-0.1,0.1])
+                       "Bead response, off drive, %f Hz"%(drive_freq+offset_freq[0]), clim=cclim)
+    f4=make_image_plot( (z1-z2)/z2,
+                       "Bead response, [(drive freq) - (off drive freq)]/(off drive freq)")
+
+    vdict['handle'].set(bu.CV_CAP_PROP_POS_FRAMES, 0)
+    ret, frame = vdict['handle'].read()
+    gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    f5=make_image_plot( gray_frame )
+
     plt.show()

@@ -6,18 +6,22 @@ import matplotlib.pyplot as plt
 import scipy.optimize as sp
 import matplotlib.mlab as mlab
 
-data_dir = "/data/20150921/Bead1/electrode_zero_cant_10VDCbiasT4"
+data_dir = "/data/20151208/bead1/dc_sweep2"
+
+using_dc_supply = True
 
 NFFT = 2**15
 
 def sort_fun( s ):
-    return float(re.findall("-?\d+mVdc", s)[0][:-4])
-
+    if( using_dc_supply ):
+        return float(re.findall("dcps-?\d+mVdc", s)[0][4:-4])
+    else:
+        return float(re.findall("-?\d+mVdc", s)[0][:-4])
 
 #flist = sorted(glob.glob(os.path.join(data_dir, "*mVdc_stageX*nmY*nmZ*nm.h5")), key = sort_fun)
 flist = sorted(glob.glob(os.path.join(data_dir, "*.h5")), key = sort_fun)
 
-elec_list = [0,] #1,2,3,4,5,6]
+elec_list = [3,] ##[1,2,3,4,5,6]
 dcol_list = [0,1,2]
 tot_dat = np.zeros( [len(flist), len(elec_list), len(dcol_list), 3])
 for fidx,f in enumerate(flist):
@@ -38,7 +42,7 @@ for fidx,f in enumerate(flist):
         for didx,dcol in enumerate(dcol_list):
 
             response = cdat[:, dcol]
-            drive = cdat[:, 8+elec]
+            drive = cdat[:, 9+elec]
             drive2 = drive**2
             drive2 -= np.mean(drive2)
 
@@ -53,7 +57,7 @@ for fidx,f in enumerate(flist):
             tot_dat[fidx, eidx, didx, 1] = corr_dr
             tot_dat[fidx, eidx, didx, 2] = corr_dr2
 
-            if( False and elec == 0 ):
+            if( False and elec == 3 ):
                 plt.figure()
                 plt.plot( drive )
                 plt.plot( response )
@@ -61,18 +65,21 @@ for fidx,f in enumerate(flist):
 
 tot_dat = np.array(tot_dat)
 
-frange = [5000, 15000] ## fit range
+frange = [-200, 8000] ## fit range
 
-def make_plot( x,y ):
-    plt.plot(x,y, 'ks', label = "Drive")
+def make_plot( x,y,plot=True ):
+    if(plot):
+        plt.plot(x,y, 'ks', label = "Drive")
     gpts = np.logical_and( x > frange[0], x < frange[1] )
     p = np.polyfit( x[gpts], y[gpts], 1 )
     xx = np.linspace( frange[0], frange[1], 1e3 )
-    plt.plot(xx, np.polyval(p, xx), 'r', linewidth=1.5)
+    if(plot):
+        plt.plot(xx, np.polyval(p, xx), 'r', linewidth=1.5)
     bestx = -p[1]/p[0]
-    yy = plt.ylim()
-    plt.plot( [bestx, bestx], yy, 'r--', linewidth=1.5, label="%.1f mV" % bestx  )
-    plt.legend(loc="upper left", numpoints=1)
+    if(plot):
+        yy = plt.ylim()
+        plt.plot( [bestx, bestx], yy, 'r--', linewidth=1.5, label="%.1f mV" % bestx  )
+        plt.legend(loc="lower right", numpoints=1)
     return bestx 
 
 pot_arr = np.zeros([len(elec_list), 3])
@@ -80,21 +87,21 @@ for eidx, elec in enumerate(elec_list):
 
     plt.figure()
 
-    plt.subplot(3,1,1)
-    xpot = make_plot(tot_dat[:,eidx,0,0], tot_dat[:,eidx,0,1]) 
-    plt.title("Electrode %d" % elec)
-    xvals=tot_dat[:,eidx,0,0]
-    plt.xlim(np.min(xvals)-10, np.max(xvals)+10)
+    # plt.subplot(3,1,1)
+    xpot = make_plot(tot_dat[:,eidx,0,0], tot_dat[:,eidx,0,1], plot=False) 
+    # plt.title("Electrode %d" % elec)
+    # xvals=tot_dat[:,eidx,0,0]
+    # plt.xlim(np.min(xvals)-10, np.max(xvals)+10)
 
-    plt.subplot(3,1,2)
+    #plt.subplot(3,1,2)
     ypot = make_plot(tot_dat[:,eidx,1,0], tot_dat[:,eidx,1,1]) 
     xvals=tot_dat[:,eidx,1,0]
     plt.xlim(np.min(xvals)-10, np.max(xvals)+10)
 
-    plt.subplot(3,1,3)
-    zpot = make_plot(tot_dat[:,eidx,2,0], tot_dat[:,eidx,2,1]) 
-    xvals=tot_dat[:,eidx,2,0]
-    plt.xlim(np.min(xvals)-10, np.max(xvals)+10)
+    # plt.subplot(3,1,3)
+    zpot = make_plot(tot_dat[:,eidx,2,0], tot_dat[:,eidx,2,1], plot=False) 
+    # xvals=tot_dat[:,eidx,2,0]
+    # plt.xlim(np.min(xvals)-10, np.max(xvals)+10)
 
     pot_arr[eidx,:] =  [xpot, ypot, zpot]
 

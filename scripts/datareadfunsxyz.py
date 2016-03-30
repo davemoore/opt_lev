@@ -6,10 +6,10 @@ import os
 import scipy.signal as sp
 
 
-refname = r"URmbar_xyzcool_nofilters3_elec3_250mV41Hz250mVdc_55.h5"
-fname0 = r"URmbar_xyzcool_nofilters3_elec3_250mV41Hz250mVdc_55.h5"
+refname = r"URmbar_xyzcool_econf_210mVdc_stageX0nmY6000nmZ2000nm.h5"
+fname0 = r"URmbar_xyzcool_econf_210mVdc_stageX0nmY6000nmZ2000nm.h5"
 
-path = "/data/20150909/Bead1/recharge_cal"
+path = "/data/20151026/bead7/cant_zero_bias"
 d2plt = 1
 if fname0 == "":
 	filelist = os.listdir(path)
