@@ -56,11 +56,24 @@ sfac = (cham_xforce(1e-5,0)/np.interp(1e-5,cham_dat[:,0],cham_dat[:,1]))
 cham_dat[:,1] = cham_dat[:,1]*sfac
 cham_spl = interp.UnivariateSpline( cham_dat[:,0], cham_dat[:,1], s=1e-46)
 
+es_dat = np.loadtxt("/home/dcmoore/comsol/dipole_force.txt", skiprows=9)
+gpts = es_dat[:,0] > 15e-6
+es_spl_log = interp.UnivariateSpline( es_dat[gpts,0], np.log(np.abs(es_dat[gpts,1])), s=2.5)
+def es_spl(x):
+    return np.exp(es_spl_log(x))
+
+es_dat_fixed = np.loadtxt("/home/dcmoore/comsol/fixed_dipole_force.txt", skiprows=9)
+gpts = es_dat_fixed[:,0] > 15e-6
+es_spl_log_fixed = interp.UnivariateSpline( es_dat_fixed[gpts,0], np.log(np.abs(es_dat_fixed[gpts,1])), s=2.5)
+def es_spl_fixed(x):
+    return np.exp(es_spl_log_fixed(x))
+
 # plt.figure()
-# xx = np.linspace(0,1e-3,1e3)
-# #plt.semilogy( xx, cham_xforce(xx,0), '.-' )
-# plt.semilogy(cham_dat[:,0], cham_dat[:,1], '.')
-# plt.semilogy(xx, cham_spl(xx), '-')
+# xx = np.linspace(5e-6,1e-3,1e3)
+# plt.semilogy(es_dat[:,0], es_dat[:,1], '.')
+# plt.semilogy(xx, es_spl(xx), '-')
+# plt.semilogy(es_dat_fixed[:,0], np.abs(es_dat_fixed[:,1]), 'r.')
+# plt.semilogy(xx, es_spl_fixed(xx), '-')
 # plt.show()
 
 
@@ -691,6 +704,14 @@ def get_chameleon_force( xpoints_in ):
     #return np.interp( xpoints_in, cham_dat[:,0], cham_dat[:,1] )
     return cham_spl( xpoints_in )
 
+def get_es_force( xpoints_in, volt=1.0, is_fixed = False ):
+    ## set is_fixed to true to get the force for a permanent dipole (prop to
+    ## grad E), otherwise gives force on induced dipole (prop to E.(gradE)
+    if(is_fixed):
+        return es_spl_fixed( xpoints_in )*volt
+    else:
+        return es_spl( xpoints_in )*volt**2
+
 def get_chameleon_force_chas(xpoints_in, y=0, yforce=False):
 
     ## Chas's controlling nature forces us to sort the array 
@@ -785,7 +806,11 @@ def make_histo_vs_time(x,y,xlab="File number",ylab="beta",lab="",col="k",axs=[],
     xx = np.linspace(crange[0], crange[1], 1e3)
 
     plt.errorbar( hh, bc, xerr=np.sqrt(hh), yerr=0, fmt='.', color=col, linewidth=1.5 )
-    plt.plot( gauss_fun(xx, bp[0], bp[1], bp[2]), xx, color=col, linewidth=1.5, label=r"$\beta$ = %.1e$\pm$%.1e"%(bp[1], np.sqrt(bcov[1,1])))
+    if( lab ): 
+        clab = lab
+    else:
+        clab = r"$\beta$ = %.1e$\pm$%.1e"%(bp[1], np.sqrt(bcov[1,1]))
+    plt.plot( gauss_fun(xx, bp[0], bp[1], bp[2]), xx, color=col, linewidth=1.5, label=clab)
     if(isbot):
         plt.xlabel("Counts")
         plt.legend(loc=0,prop={"size": 10})
