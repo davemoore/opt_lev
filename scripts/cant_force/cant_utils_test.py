@@ -10,12 +10,12 @@ from scipy.optimize import curve_fit
 import bead_util as bu
 from scipy.optimize import minimize_scalar as minimize 
 
-dirs = map(str, [241, 242, 243, 244])
-cal = 5e-14
+dirs = map(str, [247, 248, 249, 250])
+cal = 1./(1.007e13)
 
 ddict = bu.load_dir_file( "/home/arider/opt_lev/scripts/cant_force/dir_file.txt" )
 
-load_from_file = False
+load_from_file = True
 
 def proc_dir(d):
     #loads the average force vs position from the files given a key referencing that file.
@@ -54,7 +54,12 @@ def ave_force_offset(v0, v1):
     return res
     
 
-def plotter(plt_dict, fcal = 5e-14):
+def cham_force_beta(xarr, beta, f0, units = 1e-6, beta_fac = 1e5):
+    #multiplies the chameleon force by beta for fitting out beta. Scale beta by fac to avoid issues with numerical precision in fit.
+    xarr = np.array([xarr]).flatten()
+    return beta*beta_fac*bu.get_chameleon_force_chas(xarr*units).flatten() + f0
+
+def plotter(plt_dict, fcal = 1e-13):
     #Plots the average force vs position for each directory.
     arr = np.array(plt_dict.keys())
     for st in arr[arr != 'osets']:
@@ -62,6 +67,25 @@ def plotter(plt_dict, fcal = 5e-14):
         plt.errorbar(plt_vec[0], plt_vec[1]*fcal, plt_vec[2]*fcal, fmt = 'o', markersize = 5, label = [st][0] + 'V')
     plt.xlabel('Distance from microsphere')
     plt.ylabel('Attractive force [N]')
+
+def fit_vec_cal(fit_vec, fcal):
+    out_vec = fit_vec
+    out_vec[1:, :] = out_vec[1:, :]*fcal
+    return out_vec
+
+def cham_fitter(fit_dict, fcal = 1e-4):
+    #fits the average force vs position for each directory to a chameleon force to estimate beta.
+    arr = np.array(fit_dict.keys())
+    for st in arr[arr != 'osets']:
+        fit_vec = fit_vec_cal(fit_dict[st], fcal)
+        p0 = [1., 0.]
+        popt, pcov = curve_fit(cham_force_beta, fit_vec[0], fit_vec[1], p0 = p0, sigma = fit_vec[2])
+        fitobj = cu.Fit(popt, pcov, cham_force_beta)
+        f, axarr = plt.subplots(2, sharex = True)
+        fitobj.plt_fit(fit_vec[0], fit_vec[1], axarr[0], xlabel = "Distance from microsphere [$\mu m$]", ylabel = "Attractive force [$nN$]")
+        fitobj.plt_residuals(fit_vec[0], fit_vec[1], axarr[1], xlabel = "Distance from microsphere [$\mu m$]", ylabel = "Residual force [$nN$]")
+        plt.show()
+        return fitobj
 
 def ave_f_dict(dir_obj):
     #Extraces force vs position info from dir object.
@@ -81,9 +105,7 @@ def sort_fun(dobj):
     #Function to sort the driectory objects based on closed z separation.
     return dobj.sep[2]
 
-dir_objs = map(proc_dir, dirs)
-dir_objs = sorted(dir_objs, key = sort_fun, reverse = True)
-ave_f_dicts = map(ave_f_dict, dir_objs)
+
 
 ks = lambda di: di.keys()
 
@@ -109,10 +131,23 @@ def oset_correct(ave_f_dicts):
     out_dict['osets'] = osets
     return out_dict
 
+def step_cal(dir_objs, step_indx = 0):
+    #Charge step calibration to get from voltage to force units.
+    dir_objs[step_indx].step_cal(dir_objs[step_indx])
+    print dir_objs[step_indx].charge_step_calibration.popt
+
+
+dir_objs = map(proc_dir, dirs)
+dir_objs = sorted(dir_objs, key = sort_fun, reverse = True)
+ave_f_dicts = map(ave_f_dict, dir_objs)
 out_dict = oset_correct(ave_f_dicts)
 plotter(out_dict)
+
+#step_cal(dir_objs)
+#print fitobj.popt
 #for i, fobj in enumerate(dir_objs[-1].fobjs):
-#    plt_fobj(fobj, label = str(i))
+    #plt_fobj(fobj, label = str(i))
 plt.legend()
 #plt.title('Cantilever biased at 0.05V')
 plt.show()
+

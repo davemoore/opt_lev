@@ -512,7 +512,8 @@ plt.legend(loc=0)
 plt.show()
 
 of_fig = plt.figure()
-for i in range(len(data)):
+for i in ran
+ge(len(data)):
     label = data[i]['label']
     of_amps = data[i]['binned_dat_y_both'][3]
 

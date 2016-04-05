@@ -30,6 +30,15 @@ def multi_step_fun(x, qs, x0s):
         rfun += step_fun(x, qs[i], x0)
     return rfun
 
+sf = lambda tup: tup[0] #Sort key for sort_pts.
+
+def sort_pts(xvec, yvec):
+    #sorts yvec and xvec to put in order of increasing xvec for plotting
+    zl = zip(xvec, yvec)
+    zl = sorted(zl, key = sf)
+    xvec, yvec = zip(*zl)
+    return np.array(xvec), np.array(yvec)
+
 
 class Fit:
     #holds the optimal parameters and errors from a fit. Contains methods to plot the fit, the fit data, and the residuals.
@@ -42,27 +51,42 @@ class Fit:
         self.fun = fun
 
     def plt_fit(self, xdata, ydata, ax, scale = 'linear', xlabel = 'X', ylabel = 'Y'):
+        xdata, ydata = sort_pts(xdata, ydata)
         #modifies an axis object to plot the fit.
         ax.plot(xdata, ydata, 'o')
         ax.plot(xdata, self.fun(xdata, *self.popt), 'r', linewidth = 3)
         ax.set_yscale(scale)
-        ax.set_xscale(scale)
+        #ax.set_xscale(scale)
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
         ax.set_xlim([np.min(xdata), np.max(xdata)])
     
     def plt_residuals(self, xdata, ydata, ax, scale = 'linear', xlabel = 'X', ylabel = 'Residual', label = '', errs = []):
         #modifies an axis object to plot the residuals from a fit.
+        xdata, ydata = sort_pts(xdata, ydata)
         if errs:
             ax.errorbar(xdata, self.fun(xdata, *self.popt) - ydata, fmt = 'o')
         else:
             
             ax.plot(xdata, (self.fun(xdata, *self.popt) - ydata), 'o')
         
-        ax.set_xscale(scale)
+        #ax.set_xscale(scale)
+        ax.set_yscale(scale)
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
         ax.set_xlim([np.min(xdata), np.max(xdata)])
+
+    def css(self, xdata, ydata, yerrs, p):
+        #returns the chi square score at a point in fit parameters.
+        return np.sum((ydata))
+        
+
+    #def plt_chi_sq(self,xdata, ydata, errs, ax):
+        #plots chi square contours. 
+
+    
+
+
         
 
 def thermal_fit(psd, freqs, fit_freqs = [10., 400.], kelvin = 300., fudge_fact = 1e-6, noise_floor = 0., noise_slope = 0.):
@@ -327,7 +351,7 @@ class Data_dir:
         Her = lambda fobj: fobj.H
         self.Hs = map(Her, self.fobjs)
         
-    def step_cal(self, dir_obj, n_phi = 5, plate_sep = 0.004, amp_gain = 200.):
+    def step_cal(self, dir_obj, n_phi = 140, plate_sep = 0.004, amp_gain = 200.):
         #Produce a conversion between voltage and force given a directory with single electron steps.
         #Check to see that Hs have been calculated.
         if type(dir_obj.Hs) == str:

@@ -281,7 +281,6 @@
 222; /data/20160310/bead1/cham_data_17_7Hz; 17.7 Hz; 19; 7; 0; 10; 20; 9.0e-14
 223; /data/20160310/bead1/cham_data_25_3Hz; 25.3 Hz; 19; 7; 0; 10; 20; 9.0e-14
 224; /data/20160310/bead1/cham_data_13_3Hz; 13.3 Hz; 19; 7; 0; 10; 20; 9.0e-14
-<<<<<<< HEAD
 225; /data/20160310/bead1/no_bead_13_3Hz; 13.3 Hz; 19; 7; 0; 10; 20; 9.0e-14
 
 ## index, directory, legend label, stage mon column, num harmonics, min volt, max volt, pos at 10 V, cal fac
@@ -310,102 +309,10 @@
 243; /data/20160327/bead1/cant_sweep_100um; 13.3 Hz; 19; 7; 0; 10; 100; 5e-14
 244; /data/20160327/bead1/cant_sweep_150um; 13.3 Hz; 19; 7; 0; 10; 150; 5e-14
 245; /data/20160327/bead1/cant_sweep_200um; 13.3 Hz; 19; 7; 0; 10; 200; 5e-14
-=======
-225; /data/20160310/bead1/no_bead_13_3Hz; No bead; 19; 7; 0; 10; 20; 9.0e-14
 
-## new bead
-226; /data/20160318/bead1/cant_volt_sweep4; dc bias; 19; 7; 0; 10; 20; 7.3e-14
-227; /data/20160318/bead1/cant_volt_sweep_fine; dc bias; 19; 7; 0; 10; 20; 7.3e-14
-228; /data/20160318/bead1/cant_volt_sweep_finer; dc bias; 19; 7; 0; 10; 20; 7.3e-14
-229; /data/20160318/bead1/cant_volt_sweep_finer4; dc bias; 19; 7; 0; 10; 20; 7.3e-14
-230; /data/20160318/bead1/cant_volt_sweep_finer6; dc bias; 19; 7; 0; 10; 20; 7.3e-14
-231; /data/20160318/bead1/cant_volt_sweep_finer7; dc bias; 19; 7; 0; 10; 20; 7.3e-14
-232; /data/20160318/bead1/cant_volt_sweep_7_3Hz; dc bias; 19; 7; 0; 10; 20; 7.3e-14
-233; /data/20160318/bead1/cant_volt_sweep_beta1e6; beta=1e6; 19; 7; 0; 10; 20; 7.3e-14
-234; /data/20160318/bead1/cant_volt_sweep_7_3Hz_0V; 0V; 19; 7; 0; 10; 20; 7.3e-14
-235; /data/20160318/bead1/cant_volt_sweep_z3; 0V; 19; 7; 0; 10; 20; 7.3e-14
-236; /data/20160318/bead1/cant_volt_sweep_xdiff; 0V; 19; 7; 0; 10; 20; 7.3e-14
-237; /data/20160318/bead1/cant_volt_sweep_60um; 60um; 19; 7; 0; 10; 60; 7.3e-14
-238; /data/20160318/bead1/cant_volt_sweep_100um; 100um; 19; 7; 0; 10; 100; 7.3e-14
-239; /data/20160318/bead1/cant_volt_sweep_100um_nobead; nobead; 19; 7; 0; 10; 100; 7.3e-14
-240; /data/20160318/bead1/cant_volt_sweep_60um_nobead; nobead; 19; 7; 0; 10; 60; 7.3e-14
-241; /data/20160318/bead1/cant_volt_sweep_20um_nobead; nobead; 19; 7; 0; 10; 20; 7.3e-14
-242; /data/20160318/bead1/cant_volt_sweep_200um_nobead; nobead; 19; 7; 0; 10; 200; 7.3e-14
 
-## new bead
-243; /data/20160320/bead1/cant_sweep_allback; allback; 19; 7; 0; 10; 20000; 3.2e-14
-244; /data/20160320/bead1/cant_sweep_in10000; in10000; 19; 7; 0; 10; 20000; 3.2e-14
-245; /data/20160320/bead1/cant_sweep_in20000; in20000; 19; 7; 0; 10; 20000; 3.2e-14
-246; /data/20160320/bead1/cant_sweep_onscreen; onscreen; 19; 7; 0; 10; 20000; 3.2e-14
-247; /data/20160320/bead1/cant_sweep_100um; 100um; 19; 7; 0; 10; 100; 3.2e-14
-248; /data/20160320/bead1/cant_volt_sweep_150um; DC sweep, 150um; 19; 7; 0; 10; 150; 3.2e-14
-249; /data/20160320/bead1/cant_volt_sweep_150um_cham_beta1e5_linear; beta=1e5, 150um; 19; 7; 0; 10; 150; 3.2e-14
-250; /data/20160320/bead1/cant_sweep_150um; no bias; 19; 7; 0; 10; 150; 3.2e-14
-251; /data/20160320/bead1/cant_sweep_150um_dczeroed; no bias; 19; 7; 0; 10; 150; 3.2e-14
-252; /data/20160320/bead1/cant_sweep_150um_dczeroed2; no bias; 19; 7; 0; 10; 150; 3.2e-14
-253; /data/20160320/bead1/cant_sweep_150um_dczeroed3; no bias; 19; 7; 0; 10; 150; 3.2e-14
-254; /data/20160320/bead1/cant_sweep_150um_dczeroed_overnight; no bias; 19; 7; 0; 10; 150; 3.2e-14
-255; /data/20160320/bead1/cant_sweep_150um_dczeroed_overnight2; no bias; 19; 7; 0; 10; 150; 3.2e-14
-256; /data/20160320/bead1/cant_volt_sweep_150um_dccal_amp_pos2; no bias; 19; 7; 0; 10; 150; 3.2e-14
-257; /data/20160320/bead1/cant_cham_cal_beta1e6; beta=1e6; 19; 7; 0; 10; 150; 3.2e-14
-258; /data/20160320/bead1/cant_cham_cal_beta1e7; beta=1e7; 19; 7; 0; 10; 150; 3.2e-14
-259; /data/20160320/bead1/cant_cham_cal_beta1e8; beta=1e8; 19; 7; 0; 10; 150; 3.2e-14
-260; /data/20160320/bead1/cant_cham_cal_beta5e7; beta=5e7; 19; 7; 0; 10; 150; 3.2e-14
-261; /data/20160320/bead1/cant_cham_cal_beta2e7; beta=2e7; 19; 7; 0; 10; 150; 3.2e-14
-262; /data/20160320/bead1/cant_cham_cal_beta0; beta=0; 19; 7; 0; 10; 150; 3.2e-14
-263; /data/20160320/bead1/cant_cham_cal_beta1e6_neg; beta=1e6; 19; 7; 0; 10; 150; 3.2e-14
-264; /data/20160320/bead1/cant_cham_cal_beta5e6_neg; beta=1e6; 19; 7; 0; 10; 150; 3.2e-14
-265; /data/20160320/bead1/cant_cham_cal_beta1e7_neg; beta=1e7; 19; 7; 0; 10; 150; 3.2e-14
-266; /data/20160320/bead1/cant_cham_cal_beta5e7_neg; beta=5e7; 19; 7; 0; 10; 150; 3.2e-14
-267; /data/20160320/bead1/cant_cham_cal_beta1e8_neg; beta=1e8; 19; 7; 0; 10; 150; 3.2e-14
-268; /data/20160320/bead1/cant_volt_sweep_200um_overnight; sweep; 19; 7; 0; 10; 200; 3.2e-14
-
-## pumped back down
-269; /data/20160320/bead1/pump_down2/cant_sweep_250um; sweep; 19; 7; 0; 10; 250; 7.1e-14
-270; /data/20160320/bead1/pump_down2/cant_sweep_250um_cal_pos; sweep; 19; 7; 0; 10; 250; 7.1e-14
-271; /data/20160320/bead1/pump_down2/cant_sweep_250um_cal_neg; sweep; 19; 7; 0; 10; 250; 7.1e-14
-272; /data/20160320/bead1/pump_down2/cant_sweep_250um_2; sweep; 19; 7; 0; 10; 250; 7.1e-14
-273; /data/20160320/bead1/pump_down2/cant_sweep_200um; sweep; 19; 7; 0; 10; 200; 7.1e-14
-274; /data/20160320/bead1/pump_down2/cant_sweep_200um_cal_neg; sweep; 19; 7; 0; 10; 200; 7.1e-14
-275; /data/20160320/bead1/pump_down2/cant_sweep_200um_cal_pos; sweep; 19; 7; 0; 10; 200; 7.1e-14
-276; /data/20160320/bead1/pump_down2/cant_sweep_200um_2; sweep; 19; 7; 0; 10; 200; 7.1e-14
-277; /data/20160320/bead1/pump_down2/cant_sweep_150um; sweep; 19; 7; 0; 10; 150; 7.1e-14
-278; /data/20160320/bead1/pump_down2/cant_sweep_150um_cal_neg; sweep; 19; 7; 0; 10; 150; 7.1e-14
-279; /data/20160320/bead1/pump_down2/cant_sweep_150um_cal_pos; sweep; 19; 7; 0; 10; 150; 7.1e-14
-280; /data/20160320/bead1/pump_down2/cant_sweep_100um; sweep; 19; 7; 0; 10; 100; 7.1e-14
-281; /data/20160320/bead1/pump_down2/cant_sweep_100um_cal_neg; sweep; 19; 7; 0; 10; 100; 7.1e-14
-282; /data/20160320/bead1/pump_down2/cant_sweep_100um_cal_pos; sweep; 19; 7; 0; 10; 100; 7.1e-14
-283; /data/20160320/bead1/pump_down2/cant_sweep_100um_2; sweep; 19; 7; 0; 10; 100; 7.1e-14
-284; /data/20160320/bead1/pump_down2/cant_sweep_60um; sweep; 19; 7; 0; 10; 60; 7.1e-14
-285; /data/20160320/bead1/pump_down2/cant_sweep_60um_cal_neg; sweep; 19; 7; 0; 10; 60; 7.1e-14
-286; /data/20160320/bead1/pump_down2/cant_sweep_60um_cal_pos; sweep; 19; 7; 0; 10; 60; 7.1e-14
-287; /data/20160320/bead1/pump_down2/cant_sweep_60um_2; sweep; 19; 7; 0; 10; 60; 7.1e-14
-288; /data/20160320/bead1/pump_down2/cant_sweep_20um; sweep; 19; 7; 0; 10; 20; 7.1e-14
-
-## sweep back ou
-289; /data/20160320/bead1/pump_down2/sweep2/cant_sweep_20um; sweep; 19; 7; 0; 10; 20; 7.1e-14
-290; /data/20160320/bead1/pump_down2/sweep2/cant_sweep_60um; sweep; 19; 7; 0; 10; 60; 7.1e-14
-
-## new bead
-291; /data/20160325/bead1/cant_sweep_250um; sweep; 19; 7; 0; 10; 250; 5.1e-14
-292; /data/20160325/bead1/cant_sweep_250um_cal_pos; sweep; 19; 7; 0; 10; 250; 5.1e-14
-293; /data/20160325/bead1/cant_sweep_250um_cal_neg; sweep; 19; 7; 0; 10; 250; 5.1e-14
-294; /data/20160325/bead1/cant_sweep_200um; sweep; 19; 7; 0; 10; 200; 5.1e-14
-295; /data/20160325/bead1/cant_sweep_200um_cal_pos; sweep; 19; 7; 0; 10; 200; 5.1e-14
-296; /data/20160325/bead1/cant_sweep_200um_cal_neg; sweep; 19; 7; 0; 10; 200; 5.1e-14
-297; /data/20160325/bead1/cant_sweep_150um; sweep; 19; 7; 0; 10; 150; 5.1e-14
-298; /data/20160325/bead1/cant_sweep_150um_cal_pos; sweep; 19; 7; 0; 10; 150; 5.1e-14
-299; /data/20160325/bead1/cant_sweep_150um_cal_neg; sweep; 19; 7; 0; 10; 150; 5.1e-14
-300; /data/20160325/bead1/cant_sweep_100um; sweep; 19; 7; 0; 10; 100; 5.1e-14
-301; /data/20160325/bead1/cant_sweep_100um_cal_pos; sweep; 19; 7; 0; 10; 100; 5.1e-14
-302; /data/20160325/bead1/cant_sweep_100um_cal_neg; sweep; 19; 7; 0; 10; 100; 5.1e-14
-303; /data/20160325/bead1/cant_sweep_60um; sweep; 19; 7; 0; 10; 60; 5.1e-14
-304; /data/20160325/bead1/cant_sweep_60um_cal_pos; sweep; 19; 7; 0; 10; 60; 5.1e-14
-305; /data/20160325/bead1/cant_sweep_60um_cal_neg; sweep; 19; 7; 0; 10; 60; 5.1e-14
-306; /data/20160325/bead1/cant_sweep_20um; sweep; 19; 7; 0; 10; 20; 5.1e-14
-307; /data/20160325/bead1/cant_sweep_20um_2; sweep; 19; 7; 0; 10; 20; 5.1e-14
-308; /data/20160325/bead1/cant_sweep_20um_cal_neg; sweep; 19; 7; 0; 10; 20; 5.1e-14
-309; /data/20160325/bead1/cant_sweep_20um_cal_pos; sweep; 19; 7; 0; 10; 20; 5.1e-14
-310; /data/20160325/bead1/cant_sweep_60um_2; sweep; 19; 7; 0; 10; 60; 5.1e-14
-311; /data/20160325/bead1/cant_sweep_100um_2; sweep; 19; 7; 0; 10; 100; 5.1e-14
->>>>>>> d87af76a3f9ea33789e9ad3ce281174f5b4e0959
+246; /data/20160329/bead1/chargelp_cal2; 13.3 Hz; 19; 7; 0; 10; 200; 5e-14
+247; /data/20160329/bead1/recenter/cant_sweep_20um_cal; 13.3 Hz; 19; 7; 0; 10; 20; 1e-13
+248; /data/20160329/bead1/recenter/cant_sweep_60um_cal; 13.3 Hz; 19; 7; 0; 10; 60; 1e-13
+249; /data/20160329/bead1/recenter/cant_sweep_100um_cal; 13.3 Hz; 19; 7; 0; 10; 100; 1e-13
+250; /data/20160329/bead1/recenter/cant_sweep_150um_cal; 13.3 Hz; 19; 7; 0; 10; 150; 1e-13
