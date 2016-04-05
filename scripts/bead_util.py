@@ -679,6 +679,14 @@ def get_chameleon_force( xpoints_in ):
     #return np.interp( xpoints_in, cham_dat[:,0], cham_dat[:,1] )
     return cham_spl( xpoints_in )
 
+def get_es_force( xpoints_in, volt=1.0, is_fixed = False ):
+    ## set is_fixed to true to get the force for a permanent dipole (prop to
+    ## grad E), otherwise gives force on induced dipole (prop to E.(gradE)
+    if(is_fixed):
+        return es_spl_fixed( xpoints_in )*volt
+    else:
+        return es_spl( xpoints_in )*volt**2
+
 def get_chameleon_force_chas(xpoints_in, y=0, yforce=False):
 
 
@@ -776,9 +784,7 @@ def make_histo_vs_time(x,y,xlab="File number",ylab="beta",lab="",col="k",axs=[],
     xx = np.linspace(crange[0], crange[1], 1e3)
 
     plt.errorbar( hh, bc, xerr=np.sqrt(hh), yerr=0, fmt='.', color=col, linewidth=1.5 )
-    plt.plot( gauss_fun(xx, bp[0], bp[1], bp[2]), xx, color=col, linewidth=1.5, label=r"$\beta$ = %.1e$\pm$%.1e"%(bp[1], np.sqrt(bcov[1,1])))
-
-
+   
     if(isbot):
         plt.xlabel("Counts")
         plt.legend(loc=0,prop={"size": 10})

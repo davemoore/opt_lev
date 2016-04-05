@@ -122,6 +122,7 @@ def plt_fobj(fobj, volt_to_plt = 0.05, axis = 1, cant_indx = 24, label = ''):
     plt.ylabel("Attractive Force [N]")
 
 def sort_fun(dobj):
+
     #Function to sort the driectory objects based on closed z separation.
     return dobj.sep[2]
 
