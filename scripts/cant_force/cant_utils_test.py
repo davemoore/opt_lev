@@ -92,18 +92,18 @@ def cham_fitter(fit_dict, fcal = 1e-4):
         plt.show()
         return fitobj
 
-def es_fitter(fit_dict, fcal = 1e-13):
+def es_fitter(fit_dict, fun = es_force_v,fcal = 1e-13):
     #fits the average force vs position for each directory to a chameleon force to estimate beta.
     arr = np.array(fit_dict.keys())
     for st in arr[arr != 'osets']:
         fit_vec = fit_vec_cal(fit_dict[st], fcal)
         p0 = [1., 0.]
-        popt, pcov = curve_fit(cham_force_beta, fit_vec[0], fit_vec[1], p0 = p0, sigma = fit_vec[2])
-        fitobj = cu.Fit(popt, pcov, cham_force_beta)
+        popt, pcov = curve_fit(fun, fit_vec[0], fit_vec[1], p0 = p0, sigma = fit_vec[2])
+        fitobj = cu.Fit(popt, pcov, es_force_v)
         f, axarr = plt.subplots(2, sharex = True)
         fitobj.plt_fit(fit_vec[0], fit_vec[1], axarr[0], xlabel = "Distance from microsphere [$\mu m$]", ylabel = "Attractive force [$nN$]")
         fitobj.plt_residuals(fit_vec[0], fit_vec[1], axarr[1], xlabel = "Distance from microsphere [$\mu m$]", ylabel = "Residual force [$nN$]")
-        plt.show()
+        #plt.show()
         return fitobj
 
 
@@ -122,6 +122,7 @@ def plt_fobj(fobj, volt_to_plt = 0.05, axis = 1, cant_indx = 24, label = ''):
     plt.ylabel("Attractive Force [N]")
 
 def sort_fun(dobj):
+
     #Function to sort the driectory objects based on closed z separation.
     return dobj.sep[2]
 
@@ -161,7 +162,7 @@ dir_objs = map(proc_dir, dirs)
 dir_objs = sorted(dir_objs, key = sort_fun, reverse = True)
 ave_f_dicts = map(ave_f_dict, dir_objs)
 out_dict = oset_correct(ave_f_dicts)
-plotter(out_dict)
+es_fitter(out_dict)
 
 #step_cal(dir_objs)
 #print fitobj.popt
