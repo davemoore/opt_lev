@@ -15,7 +15,7 @@ cal = 1./(1.007e13)
 
 ddict = bu.load_dir_file( "/home/arider/opt_lev/scripts/cant_force/dir_file.txt" )
 
-load_from_file = True
+load_from_file = False
 
 def proc_dir(d):
     #loads the average force vs position from the files given a key referencing that file.
