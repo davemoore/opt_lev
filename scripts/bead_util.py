@@ -708,7 +708,7 @@ def get_es_force( xpoints_in, volt=1.0, is_fixed = False ):
     ## set is_fixed to true to get the force for a permanent dipole (prop to
     ## grad E), otherwise gives force on induced dipole (prop to E.(gradE)
     if(is_fixed):
-        return es_spl_fixed( xpoints_in )*volt
+        return es_spl_fixed( xpoints_in )*np.abs(volt)
     else:
         return es_spl( xpoints_in )*volt**2
 
