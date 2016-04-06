@@ -48,6 +48,50 @@ cham_yforce = interp.RectBivariateSpline(chamfil['xcoord'],\
 #                                        chamfil['ycoord'], chamfil['xforce'])
 #cham_yforce = interp.interp2d(chamfil['xcoord'],\
 #                                        chamfil['ycoord'], chamfil['yforce'])
+cham_dat = np.loadtxt("/home/dcmoore/opt_lev/scripts/cant_force/cham_vs_x.txt", skiprows=9)
+cham_dat[:,0] = 0.0015 - cham_dat[:,0] ## distance from cant face in m
+cham_dat[:,0] = cham_dat[::-1,0]
+cham_dat[:,1] = cham_dat[::-1,1]
+sfac = (cham_xforce(1e-5,0)/np.interp(1e-5,cham_dat[:,0],cham_dat[:,1]))
+cham_dat[:,1] = cham_dat[:,1]*sfac
+cham_spl = interp.UnivariateSpline( cham_dat[:,0], cham_dat[:,1], s=1e-46)
+
+cham_dat = np.loadtxt("/home/dcmoore/opt_lev/scripts/cant_force/cham_vs_x.txt", skiprows=9)
+cham_dat[:,0] = 0.0015 - cham_dat[:,0] ## distance from cant face in m
+cham_dat[:,0] = cham_dat[::-1,0]
+cham_dat[:,1] = cham_dat[::-1,1]
+sfac = (cham_xforce(1e-5,0)/np.interp(1e-5,cham_dat[:,0],cham_dat[:,1]))
+cham_dat[:,1] = cham_dat[:,1]*sfac
+cham_spl = interp.UnivariateSpline( cham_dat[:,0], cham_dat[:,1], s=1e-46)
+
+es_dat = np.loadtxt("/home/dcmoore/comsol/dipole_force.txt", skiprows=9)
+gpts = es_dat[:,0] > 15e-6
+es_spl_log = interp.UnivariateSpline( es_dat[gpts,0], np.log(np.abs(es_dat[gpts,1])), s=2.5)
+def es_spl(x):
+    return np.exp(es_spl_log(x))
+
+es_dat_fixed = np.loadtxt("/home/dcmoore/comsol/fixed_dipole_force.txt", skiprows=9)
+gpts = es_dat_fixed[:,0] > 15e-6
+es_spl_log_fixed = interp.UnivariateSpline( es_dat_fixed[gpts,0], np.log(np.abs(es_dat_fixed[gpts,1])), s=2.5)
+def es_spl_fixed(x):
+    return np.exp(es_spl_log_fixed(x))
+
+# plt.figure()
+# xx = np.linspace(5e-6,1e-3,1e3)
+es_dat = np.loadtxt("/home/dcmoore/comsol/dipole_force.txt", skiprows=9)
+gpts = es_dat[:,0] > 15e-6
+es_spl_log = interp.UnivariateSpline( es_dat[gpts,0], np.log(np.abs(es_dat[gpts,1])), s=2.5)
+def es_spl(x):
+    return np.exp(es_spl_log(x))
+
+es_dat_fixed = np.loadtxt("/home/dcmoore/comsol/fixed_dipole_force.txt", skiprows=9)
+gpts = es_dat_fixed[:,0] > 15e-6
+es_spl_log_fixed = interp.UnivariateSpline( es_dat_fixed[gpts,0], np.log(np.abs(es_dat_fixed[gpts,1])), s=2.5)
+def es_spl_fixed(x):
+    return np.exp(es_spl_log_fixed(x))
+
+# plt.figure()
+# xx = np.linspace(5e-6,1e-3,1e3)
 
 
 
