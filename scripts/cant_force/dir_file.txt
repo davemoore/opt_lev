@@ -356,7 +356,7 @@
 289; /data/20160320/bead1/pump_down2/sweep2/cant_sweep_20um; sweep; 19; 7; 0; 10; 20; 7.1e-14
 290; /data/20160320/bead1/pump_down2/sweep2/cant_sweep_60um; sweep; 19; 7; 0; 10; 60; 7.1e-14
 
-## new bead
+## new bead (bead #1 for the paper)
 291; /data/20160325/bead1/cant_sweep_250um; sweep; 19; 7; 0; 10; 250; 5.1e-14
 292; /data/20160325/bead1/cant_sweep_250um_cal_pos; sweep; 19; 7; 0; 10; 250; 5.1e-14
 293; /data/20160325/bead1/cant_sweep_250um_cal_neg; sweep; 19; 7; 0; 10; 250; 5.1e-14
@@ -378,3 +378,121 @@
 309; /data/20160325/bead1/cant_sweep_20um_cal_pos; sweep; 19; 7; 0; 10; 20; 5.1e-14
 310; /data/20160325/bead1/cant_sweep_60um_2; sweep; 19; 7; 0; 10; 60; 5.1e-14
 311; /data/20160325/bead1/cant_sweep_100um_2; sweep; 19; 7; 0; 10; 100; 5.1e-14
+312; /data/20160325/bead1/cant_sweep_150um_2; sweep; 19; 7; 0; 10; 150; 5.1e-14
+313; /data/20160325/bead1/cant_sweep_200um_2; sweep; 19; 7; 0; 10; 200; 5.1e-14
+314; /data/20160325/bead1/cant_sweep_250um_2; sweep; 19; 7; 0; 10; 250; 5.1e-14
+315; /data/20160325/bead1/cant_sweep_250um_3; sweep; 19; 7; 0; 10; 250; 5.1e-14
+316; /data/20160325/bead1/cant_sweep_200um_3; sweep; 19; 7; 0; 10; 200; 5.1e-14
+317; /data/20160325/bead1/cant_sweep_150um_3; sweep; 19; 7; 0; 10; 150; 5.1e-14
+318; /data/20160325/bead1/cant_sweep_100um_3; sweep; 19; 7; 0; 10; 100; 5.1e-14
+319; /data/20160325/bead1/cant_sweep_60um_3; sweep; 19; 7; 0; 10; 60; 5.1e-14
+320; /data/20160325/bead1/cant_sweep_20um_3; sweep; 19; 7; 0; 10; 20; 5.1e-14
+321; /data/20160325/bead1/cant_sweep_20um_nobead; sweep; 19; 7; 0; 10; 20; 5.1e-14
+
+## new bead (bead #2 for the paper)
+322; /data/20160327/bead1/cant_sweep_150um; sweep; 19; 7; 0; 10; 150; 5.2e-14
+323; /data/20160327/bead1/cant_sweep_150um_cal_pos; sweep; 19; 7; 0; 10; 150; 5.2e-14
+324; /data/20160327/bead1/cant_sweep_150um_cal_neg; sweep; 19; 7; 0; 10; 150; 5.2e-14
+325; /data/20160327/bead1/cant_sweep_100um; sweep; 19; 7; 0; 10; 100; 5.2e-14
+326; /data/20160327/bead1/cant_sweep_100um_cal_pos; sweep; 19; 7; 0; 10; 100; 5.2e-14
+327; /data/20160327/bead1/cant_sweep_100um_cal_neg; sweep; 19; 7; 0; 10; 100; 5.2e-14
+328; /data/20160327/bead1/cant_sweep_60um; sweep; 19; 7; 0; 10; 60; 5.2e-14
+329; /data/20160327/bead1/cant_sweep_60um_cal_pos; sweep; 19; 7; 0; 10; 60; 5.2e-14
+330; /data/20160327/bead1/cant_sweep_60um_cal_neg; sweep; 19; 7; 0; 10; 60; 5.2e-14
+331; /data/20160327/bead1/cant_sweep_20um; sweep; 19; 7; 0; 10; 20; 5.2e-14
+332; /data/20160327/bead1/cant_sweep_20um_2; sweep; 19; 7; 0; 10; 20; 5.2e-14
+333; /data/20160327/bead1/cant_sweep_20um_cal_pos; sweep; 19; 7; 0; 10; 20; 5.2e-14
+334; /data/20160327/bead1/cant_sweep_20um_cal_neg; sweep; 19; 7; 0; 10; 20; 5.2e-14
+335; /data/20160327/bead1/cant_sweep_60um_2; sweep; 19; 7; 0; 10; 60; 5.2e-14
+336; /data/20160327/bead1/cant_sweep_100um_2; sweep; 19; 7; 0; 10; 100; 5.2e-14
+337; /data/20160327/bead1/cant_sweep_150um_2; sweep; 19; 7; 0; 10; 150; 5.2e-14
+338; /data/20160327/bead1/cant_sweep_150um_3; sweep; 19; 7; 0; 10; 150; 5.2e-14
+339; /data/20160327/bead1/cant_sweep_100um_3; sweep; 19; 7; 0; 10; 100; 5.2e-14
+340; /data/20160327/bead1/cant_sweep_60um_3; sweep; 19; 7; 0; 10; 60; 5.2e-14
+341; /data/20160327/bead1/cant_sweep_20um_3; sweep; 19; 7; 0; 10; 20; 5.2e-14
+342; /data/20160327/bead1/cant_sweep_20um_cal; sweep; 19; 7; 0; 10; 20; 5.2e-14
+343; /data/20160327/bead1/cant_sweep_20um_4; sweep; 19; 7; 0; 10; 20; 5.2e-14
+344; /data/20160327/bead1/cant_sweep_60um_cal; sweep; 19; 7; 0; 10; 60; 5.2e-14
+345; /data/20160327/bead1/cant_sweep_100um_cal; sweep; 19; 7; 0; 10; 100; 5.2e-14
+346; /data/20160327/bead1/cant_sweep_150um_cal; sweep; 19; 7; 0; 10; 150; 5.2e-14
+
+## new bead (bead #3 for the paper)
+347; /data/20160329/bead1/cant_sweep_150um; sweep; 19; 7; 0; 10; 150; 5.0e-14
+348; /data/20160329/bead1/cant_sweep_150um_cal; sweep; 19; 7; 0; 10; 150; 5.0e-14
+349; /data/20160329/bead1/cant_sweep_100um; sweep; 19; 7; 0; 10; 100; 5.0e-14
+350; /data/20160329/bead1/cant_sweep_100um_cal; sweep; 19; 7; 0; 10; 100; 5.0e-14
+351; /data/20160329/bead1/cant_sweep_60um; sweep; 19; 7; 0; 10; 60; 5.0e-14
+352; /data/20160329/bead1/cant_sweep_60um_cal; sweep; 19; 7; 0; 10; 60; 5.0e-14
+353; /data/20160329/bead1/cant_sweep_20um; sweep; 19; 7; 0; 10; 20; 5.0e-14
+354; /data/20160329/bead1/cant_sweep_20um_cal; sweep; 19; 7; 0; 10; 20; 5.0e-14
+355; /data/20160329/bead1/cant_sweep_20um_2; sweep; 19; 7; 0; 10; 20; 5.0e-14
+356; /data/20160329/bead1/cant_sweep_60um_2; sweep; 19; 7; 0; 10; 60; 5.0e-14
+357; /data/20160329/bead1/cant_sweep_100um_2; sweep; 19; 7; 0; 10; 100; 5.0e-14
+358; /data/20160329/bead1/cant_sweep_150um_2; sweep; 19; 7; 0; 10; 150; 5.0e-14
+359; /data/20160329/bead1/cant_sweep_150um_3; sweep; 19; 7; 0; 10; 150; 5.0e-14
+360; /data/20160329/bead1/cant_sweep_100um_3; sweep; 19; 7; 0; 10; 100; 5.0e-14
+361; /data/20160329/bead1/cant_sweep_60um_3; sweep; 19; 7; 0; 10; 60; 5.0e-14
+362; /data/20160329/bead1/cant_sweep_20um_3; sweep; 19; 7; 0; 10; 20; 5.0e-14
+363; /data/20160329/bead1/cant_sweep_150um_x20um_cal; sweep; 19; 7; 0; 10; 150; 5.0e-14
+364; /data/20160329/bead1/cant_sweep_100um_x20um_cal; sweep; 19; 7; 0; 10; 100; 5.0e-14
+365; /data/20160329/bead1/cant_sweep_60um_x20um_cal; sweep; 19; 7; 0; 10; 60; 5.0e-14
+366; /data/20160329/bead1/cant_sweep_20um_x20um_cal; sweep; 19; 7; 0; 10; 20; 5.0e-14
+367; /data/20160329/bead1/cant_sweep_60um_xsweep_cal; sweep; 17; 7; 0; 10; 0; 5.0e-14
+368; /data/20160329/bead1/cant_sweep_20um_xsweep_cal_step; sweep; 19; 7; 0; 10; 20; 5.0e-14
+369; /data/20160329/bead1/cant_sweep_20um_xsweep_cal_step2; sweep; 19; 7; 0; 10; 20; 5.0e-14
+
+## everything above was taken at the wrong X height, retaking bead #3->#1 for the paper
+370; /data/20160329/bead1/recenter/cant_sweep_150um_cal; sweep; 19; 7; 0; 10; 150; 5.0e-14
+371; /data/20160329/bead1/recenter/cant_sweep_150um; sweep; 19; 7; 0; 10; 150; 5.0e-14
+372; /data/20160329/bead1/recenter/cant_sweep_100um_cal; sweep; 19; 7; 0; 10; 100; 5.0e-14
+373; /data/20160329/bead1/recenter/cant_sweep_100um; sweep; 19; 7; 0; 10; 100; 5.0e-14
+374; /data/20160329/bead1/recenter/cant_sweep_60um_cal; sweep; 19; 7; 0; 10; 60; 5.0e-14
+375; /data/20160329/bead1/recenter/cant_sweep_60um; sweep; 19; 7; 0; 10; 60; 5.0e-14
+376; /data/20160329/bead1/recenter/cant_sweep_20um_cal; sweep; 19; 7; 0; 10; 20; 5.0e-14
+377; /data/20160329/bead1/recenter/cant_sweep_20um; sweep; 19; 7; 0; 10; 20; 5.0e-14
+378; /data/20160329/bead1/recenter/cant_sweep_20um_2; sweep; 19; 7; 0; 10; 20; 5.0e-14
+379; /data/20160329/bead1/recenter/cant_sweep_60um_2; sweep; 19; 7; 0; 10; 60; 5.0e-14
+380; /data/20160329/bead1/recenter/cant_sweep_100um_2; sweep; 19; 7; 0; 10; 100; 5.0e-14
+381; /data/20160329/bead1/recenter/cant_sweep_150um_2; sweep; 19; 7; 0; 10; 150; 5.0e-14
+382; /data/20160329/bead1/recenter/cant_sweep_150um_3; sweep; 19; 7; 0; 10; 150; 5.0e-14
+383; /data/20160329/bead1/recenter/cant_sweep_100um_3; sweep; 19; 7; 0; 10; 100; 5.0e-14
+384; /data/20160329/bead1/recenter/cant_sweep_60um_3; sweep; 19; 7; 0; 10; 60; 5.0e-14
+385; /data/20160329/bead1/recenter/cant_sweep_20um_3; sweep; 19; 7; 0; 10; 20; 5.0e-14
+
+## new bead (bead #2 for paper)
+386; /data/20160403/bead1/cant_sweep_xheight2; sweep; 19; 7; 0; 10; 20; 6.8e-14
+387; /data/20160403/bead1/cant_sweep_150um; sweep; 19; 7; 0; 10; 150; 6.8e-14
+388; /data/20160403/bead1/cant_sweep_150um_cal; sweep; 19; 7; 0; 10; 150; 6.8e-14
+389; /data/20160403/bead1/cant_sweep_100um; sweep; 19; 7; 0; 10; 100; 6.8e-14
+390; /data/20160403/bead1/cant_sweep_100um_cal; sweep; 19; 7; 0; 10; 100; 6.8e-14
+391; /data/20160403/bead1/cant_sweep_60um; sweep; 19; 7; 0; 10; 60; 6.8e-14
+392; /data/20160403/bead1/cant_sweep_60um_cal; sweep; 19; 7; 0; 10; 60; 6.8e-14
+393; /data/20160403/bead1/cant_sweep_20um; sweep; 19; 7; 0; 10; 20; 6.8e-14
+394; /data/20160403/bead1/cant_sweep_20um_cal; sweep; 19; 7; 0; 10; 20; 6.8e-14
+395; /data/20160403/bead1/cant_sweep_20um_2; sweep; 19; 7; 0; 10; 20; 6.8e-14
+396; /data/20160403/bead1/cant_sweep_60um_2; sweep; 19; 7; 0; 10; 60; 6.8e-14
+397; /data/20160403/bead1/cant_sweep_100um_2; sweep; 19; 7; 0; 10; 100; 6.8e-14
+398; /data/20160403/bead1/cant_sweep_150um_2; sweep; 19; 7; 0; 10; 150; 6.8e-14
+399; /data/20160403/bead1/cant_sweep_150um_3; sweep; 19; 7; 0; 10; 150; 6.8e-14
+400; /data/20160403/bead1/cant_sweep_100um_3; sweep; 19; 7; 0; 10; 100; 6.8e-14
+401; /data/20160403/bead1/cant_sweep_60um_3; sweep; 19; 7; 0; 10; 60; 6.8e-14
+402; /data/20160403/bead1/cant_sweep_20um_3; sweep; 19; 7; 0; 10; 20; 6.8e-14
+
+## new bead (bead #3 for paper)
+403; /data/20160405/bead1/cant_sweep_20um_xsweep3; sweep; 19; 7; 0; 10; 20; 5.9e-14
+404; /data/20160405/bead1/cant_sweep_150um; sweep; 19; 7; 0; 10; 150; 5.9e-14
+405; /data/20160405/bead1/cant_sweep_150um_cal; sweep; 19; 7; 0; 10; 150; 5.9e-14
+406; /data/20160405/bead1/cant_sweep_100um; sweep; 19; 7; 0; 10; 100; 5.9e-14
+407; /data/20160405/bead1/cant_sweep_100um_cal; sweep; 19; 7; 0; 10; 100; 5.9e-14
+408; /data/20160405/bead1/cant_sweep_60um; sweep; 19; 7; 0; 10; 60; 5.9e-14
+409; /data/20160405/bead1/cant_sweep_60um_cal; sweep; 19; 7; 0; 10; 60; 5.9e-14
+410; /data/20160405/bead1/cant_sweep_20um; sweep; 19; 7; 0; 10; 20; 5.9e-14
+411; /data/20160405/bead1/cant_sweep_20um_cal; sweep; 19; 7; 0; 10; 20; 5.9e-14
+412; /data/20160405/bead1/cant_sweep_20um_2; sweep; 19; 7; 0; 10; 20; 5.9e-14
+413; /data/20160405/bead1/cant_sweep_60um_2; sweep; 19; 7; 0; 10; 60; 5.9e-14
+414; /data/20160405/bead1/cant_sweep_100um_2; sweep; 19; 7; 0; 10; 100; 5.9e-14
+415; /data/20160405/bead1/cant_sweep_150um_2; sweep; 19; 7; 0; 10; 150; 5.9e-14
+416; /data/20160405/bead1/cant_sweep_150um_3; sweep; 19; 7; 0; 10; 150; 5.9e-14
+417; /data/20160405/bead1/cant_sweep_100um_3; sweep; 19; 7; 0; 10; 100; 5.9e-14
+418; /data/20160405/bead1/cant_sweep_60um_3; sweep; 19; 7; 0; 10; 60; 5.9e-14
+419; /data/20160405/bead1/cant_sweep_20um_3; sweep; 19; 7; 0; 10; 20; 5.9e-14

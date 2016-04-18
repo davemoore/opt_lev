@@ -8,7 +8,7 @@ import scipy.signal as sig
 import matplotlib.mlab as mlab
 
 #data_dirs = ["/data/20160320/bead1/pump_down2/dc_zero_elec1_pos3","/data/20160320/bead1/pump_down2/dc_zero_elec1_neg3"]
-data_dirs = ["/data/20160325/bead1/elec0_dczero_100um2",]
+data_dirs = ["/data/20160327/bead1/elec0_dczero_20um",]
              #"/data/20160325/bead1/elec0_dczero_60um_neg",]
              #"/data/20160320/bead1/pump_down2/dc_zero_elec2_fine_cant0_0",
              #"/data/20160320/bead1/pump_down2/dc_zero_elec3_fine_cant0_0",

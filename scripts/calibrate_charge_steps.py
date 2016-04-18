@@ -10,11 +10,11 @@ import scipy.signal as sp
 import scipy.optimize as opt
 import cPickle as pickle
 
-path = "/data/20160325/bead1/chargelp_cal2"
+path = "/data/20160405/bead1/chargelp_cal2"
 #path = "/data/20160320/bead1/chargelp_cal2"
 ts = 10.
 
-fdrive = 29.
+fdrive = 41.
 make_plot = True
 reprocess_file = True
 savefig = True
@@ -23,7 +23,7 @@ data_columns = [0, 1] ##[0,1] ## column to calculate the correlation against
 drive_column = 12 ## column containing drive signal
 
 drive_millivolt = 400.
-scale_fac = -0.03
+scale_fac = -0.025
 
 datacut = 5000
 

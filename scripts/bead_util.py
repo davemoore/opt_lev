@@ -9,6 +9,7 @@ import scipy.signal as sp
 import scipy.interpolate as interp
 import matplotlib.cm as cmx
 import matplotlib.colors as colors
+import cPickle as pickle
 
 bead_radius = 2.53e-6 ##m
 bead_rho = 2.0e3 ## kg/m^3
@@ -56,17 +57,31 @@ sfac = (cham_xforce(1e-5,0)/np.interp(1e-5,cham_dat[:,0],cham_dat[:,1]))
 cham_dat[:,1] = cham_dat[:,1]*sfac
 cham_spl = interp.UnivariateSpline( cham_dat[:,0], cham_dat[:,1], s=1e-46)
 
-es_dat = np.loadtxt("/home/dcmoore/comsol/dipole_force.txt", skiprows=9)
-gpts = es_dat[:,0] > 15e-6
-es_spl_log = interp.UnivariateSpline( es_dat[gpts,0], np.log(np.abs(es_dat[gpts,1])), s=2.5)
+es_dat = np.loadtxt("/home/dcmoore/opt_lev/scripts/cant_force/dipole_force.txt", skiprows=9)
+gpts = es_dat[:,0] > 0 #15e-6
+es_spl_log = interp.UnivariateSpline( es_dat[gpts,0], np.log(np.abs(es_dat[gpts,1])), s=3.0)
 def es_spl(x):
     return np.exp(es_spl_log(x))
 
-es_dat_fixed = np.loadtxt("/home/dcmoore/comsol/fixed_dipole_force.txt", skiprows=9)
-gpts = es_dat_fixed[:,0] > 15e-6
-es_spl_log_fixed = interp.UnivariateSpline( es_dat_fixed[gpts,0], np.log(np.abs(es_dat_fixed[gpts,1])), s=2.5)
+es_dat_fixed = np.loadtxt("/home/dcmoore/opt_lev/scripts/cant_force/fixed_dipole_force.txt", skiprows=9)
+gpts = es_dat_fixed[:,0] > 0 #15e-6
+es_spl_log_fixed = interp.UnivariateSpline( es_dat_fixed[gpts,0], np.log(np.abs(es_dat_fixed[gpts,1])), s=3.0)
 def es_spl_fixed(x):
     return np.exp(es_spl_log_fixed(x))
+
+### chameleon interpolator vs beta, x, lambda##########
+outfile = open("/home/dcmoore/opt_lev/scripts/cant_force/cham_force_arr.pkl","rb")
+out_dat = pickle.load(outfile)
+outfile.close()
+cham_interp_fun = interp.RegularGridInterpolator(out_dat[:3],10.0**out_dat[3],bounds_error=False)
+#######################################################
+
+### yukawa interpolator vs lambda, x##########
+outfile = open("/home/dcmoore/opt_lev/scripts/cant_force/yuk_force_arr.pkl","rb")
+out_dat = pickle.load(outfile)
+outfile.close()
+yuk_interp_fun = interp.RectBivariateSpline(out_dat[0],out_dat[1],out_dat[2],s=0)
+#######################################################
 
 # plt.figure()
 # xx = np.linspace(5e-6,1e-3,1e3)
@@ -700,6 +715,17 @@ def calibrate_dc(path, charge, dist = 0.01, make_plt = False):
         plt.show()
     return 1./bf[0]
 
+def get_cham_vs_beta_x_lam( x, beta, lam ):
+    #get the chameleon force as a function of beta, x, and lambda
+    bvec = beta*np.ones_like(x)
+    xvec = x
+    lvec = lam*np.ones_like(x)
+    return cham_interp_fun(np.column_stack( (bvec, xvec, lvec) ))
+
+def get_yukawa_vs_alpha_lam( x, alpha, lam ):
+    #get the yukawa force vs alpha and lam for chameleon geom
+    return yuk_interp_fun(lam, x)[0]*alpha
+
 def get_chameleon_force( xpoints_in ):
     #return np.interp( xpoints_in, cham_dat[:,0], cham_dat[:,1] )
     return cham_spl( xpoints_in )
@@ -708,9 +734,9 @@ def get_es_force( xpoints_in, volt=1.0, is_fixed = False ):
     ## set is_fixed to true to get the force for a permanent dipole (prop to
     ## grad E), otherwise gives force on induced dipole (prop to E.(gradE)
     if(is_fixed):
-        return es_spl_fixed( xpoints_in )*np.abs(volt)
+        return es_spl_fixed( xpoints_in )/es_spl_fixed(2e-5)*np.abs(volt)*1e-15
     else:
-        return es_spl( xpoints_in )*volt**2
+        return es_spl( xpoints_in )/es_spl(2e-5)*np.abs(volt)*1e-15
 
 def get_chameleon_force_chas(xpoints_in, y=0, yforce=False):
 
@@ -738,7 +764,7 @@ def get_chameleon_force_chas(xpoints_in, y=0, yforce=False):
 
 def get_color_map( n ):
     jet = plt.get_cmap('jet') 
-    cNorm  = colors.Normalize(vmin=0, vmax=n)
+    cNorm  = colors.Normalize(vmin=0, vmax=n-1)
     scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=jet)
     outmap = []
     for i in range(n):
@@ -830,3 +856,9 @@ def simple_sort( s ):
 
 def prev_pow_2( x ):
     return 2**(x-1).bit_length() - 1
+
+def beta_max( lam ):
+    ## for a given value of lambda (in meV) return the maximum value of beta
+    ## below the limit of self screening
+    p = [5.68013062e-02, -1.16329238e+01, 1.32047766e+03, 4.93314314e+03, -3.81593417e+03]
+    return np.polyval(p, lam)

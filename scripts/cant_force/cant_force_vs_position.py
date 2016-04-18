@@ -16,19 +16,19 @@ do_poly_fit = False  ## fit data to 1/r^2 (for DC bias data)
 do_2d_fit = False ## fit data vs position and voltage to 2d function
 sep_forward_backward = False ## handle forward and backward separately
 match_overlap_region = True ## for multiple overlapping files, match together
-#idx_to_plot = [293,296,299,302,305,308] ## neg drives
-#idx_to_plot = [292,295,298,301,304,309] ## pos drives
-#idx_to_plot = [291,294,297,300,303,306,307] ## 0V
-idx_to_plot = [311,]
+#idx_to_plot=[404,406,408,410,412,413,414,415,416]
+idx_to_plot = [405,407,409,411]
+
 diff_dir = None ##'Y' ## if set, take difference between two positions
 
 sig_dir = 'y' ## Direction of the expected signal
 pos_offset = 60. ## um, distance of closest approach (needed to make voltage template)
+do_x_sweep = False
 
 data_columns = [0,1,2] ## data to plot, x=0, y=1, z=2
 mon_columns = [3,7]  # columns used to monitor position, empty to ignore
 plot_title = 'Force vs. position'
-nbins = 8 ##40  ## number of bins vs. bead position
+nbins = 8  ## number of bins vs. bead position
 
 max_files = 50 ## max files to process per directory
 force_remake_file = True ## force recalculation over all files
@@ -64,7 +64,7 @@ def sort_fun( s ):
 
 def bin(xvec, yvec, binmin=0, binmax=10, n=300):
     bin_edges = np.linspace(binmin, binmax, n+1)
-    inds = np.digitize(xvec, bin_edges, right = False)
+    inds = np.digitize(xvec, bin_edges, right = False)-1
     bins = bin_edges[:-1] + np.diff(bin_edges)/2.0
     avs = np.zeros(n)
     ers = np.zeros(n)
@@ -73,7 +73,6 @@ def bin(xvec, yvec, binmin=0, binmax=10, n=300):
         if( np.sum(cidx) > 0 ):
             avs[i] = np.median(yvec[cidx])
             ers[i] = np.std(yvec[cidx])/np.sqrt(len(yvec[cidx]))
-
     return avs, ers, bins 
 
 def get_stage_dir_pos( s, d ):
@@ -102,6 +101,8 @@ def process_files(data_dir, num_files, dc_val=-999999, pos_at_10V=0.,
     if( dc_val > -999999 ):
         print "Data with DC bias (V): ", dc_val
         flist = sorted(glob.glob(os.path.join(data_dir, "*Hz%dmVdc*.h5"%abs(dc_val))), key = sort_fun)
+        if(do_x_sweep):
+            flist = sorted(glob.glob(os.path.join(data_dir, "*stageX%d*.h5"%abs(dc_val))), key = sort_fun)
         if( len( flist ) == 0 ):
             ## probably wasn't abs valued
             flist = sorted(glob.glob(os.path.join(data_dir, "*Hz%dmVdc*.h5"%dc_val)), key = sort_fun)
@@ -239,6 +240,9 @@ def get_dc_offset_orig(s):
         curr_str = int(dcstr[0][:-4])
         if( "neg" in s and curr_str > 0):
             curr_str *= -1
+        if(do_x_sweep):
+            stepX = re.findall("stageX\d+",s)
+            curr_str = int(stepX[0][6:])
         return curr_str
 
 def get_dc_offset(s):
@@ -251,6 +255,9 @@ def get_dc_offset(s):
             curr_str *= -1
         if( abs(curr_str) > 500 ):
             curr_str = int(curr_str/200.)
+        if(do_x_sweep):
+            stepX = re.findall("stageX\d+",s)
+            curr_str = int(stepX[0][6:])
         return curr_str
 
 data = []
@@ -370,7 +377,12 @@ for i,d in enumerate(data):
         if( len(of_amps) > 2 and make_opt_filt_plot):
             is_bot = False
             if( v == 'y' ): is_bot = True
-            bu.make_histo_vs_time( range(len(of_amps)), of_amps,lab=label,col=colors_yeay[i],axs=ax_list[j],isbot=is_bot )
+            clab = label
+            if(do_x_sweep): 
+                clab = label
+            else:
+                clab = label
+            bu.make_histo_vs_time( range(len(of_amps)), of_amps,lab=clab,col=colors_yeay[i],axs=ax_list[j],isbot=is_bot )
         else:
             plt.plot(range(len(of_amps)), of_amps, 'o-', label=label, color=colors_yeay[i])
 
@@ -487,6 +499,8 @@ for i,d in enumerate(data):
                 offset = curr_offset + tot_cum_offset
 
             gpts = dat != 0
+            if( not match_overlap_region ):
+                offset = -np.mean( dat[gpts] )
             if( len(tot_dc_list) > 1 ): 
                 coll = colors_dc[ np.argwhere( tot_dc_list == curr_dcv)[0] ]
             else:
@@ -494,6 +508,9 @@ for i,d in enumerate(data):
             
             plt.errorbar(bins[gpts], dat[gpts]+offset, err[gpts], fmt='o-',label=label, color=coll)
             curr_dat.append(dat[gpts])
+            if(True):
+                xx = np.linspace(20, 200, 1e3)
+                plt.plot(xx, bu.get_chameleon_force(xx*1e-6)*1e5, color=coll, linewidth=1.5)
 
             if( do_poly_fit and v == 'y'):
                 plt.figure(pfig.number)
@@ -514,6 +531,136 @@ for i,d in enumerate(data):
     sub_dat.append(curr_dat)
 
 set_max( ax_list2 ) 
+
+### Calculate averaged residuals, ignoring stitching ranges together ###
+bin_list = []
+dat_list = []
+err_list = []
+for i,d in enumerate(data):
+    label = d['label']
+    v = 'y'
+
+    dc_volt = get_dcvolt_from_label(label)
+    if(dc_volt != 0.02): continue
+        
+    cd = d['binned_dat_'+v+'_both_avg']
+    bins, dat, err = cd[0], cd[1], cd[2]
+    gpts = dat != 0
+    
+    bins, dat, err = bins[gpts], dat[gpts], err[gpts]
+
+    bin_list.append(bins)
+    dat_list.append(dat)
+    err_list.append(err)
+
+bin_list, dat_list, err_list = np.array(bin_list), np.array(dat_list), np.array(err_list)
+
+ubins = np.unique(bin_list)
+udat = np.zeros_like(ubins)
+uerr = np.zeros_like(ubins)
+
+#plt.figure()
+#for i in range( np.shape(bin_list)[0] ):
+#    plt.errorbar( bin_list[i,:], dat_list[i,:], yerr=err_list[i,:], fmt='ks' )
+
+for i,b in enumerate(ubins):
+    
+    cpos = bin_list == b
+    cdat = dat_list[cpos]
+    cerr = err_list[cpos]
+
+    udat[i] = np.mean(cdat)
+    uerr[i] = np.std(cdat)/np.sqrt( len(cdat) )
+
+udat -= np.mean(udat)
+
+#plt.errorbar( ubins, udat, yerr=uerr, fmt='ks-')
+### Done with residuals with no stitching ###
+
+min_list = np.unique(bin_list[:,0])[::-1]
+
+### Residuals with stitching ################
+bins_avgr = []
+dat_avgr = []
+err_avgr = []
+for j,b in enumerate(min_list):
+    
+    curr_rows = bin_list[:,0] == b
+    
+    bins_avgr.append( bin_list[np.argwhere(curr_rows)[0][0],:] )
+    dat_avgr.append( np.mean(dat_list[curr_rows,:], axis=0) )
+    err_avgr.append( np.std(dat_list[curr_rows,:], axis=0)/np.sqrt( np.sum(curr_rows) ) )
+
+bins_avgr, dat_avgr, err_avgr = np.array(bins_avgr), np.array(dat_avgr), np.array(err_avgr)
+
+#plt.close('all')
+
+plt.figure()
+last_offset = 0.
+out_dat = np.zeros( (np.shape(bins_avgr)[0], np.shape(bins_avgr)[1], 2) )
+for i in range( np.shape(bins_avgr)[0] ):
+    if( i > 0 ):
+        overlap_points_new = bins_avgr[i,:] >= bins_avgr[i-1,0]
+        overlap_points_old = bins_avgr[i-1,:] <= bins_avgr[i,-1]
+        curr_offset = -np.mean( dat_avgr[i,overlap_points_new] ) + np.mean( dat_avgr[i-1,overlap_points_old] ) + last_offset
+    else:
+        curr_offset = -np.mean( dat_avgr[i,-3:] )
+    last_offset = curr_offset
+    if(i == 0):
+        plt.errorbar( bins_avgr[i,:], dat_avgr[i,:]+curr_offset, yerr=err_avgr[i,:], fmt='ks-', label="Data, X=3.5V")
+    else:
+        plt.errorbar( bins_avgr[i,:], dat_avgr[i,:]+curr_offset, yerr=err_avgr[i,:], fmt='ks-')
+    #plt.errorbar( bins_avgr[i,:], dat_avgr[i,:], yerr=err_avgr[i,:], fmt='s-')
+    
+    out_dat[i,:,0] = bins_avgr[i,:]
+    out_dat[i,:,1] = dat_avgr[i,:]+curr_offset
+
+if( False ):
+    np.save("es_bkg.npy", out_dat)
+
+xx = np.linspace(25, 230, 1e3)
+
+bkg_dat = np.load("es_bkg.npy")
+
+def dipole_fun(x, Afix, Aind, A0):
+    out_y = bu.get_es_force(x*1e-6,volt=Afix,is_fixed=True) + bu.get_es_force(x*1e-6,volt=Aind) + A0
+    return out_y
+
+spars = [357,0,0]
+try:
+    bp, bcov = opt.curve_fit( dipole_fun, out_dat[:,:,0].flatten(),out_dat[:,:,1].flatten(),p0=spars)
+except RuntimeError:
+    bp = spars
+print "Fit amplitudes: Ind, Fixed, Off  ", bp[0], bp[1], bp[2]
+
+plt.plot(xx, dipole_fun(xx,*bp), 'r', label="COMSOL fit")
+
+# yy = bu.get_chameleon_force(xx*1e-6)*1e5
+# yy -= yy[-1]
+# plt.plot(xx, yy, color=coll, linewidth=1.5)
+
+# yy = bu.get_es_force(xx*1e-6,volt=4)
+# yy -= yy[-1]
+# yy2 = bu.get_es_force(xx*1e-6,volt=200,is_fixed=True)
+# yy2 -= yy2[-1]
+# plt.plot(xx, yy, color='g', linewidth=1.5)
+# plt.plot(xx, yy2, color='c', linewidth=1.5)
+
+
+# for i in range( np.shape(bkg_dat)[0] ):
+#     if( i==0 ):
+#         plt.plot( bkg_dat[i,:,0], bkg_dat[i,:,1], 'gs-', label="Data, X=0V")
+#     else:
+#         plt.plot( bkg_dat[i,:,0], bkg_dat[i,:,1], 'gs-')
+
+plt.legend(loc="upper right")
+plt.xlabel("Distance from cantilever [um]")
+plt.ylabel("Force [N]")
+#plt.savefig("comsol_fit.pdf")
+
+plt.show()
+
+
 
 if( False ):
 
