@@ -58,14 +58,14 @@ cham_dat[:,1] = cham_dat[:,1]*sfac
 cham_spl = interp.UnivariateSpline( cham_dat[:,0], cham_dat[:,1], s=1e-46)
 
 es_dat = np.loadtxt("/home/dcmoore/opt_lev/scripts/cant_force/dipole_force.txt", skiprows=9)
-gpts = es_dat[:,0] > 0 #15e-6
-es_spl_log = interp.UnivariateSpline( es_dat[gpts,0], np.log(np.abs(es_dat[gpts,1])), s=3.0)
+gpts = es_dat[:,0] > 15e-6
+es_spl_log = interp.UnivariateSpline( es_dat[gpts,0], np.log(np.abs(es_dat[gpts,1])), s=2.5)
 def es_spl(x):
     return np.exp(es_spl_log(x))
 
 es_dat_fixed = np.loadtxt("/home/dcmoore/opt_lev/scripts/cant_force/fixed_dipole_force.txt", skiprows=9)
-gpts = es_dat_fixed[:,0] > 0 #15e-6
-es_spl_log_fixed = interp.UnivariateSpline( es_dat_fixed[gpts,0], np.log(np.abs(es_dat_fixed[gpts,1])), s=3.0)
+gpts = es_dat_fixed[:,0] > 15e-6
+es_spl_log_fixed = interp.UnivariateSpline( es_dat_fixed[gpts,0], np.log(np.abs(es_dat_fixed[gpts,1])), s=2.5)
 def es_spl_fixed(x):
     return np.exp(es_spl_log_fixed(x))
 

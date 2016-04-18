@@ -140,7 +140,7 @@ def get_data(idx_to_plot,is_cal=False):
 
 pos_list = np.array([20,60,100,150])
 #pos_sig_list = np.array([5.0,5.0,5.0,1.0])  ## sigmas for position offset
-pos_sig_list = np.array([2,5,5,1])  ## sigmas for position offset
+pos_sig_list = np.array([5,5,5,2])  ## sigmas for position offset
 def stitch_data( dat, is_cal = False ):
     ## take separate date returned by get_data and stitch it together into
     ## a single vector
@@ -369,7 +369,9 @@ for bd in bead_dicts:
         ind_err_low = best_ind - ci_low
         ind_err_high = ci_high - best_ind
 
-        plt.errorbar( cal_dat[:,0], (cal_dat[:,1]-bp_cal[2])*unit_scale, yerr=cal_dat[:,2]*unit_scale, fmt='o', mfc=col, mec='none', markersize=ms, color=col, capsize=0, linewidth=1.5 )
+        yerrs = cal_dat[:,2]*unit_scale
+        yerrs = cal_dat[:,1]*0.2*unit_scale
+        plt.errorbar( cal_dat[:,0], (cal_dat[:,1]-bp_cal[2])*unit_scale, yerr=yerrs, fmt='o', mfc=col, mec='none', markersize=ms, color=col, capsize=0, linewidth=1.5 )
         plt.plot(xx, (dipole_fun(xx,*bp_cal)-bp_cal[2])*unit_scale, color=col, linewidth=1.0 )
         edm_list.append( [dc_volt_to_use, best_fix, fix_err_low, fix_err_high, best_ind, ind_err_low, ind_err_high] )
         
