@@ -217,7 +217,7 @@ def offset_fun(xoff,x,p0):
         xmod[i,:,0] = x[i,:,0] + xoff[min_bin_idx]  
     bp_cal, bcov_cal = opt.curve_fit( dipole_fun_fixed, xmod[:,:,0].flatten(),x[:,:,1].flatten(),p0=p0)
     #bp_cal = p0
-    sig_fix = 0.2*(x[:,:,1].flatten()) ## no errors for calibration so we need to weight the resids
+    sig_fix = 0.1*(x[:,:,1].flatten()) ## no errors for calibration so we need to weight the resids
     sig_meas = np.sqrt( x[:,:,2].flatten()**2 + sig_fix**2)
     chi2 = np.sum( (x[:,:,1].flatten() - dipole_fun_fixed(xmod[:,:,0].flatten(),*bp_cal))**2/sig_meas**2 )
     ## now also add gaussian constraints
@@ -370,7 +370,7 @@ for bd in bead_dicts:
         ind_err_high = ci_high - best_ind
 
         yerrs = cal_dat[:,2]*unit_scale
-        yerrs = cal_dat[:,1]*0.2*unit_scale
+        #yerrs = cal_dat[:,1]*0.1*unit_scale
         plt.errorbar( cal_dat[:,0], (cal_dat[:,1]-bp_cal[2])*unit_scale, yerr=yerrs, fmt='o', mfc=col, mec='none', markersize=ms, color=col, capsize=0, linewidth=1.5 )
         plt.plot(xx, (dipole_fun(xx,*bp_cal)-bp_cal[2])*unit_scale, color=col, linewidth=1.0 )
         edm_list.append( [dc_volt_to_use, best_fix, fix_err_low, fix_err_high, best_ind, ind_err_low, ind_err_high] )
