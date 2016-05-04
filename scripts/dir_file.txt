@@ -54,19 +54,244 @@
 ##no bead
 39; /data/20151022/bead1/cant_sweep_nobead; no bead; 19; 7; 0; 10; 0; 3.2e-14
 
-
-##
-72; /data/20151029/bead2/cant_sweep_noinputrazor_2; no razor, 2V; 19; 7; 0; 10; 0; 4.7e-14
-
-## Data on 10/30
-40; /data/20151030/bead1/cant_sweep_2_11Hz; 10/30; 19; 7; 0; 10; 0; 3.3e-14
+## new bead, changing Z sweep amplitude
+## bad time dependent noise for the first dir
+40; /data/20151026/bead7/cant_sweep_1_1; Z=1V; 19; 7; 0; 10; 0; 3.5e-14
+41; /data/20151026/bead7/cant_sweep_2_2; Z=2V; 19; 7; 0; 10; 0; 3.5e-14
+42; /data/20151026/bead7/cant_sweep_1_1_v2; Z=1V; 19; 7; 0; 10; 0; 3.5e-14
+43; /data/20151026/bead7/cant_sweep_3_3; Z=3V; 19; 7; 0; 10; 0; 3.5e-14
+44; /data/20151026/bead7/cant_sweep_2_5; Z=2.5V; 19; 7; 0; 10; 0; 3.5e-14
+45; /data/20151026/bead7/cant_sweep_2_5_no_osc; Z=2.5V, no osc; 19; 7; 0; 10; 0; 3.5e-14
+46; /data/20151026/bead7/cant_sweep_2_5_ig1e-4; Z=2.5V, ig=1e-4; 19; 7; 0; 10; 0; 3.5e-14
+47; /data/20151026/bead7/cant_sweep_2_5_overnight; Z=2.5V, long; 19; 7; 0; 10; 0; 3.5e-14
 48; /data/20151026/bead7/cant_sweep_2_overnight; Z=2V, long; 19; 7; 0; 10; 0; 3.5e-14
+## biasing the cantilever to mimic a chameleon force
+49; /data/20151026/bead7/cant_sweep_2_cham_bias; Z=2V, cham bias; 19; 7; 0; 10; 0; 3.5e-14
+50; /data/20151026/bead7/cant_sweep_2_cham_bias_beta1e7; Z=2V, beta=1e7; 19; 7; 0; 10; 0; 3.5e-14
+51; /data/20151026/bead7/cant_sweep_2_cham_bias_beta1e6; Z=2V, beta=1e6; 19; 7; 0; 10; 0; 3.5e-14
+52; /data/20151026/bead7/cant_sweep_2_cham_bias_beta1e5; Z=2V, beta=1e5; 19; 7; 0; 10; 0; 3.5e-14
+53; /data/20151026/bead7/cant_sweep_2_cham_bias_beta1e7_recal; Z=2V, beta=1e7; 19; 7; 0; 10; 0; 3.5e-14
+54; /data/20151026/bead7/cant_sweep_2_cham_bias_beta1e6_recal; Z=2V, beta=1e6; 19; 7; 0; 10; 0; 3.5e-14
+55; /data/20151026/bead7/cant_sweep_2_ig1e-5; Z=2V, ig=1e-5; 19; 7; 0; 10; 0; 3.5e-14
+## changing frequency
+56; /data/20151026/bead7/cant_sweep_2_ig3e-4; 3.7 Hz; 19; 7; 0; 10; 0; 3.5e-14
+57; /data/20151026/bead7/cant_sweep_2_ig3e-4_11Hz; 11 Hz; 19; 7; 0; 10; 0; 3.5e-14
+58; /data/20151026/bead7/cant_sweep_2_ig3e-4_17Hz; 17 Hz; 19; 7; 0; 10; 0; 3.5e-14
+## testing effect of zeroing cantilever bias, 11Hz, ig=3e-4
+59; /data/20151026/bead7/cant_sweep_2_elec0; All elec 0V; 19; 7; 0; 10; 0; 3.5e-14
+60; /data/20151026/bead7/cant_sweep_2_elec_biases; Elecs zeroed; 19; 7; 0; 10; 0; 3.5e-14
+61; /data/20151026/bead7/cant_sweep_2_small_biases; Small biases; 19; 7; 0; 10; 0; 3.5e-14
+62; /data/20151026/bead7/cant_sweep_2_small_biases2; Small biases2; 19; 7; 0; 10; 0; 3.5e-14
+63; /data/20151026/bead7/cant_sweep_2_small_biases3; Small biases3; 19; 7; 0; 10; 0; 3.5e-14
+64; /data/20151026/bead7/cant_sweep_2_small_biases4; All zeroed 2; 19; 7; 0; 10; 0; 3.5e-14
+65; /data/20151026/bead7/cant_sweep_2_terminated_3_7Hz; Teminated; 19; 7; 0; 10; 0; 3.5e-14
+66; /data/20151026/bead7/cant_sweep_2_tetrapus; Tetrapus; 19; 7; 0; 10; 0; 3.5e-14
+67; /data/20151026/bead7/cant_sweep_2_tetrapus2; Tetrapus2; 19; 7; 0; 10; 0; 3.5e-14
+## messed with setpoint
+68; /data/20151026/bead7/cant_sweep_setpoint; set point; 19; 7; 0; 10; 0; 3.5e-14
+69; /data/20151026/bead7/cant_sweep_setpoint_11Hz; set point; 19; 7; 0; 10; 0; 3.5e-14
+70; /data/20151026/bead7/cant_sweep_setpoint_hifb; set point; 19; 7; 0; 10; 0; 3.5e-14
 
-41; /data/20151030/bead1/cant_sweep_2_11Hz_camera_beta1e7/; beta 1e7; 19; 7; 0; 10; 0; 3.3e-14
-42; /data/20151030/bead1/next_day/non_retarded/1v_ac_bias/; 5.5 Hz; 19; 7; 0; 10; 0; 3.3e-14
-43; /data/20151030/bead1/next_day/non_retarded/cant_sweep2/; Cant Sweep; 19; 7; 0; 10; 0; 3.3e-14
-44; /data/20151030/bead1/next_day/non_retarded/cant_sweep3/; Cant Sweep; 19; 7; 0; 10; 0; 3.3e-14
-45; /data/20151030/bead1/next_day/non_retarded/cant_sweep_long/; Cant Sweep; 19; 7; 0; 10; 0; 3.3e-14
-46; /data/20151106/bead1/cant_sweep2; Cant Sweep New; 19; 7; 0; 10; 20; 3.1e-14
+## new bead, this time trying to sync up with camera image
+## no razor blade on input side yet
+71; /data/20151029/bead2/cant_sweep_noinputrazor_1; no razor, 1V; 19; 7; 0; 10; 0; 4.7e-14
+72; /data/20151029/bead2/cant_sweep_noinputrazor_2; no razor, 2V; 19; 7; 0; 10; 0; 4.7e-14
+73; /data/20151029/bead2/cant_sweep_noinputrazor_2_withcam; no razor, 2V; 19; 7; 0; 10; 0; 4.7e-14
+74; /data/20151029/bead2/cant_sweep_noinputrazor_2_withcam_beta1e7; no razor, beta=1e7; 19; 7; 0; 10; 0; 4.7e-14
+## add bias for chameleon with beta=1e7
+75; /data/20151029/bead2/cant_sweep_noinputrazor_2_withcam_beta1e7_2; no razor, beta=1e7; 19; 7; 0; 10; 0; 4.7e-14
+
+## new bead, this time trying to sync up with camera image
+## razor blade on input side
+76; /data/20151030/bead1/cant_sweep_2; input razor; 19; 7; 0; 10; 0; 4.2e-14
+77; /data/20151030/bead1/cant_sweep_2_11Hz; input razor, 11Hz; 19; 7; 0; 10; 0; 4.2e-14
+78; /data/20151030/bead1/next_day/non_retarded/cant_sweep3; input razor, 4.7Hz; 19; 7; 0; 10; 0; 4.2e-14
+79; /data/20151030/bead1/next_day/non_retarded/1v_ac_bias/; 1v bias; 19; 7; 0; 10; 0; 4.2e-14
+80; /data/20151030/bead1/next_day/non_retarded/cant_sweep_long/; cant sweep; 19; 7; 0; 10; 0; 4.2e-14
+
+## measuring xtalk between feedback and y for previous bead
+81; /data/20151030/bead1/fbxtalk_long/; xtalk; 19; 7; 0; 10; 0; 4.2e-14
+
+## new bead, z prop and int gain off
+82; /data/20151106/bead1/cant_sweep; no z fb; 19; 7; 0; 10; 0; 3.1e-14
+83; /data/20151106/bead1/cant_sweep2; no z fb; 19; 7; 0; 10; 20; 3.1e-14
+84; /data/20151106/bead1/cant_sweep_zeroed; elec0=-100 mV; 19; 7; 0; 10; 20; 3.1e-14
+85; /data/20151106/bead1/cant_bias_sweep3; elec sweep; 19; 7; 0; 10; 20; 3.1e-14
+86; /data/20151106/bead1/cant_zeroed_sunday; elec zeroed; 19; 7; 0; 10; 20; 3.1e-14
+87; /data/20151106/bead1/all_termed_sunday; terminated; 19; 7; 0; 10; 20; 3.1e-14
+88; /data/20151106/bead1/elec_sweep_sunday; elec sweep; 19; 7; 0; 10; 20; 3.1e-14
+89; /data/20151106/bead1/elec_sweep_sunday_psup; dc supply; 19; 7; 0; 10; 20; 3.1e-14
+90; /data/20151106/bead1/elec_sweep_sunday_psup2; dc supply; 19; 7; 0; 10; 20; 3.1e-14
+91; /data/20151106/bead1/cant_sweep_stage_out30k; cant back 30k; 19; 7; 0; 10; 20; 3.1e-14
+92; /data/20151106/bead1/cant_sweep_stage_fully_out; cant fully back; 19; 7; 0; 10; 20; 3.1e-14
+93; /data/20151106/bead1/monday/cant_sweep1; cant fully out; 19; 7; 0; 10; 20; 3.1e-14
+94; /data/20151106/bead1/monday/cant_sweep1_back500; cant back 500; 19; 7; 0; 10; 20; 3.1e-14
+95; /data/20151106/bead1/monday/cant_sweep_yz_diff; diff, 7 Hz; 19; 7; 0; 10; 20; 3.1e-14
+96; /data/20151106/bead1/monday/cant_sweep_yz_diff_14Hz; diff, 14 Hz; 19; 7; 0; 10; 20; 3.1e-14
+97; /data/20151106/bead1/monday/cant_sweep_yz_diff_1Hz; diff, 1 Hz; 19; 7; 0; 10; 20; 3.1e-14
+98; /data/20151106/bead1/monday/cant_sweep_yz_diff_7_1Hz_dg-5; dg = -5; 19; 7; 0; 10; 20; 3.1e-14
+99; /data/20151106/bead1/monday/cant_sweep_yz_diff_7_1Hz_dg-2; dg = -2; 19; 7; 0; 10; 20; 3.1e-14
+100; /data/20151106/bead1/monday/template_beta2e7_fixed; beta=2e7; 19; 7; 0; 10; 20; 3.1e-14
+101; /data/20151106/bead1/monday/template_beta2e7_fixed; beta=2e7; 19; 7; 0; 10; 20; 3.1e-14
+102; /data/20151106/bead1/tuesday/stage_off; Stage off; 19; 7; 0; 10; 20; 3.1e-14
+103; /data/20151106/bead1/tuesday/synth_drive_mons_unplugged; Mon. unplugged; 19; 7; 0; 10; 20; 3.1e-14
+104; /data/20151106/bead1/tuesday/different_plug; Different outlet; 19; 7; 0; 10; 20; 3.1e-14
+105; /data/20151106/bead1/tuesday/no_bead_no_touching; No bead, x railed; 19; 7; 0; 10; 20; 3.1e-14
+106; /data/20151106/bead1/tuesday/no_bead_red_off; No bead, red off; 19; 7; 0; 10; 20; 3.1e-14
+107; /data/20151106/bead1/tuesday/no_bead_red_on; No bead, red on; 19; 7; 0; 10; 20; 3.1e-14
+108; /data/20151106/bead1/tuesday/no_bead_red_on_1_5mbar; No bead, 1.5 mbar; 19; 7; 0; 10; 20; 3.1e-14
+
+109; /data/20151118/tests/ir_vibe_monitor_2; IR imaging; 19; 7; 0; 10; 20; 3.1e-14
+110; /data/20151118/tests/ir_vibe_monitor_3; IR imaging, 11/18; 19; 7; 0; 10; 20; 3.1e-14
+111; /data/20151118/bead1/IR_vibe_monitor; IR imaging, with Bead; 19; 7; 0; 10; 20; 3.1e-14
+
+
+## IR Vibration Monitor Testing
+112; /data/20151120/no_bead/cant_sweep1; 11/20; 19; 7; 0; 10; 20; 3.1e-14
+113; /data/20151120/no_bead/cant_sweep_0; 11/20 #2; 19; 7; 0; 10; 20; 3.1e-14
+114; /data/20151120/no_bead/cant_sweep_close_ap1; 11/20 Closed Ap; 19; 7; 0; 10; 20; 3.1e-14
+
+115; /data/20151120/no_bead/no_bead/cant_sweep_in20000_camera; in 20000; 19; 7; 0; 10; 20; 3.1e-14
+
+116; /data/20151120/no_bead2/cant_sweep_2; Usual dist; 19; 7; 0; 10; 29; 3.1e-14
+117; /data/20151120/no_bead2/cant_sweep_2_all_back; all back; 19; 7; 0; 10; 29; 3.1e-14
+118; /data/20151120/no_bead2/cant_sweep_2_in10000; in 10000; 19; 7; 0; 10; 29; 3.1e-14
+119; /data/20151120/no_bead2/cant_sweep_2_in20000; in 20000; 19; 7; 0; 10; 29; 3.1e-14
+119; /data/20151120/no_bead2/cant_sweep_2_in20000_camera; in 20000; 19; 7; 0; 10; 29; 3.1e-14
+120; /data/20151120/no_bead2/cant_sweep_2_in20000_camera2; in 20000; 19; 7; 0; 10; 29; 3.1e-14
+121; /data/20151120/no_bead2/cant_sweep_2_in20000_camera_blocked; blocked; 19; 7; 0; 10; 29; 3.1e-14
+
+
+
+
+
+### More IR Vibration Monitor Tests
+122; /data/20151123/no_bead/cant_sweep_in0; in 0; 19; 7; 0; 10; 29; 3.1e-14
+123; /data/20151123/no_bead/cant_sweep_in10000; in 10000; 19; 7; 0; 10; 29; 3.1e-14
+124; /data/20151123/no_bead/cant_sweep_in20000; in 20000; 19; 7; 0; 10; 29; 3.1e-14
+125; /data/20151123/no_bead/cant_sweep_in_usual_close; 80-40 um; 19; 7; 0; 10; 29; 3.1e-14
+126; /data/20151123/no_bead/cant_sweep_in_usual_far; 120-80 um; 19; 7; 0; 10; 29; 3.1e-14
+127; /data/20151123/no_bead/cant_sweep_back10000; back 10000; 19; 7; 0; 10; 29; 3.1e-14
+
+128; /data/20151123/no_bead/cant_sweep_noZlaser_in0; in 0, no Z; 19; 7; 0; 10; 29; 3.1e-14
+129; /data/20151123/no_bead/cant_sweep_noZlaser_in10000; in 10000, no Z; 19; 7; 0; 10; 29; 3.1e-14
+130; /data/20151123/no_bead/cant_sweep_noZlaser_in20000; in 20000, no Z; 19; 7; 0; 10; 29; 3.1e-14
+131; /data/20151123/no_bead/cant_sweep_noZlaser_in_usual_close; 80-40 um, no Z; 19; 7; 0; 10; 29; 3.1e-14
+132; /data/20151123/no_bead/cant_sweep_noZlaser_in_usual_far; 120-80 um, no Z; 19; 7; 0; 10; 29; 3.1e-14
+133; /data/20151123/no_bead/cant_sweep_noZlaser_back10000; back 10000, no Z; 19; 7; 0; 10; 29; 3.1e-14
+
+134; /data/20151123/no_bead2/cant_sweep_in0; in 0; 19; 7; 0; 10; 29; 3.1e-14
+135; /data/20151123/no_bead2/cant_sweep_noZlaser_in0; in 0, no Z; 19; 7; 0; 10; 29; 3.1e-14
+136; /data/20151123/no_bead2/cant_sweep_in10000; in 10000; 19; 7; 0; 10; 29; 3.1e-14
+137; /data/20151123/no_bead2/cant_sweep_noZlaser_in10000; in 10000, no Z; 19; 7; 0; 10; 29; 3.1e-14
+138; /data/20151123/no_bead2/cant_sweep_in12000; in 12000; 19; 7; 0; 10; 29; 3.1e-14
+139; /data/20151123/no_bead2/cant_sweep_noZlaser_in12000; in 12000, no Z; 19; 7; 0; 10; 29; 3.1e-14
+140; /data/20151123/no_bead2/cant_sweep_in14000; in 14000; 19; 7; 0; 10; 29; 3.1e-14
+141; /data/20151123/no_bead2/cant_sweep_noZlaser_in14000; in 14000, no Z; 19; 7; 0; 10; 29; 3.1e-14
+142; /data/20151123/no_bead2/cant_sweep_in16000; in 16000; 19; 7; 0; 10; 29; 3.1e-14
+143; /data/20151123/no_bead2/cant_sweep_noZlaser_in16000; in 16000, no Z; 19; 7; 0; 10; 29; 3.1e-14
+144; /data/20151123/no_bead2/cant_sweep_in18000; in 18000; 19; 7; 0; 10; 29; 3.1e-14
+145; /data/20151123/no_bead2/cant_sweep_noZlaser_in18000; in 18000, no Z; 19; 7; 0; 10; 29; 3.1e-14
+146; /data/20151123/no_bead2/cant_sweep_in20000; in 20000; 19; 7; 0; 10; 29; 3.1e-14
+147; /data/20151123/no_bead2/cant_sweep_noZlaser_in20000; in 20000, no Z; 19; 7; 0; 10; 29; 3.1e-14
+
+148; /data/20151123/no_bead3/cant_sweep_2_camera; stuff; 19; 7; 0; 10; 29; 3.1e-14
+149; /data/20151123/no_bead3/red_mod_camera; stuff; 19; 7; 0; 10; 29; 3.1e-14
+150; /data/20151123/no_bead3/red_mod_camera2; stuff; 19; 7; 0; 10; 29; 3.1e-14
+
+151; /data/20151123/no_bead3/cant_sweep_3_camera; Cant Sweep; 19; 7; 0; 10; 29; 3.1e-14
+152; /data/20151123/no_bead3/cant_sweep_long_0_camera; Cant Sweep; 19; 7; 0; 10; 29; 3.1e-14
+
+
+### Testing effect of X-position on vibration background
+153; /data/20151124/no_bead/vibe_test/cant_sweep_x0; x = 0; 19; 7; 0; 10; 29; 3.1e-14
+154; /data/20151124/no_bead/vibe_test/cant_sweep_x1; x = 1; 19; 7; 0; 10; 29; 3.1e-14
+155; /data/20151124/no_bead/vibe_test/cant_sweep_x2; x = 2; 19; 7; 0; 10; 29; 3.1e-14
+156; /data/20151124/no_bead/vibe_test/cant_sweep_x3; x = 3; 19; 7; 0; 10; 29; 3.1e-14
+157; /data/20151124/no_bead/vibe_test/cant_sweep_x4; x = 4; 19; 7; 0; 10; 29; 3.1e-14
+158; /data/20151124/no_bead/vibe_test/cant_sweep_x6; x = 6; 19; 7; 0; 10; 29; 3.1e-14
+159; /data/20151124/no_bead/vibe_test/cant_sweep_x8; x = 8; 19; 7; 0; 10; 29; 3.1e-14
+160; /data/20151124/no_bead/vibe_test/cant_sweep_x10; x = 10; 19; 7; 0; 10; 29; 3.1e-14
+
+161; /data/20151124/no_bead/vibe_test2/cant_sweep_x0; x = 0; 19; 7; 0; 10; 29; 3.1e-14
+162; /data/20151124/no_bead/vibe_test2/cant_sweep_x5; x = 5; 19; 7; 0; 10; 29; 3.1e-14
+163; /data/20151124/no_bead/vibe_test2/cant_sweep_x10; x = 10; 19; 7; 0; 10; 29; 3.1e-14
+
+
+## Vibration Background as a funtion of Sweep Direction
+164; /data/20151124/no_bead/vibe_test2/cant_sweep_X; X; 19; 7; 0; 10; 29; 3.1e-14
+165; /data/20151124/no_bead/vibe_test2/cant_sweep_Y; Y; 19; 7; 0; 10; 29; 3.1e-14
+166; /data/20151124/no_bead/vibe_test2/cant_sweep_Z; Z; 19; 7; 0; 10; 29; 3.1e-14
+
+167; /data/20151124/no_bead/chamber_open_stage_on_top2; Stage on top; 19; 7; 0; 10; 29; 3.1e-14
+168; /data/20151124/no_bead/chamber_open_stage_on_table; Stage on table; 19; 7; 0; 10; 29; 3.1e-14
+169; /data/20151124/no_bead/chamber_open_stage_on_table2; Stage on table, 2; 19; 7; 0; 10; 29; 3.1e-14
+
+170; /data/20151124/no_bead/chamber_open_stage_on_table2_mod_plugged; Mod Input; 19; 7; 0; 10; 29; 3.1e-14
+
+171; /data/20151201/no_bead/vibe_test/cant_blocked_light; Blocked Light; 19; 7; 0; 10; 29; 3.1e-14
+172; /data/20151201/no_bead/vibe_test/cant_blocked_light_back; Blocked Light, Back; 19; 7; 0; 10; 29; 3.1e-14
+173; /data/20151201/no_bead/vibe_test/cant_move_back10000; Back 10000; 19; 7; 0; 10; 29; 3.1e-14
+174; /data/20151201/no_bead/vibe_test/cant_move_back10000_long; Back 10000, long; 19; 7; 0; 10; 29; 3.1e-14
+175; /data/20151201/no_bead/vibe_test/cant_move_back10000_pumpeddown2; Back 10k, Pumped Down; 19; 7; 0; 10; 29; 3.1e-14
+
+
+
+
+200; /data/20160418/bead2/cantsweep_y; Whee; 18; 7; 0; 10; -40; 1.0e-13
+201; /data/20160418/bead2/cantsweep_y2; Whee; 18; 7; 0; 10; -40; 1.0e-13
+202; /data/20160418/bead2/cantsweep_y3; Whee; 18; 7; 0; 10; -40; 1.0e-13
+203; /data/20160418/bead2/cantsweep_y4; Whee; 18; 7; 0; 10; -40; 1.0e-13
+204; /data/20160418/bead2/cantsweep_y5; Whee; 18; 7; 0; 10; -40; 1.0e-13
+
+205; /data/20160418/bead2/cantsweep_Yfullthrow_variousZ; Whee; 18; 7; 0; 10; -40; 1.0e-13
+206; /data/20160418/bead2/cantsweep_Yfullthrow_12_7Hz_close; Whee; 18; 7; 0; 10; -40; 1.0e-13
+207; /data/20160418/bead2/cantsweep_Yfullthrow_12_7Hz_close_few; Whee; 18; 7; 0; 10; -40; 1.0e-13
+
+208; /data/20160418/bead2/cant_align/y40um_18_3Hz; Whee; 18; 7; 0; 10; -40; 1.0e-13
+
+209; /data/20160418/bead2/cant_align/y40um_18_3Hz_variousXoffset_2; Whee; 18; 7; 0; 10; -40; 1.0e-13
+210; /data/20160418/bead2/cant_align/y40um_18_3Hz_variousXoffset_1Vdc; Whee; 18; 7; 0; 10; -40; 1.0e-13
+
+211; /data/20160418/bead2/cant_align/z30um_18_3Hz_variousXoffset_5Vdc; Whee; 19; 7; 0; 10; -40; 1.0e-13
+
+212; /data/20160418/bead2/cant_align/z30um_18_3Hz_variousXoffset_3Vdc; Whee; 19; 7; 0; 10; 10; 1.0e-13
+213; /data/20160418/bead2/cant_align/z30um_18_3Hz_variousXoffset_3Vdc_2; Whee; 19; 7; 0; 10; 10; 1.0e-13
+214; /data/20160418/bead2/cant_align/z30um_18_3Hz_variousXoffset_3Vdc_3; Whee; 19; 7; 0; 10; 10; 1.0e-13
+
+215; /data/20160418/bead2/cant_align/yFull_18_3Hz_variousXoffset_2; Whee; 18; 7; 0; 10; -40; 1.0e-13
+216; /data/20160418/bead2/cant_align/yFull_18_3Hz_variousXoffset_1Vdc; Whee; 18; 7; 0; 10; -40; 1.0e-13
+
+217; /data/20160418/bead2/cant_align/yFull_18_3Hz_variousXoffset_5Vdc; Whee; 18; 7; 0; 10; -40; 1.0e-13
+
+218; /data/20160418/bead2/cant_align_2/yFull_18_3Hz_variousXoffset_0Vdc; Whee; 18; 7; 0; 10; -40; 1.0e-13
+219; /data/20160418/bead2/cant_align_2/yFull_18_3Hz_variousXoffset_5Vdc; Whee; 18; 7; 0; 10; -40; 1.0e-13
+
+220; /data/20160418/bead2/cant_align_2/yFull_18_3Hz_variousXoffset_0Vdc_2; Whee; 18; 7; 0; 10; -40; 1.0e-13
+221; /data/20160418/bead2/cant_align_2/yFull_18_3Hz_variousXoffset_5Vdc_2; Whee; 18; 7; 0; 10; -40; 1.0e-13
+
+221; /data/20160418/bead2/cant_align_2/yFull_18_3Hz_variousDC; Whee; 18; 7; 0; 10; -40; 1.0e-13
+222; /data/20160418/bead2/cant_align_2/yFull_18_3Hz_variousDC_2; Whee; 18; 7; 0; 10; -40; 1.0e-13
+
+223; /data/20160418/bead2/cant_align_2/yFull_18_3Hz_variousDC_long; Whee; 18; 7; 0; 10; -40; 1.0e-13
+224; /data/20160418/bead2/cant_align_2/yFull_18_3Hz_variousDC_z5um; Whee; 18; 7; 0; 10; -40; 1.0e-13
+225; /data/20160418/bead2/cant_align_2/yFull_18_3Hz_variousDC_z2_5um; Whee; 18; 7; 0; 10; -40; 1.0e-13
+
+226; /data/20160418/bead2/cant_align_2/yFull_18_3Hz_5Vdc_zosc; Whee; 18; 7; 0; 10; -40; 1.0e-13
+
+227; /data/20160418/bead2/cant_align_2/yFull_18_3Hz_z3_5um_variousDC; Whee; 18; 7; 0; 10; -40; 1.0e-13
+
+228; /data/20160418/bead2/cant_align_2/yFull_18_3Hz_z3_5um_xosc_2; Whee; 18; 7; 0; 10; -40; 1.0e-13
+
+229; /data/20160418/bead2/cant_align_2/yFull_18_3Hz_z3_5um_xosc_3; Whee; 18; 7; 0; 10; -40; 1.0e-13
+
+230; /data/20160418/bead2/cant_align_2/yFull_18_3Hz_z3_5um_x1_25um_0Vdc; Whee; 18; 7; 0; 10; -40; 1.0e-13
+
+231; /data/20160429/nobead/yFull_18_3Hz_x0um_z0um_variousZ; Whee; 18; 7; 0; 10; -40; 1.0e-13
+232; /data/20160429/nobead/yFull_18_3Hz_x1_25um_z3_5um_variousZ; Whee; 18; 7; 0; 10; -40; 1.0e-13
+
+233; /data/20160502/bead1/zsweep; Whee; 19; 7; 0; 10; -40; 1.0e-13
+
+234; /data/20160502/bead1/zsweep2; Whee; 19; 7; 0; 10; 20; 1.0e-13
 
 
