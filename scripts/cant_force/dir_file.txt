@@ -316,3 +316,21 @@
 248; /data/20160329/bead1/recenter/cant_sweep_60um_cal; 13.3 Hz; 19; 7; 0; 10; 60; 1e-13
 249; /data/20160329/bead1/recenter/cant_sweep_100um_cal; 13.3 Hz; 19; 7; 0; 10; 100; 1e-13
 250; /data/20160329/bead1/recenter/cant_sweep_150um_cal; 13.3 Hz; 19; 7; 0; 10; 150; 1e-13
+
+
+251; /data/20160329/bead1/recenter/cant_sweep_20um; 13.3 Hz; 19; 7; 0; 10; 20; 5e-14
+252; /data/20160329/bead1/recenter/cant_sweep_60um; 13.3 Hz; 19; 7; 0; 10; 60; 5e-14
+253; /data/20160329/bead1/recenter/cant_sweep_100um; 13.3 Hz; 19; 7; 0; 10; 100; 5e-14
+254; /data/20160329/bead1/recenter/cant_sweep_150um; 13.3 Hz; 19; 7; 0; 10; 150; 5e-14
+
+
+255; /data/20160329/bead1/recenter/cant_sweep_20um_2; 13.3 Hz; 19; 7; 0; 10; 20; 5e-14
+256; /data/20160329/bead1/recenter/cant_sweep_60um_2; 13.3 Hz; 19; 7; 0; 10; 60; 5e-14
+257; /data/20160329/bead1/recenter/cant_sweep_100um_2; 13.3 Hz; 19; 7; 0; 10; 100; 5e-14
+258; /data/20160329/bead1/recenter/cant_sweep_150um_2; 13.3 Hz; 19; 7; 0; 10; 150; 5e-14
+
+
+259; /data/20160329/bead1/recenter/cant_sweep_20um_3; 13.3 Hz; 19; 7; 0; 10; 20; 5e-14
+260; /data/20160329/bead1/recenter/cant_sweep_60um_3; 13.3 Hz; 19; 7; 0; 10; 60; 5e-14
+261; /data/20160329/bead1/recenter/cant_sweep_100um_3; 13.3 Hz; 19; 7; 0; 10; 100; 5e-14
+262; /data/20160329/bead1/recenter/cant_sweep_150um_3; 13.3 Hz; 19; 7; 0; 10; 150; 5e-14

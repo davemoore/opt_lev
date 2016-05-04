@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import glob
 import cPickle as pickle
 import copy
+import scipy.signal as sig
 
 #Define functions and classes for use processing and fitting data.
 def thermal_psd_spec(f, A, f0, g, n, s):
@@ -50,22 +51,28 @@ class Fit:
             self.errs = "Fit failed"
         self.fun = fun
 
-    def plt_fit(self, xdata, ydata, ax, scale = 'linear', xlabel = 'X', ylabel = 'Y'):
+    def plt_fit(self, xdata, ydata, ax, scale = 'linear', xlabel = 'X', ylabel = 'Y', errors = []):
         xdata, ydata = sort_pts(xdata, ydata)
         #modifies an axis object to plot the fit.
-        ax.plot(xdata, ydata, 'o')
-        ax.plot(xdata, self.fun(xdata, *self.popt), 'r', linewidth = 3)
+        if len(errors):
+            ax.errorbar(xdata, ydata, errors, fmt = 'o')
+            ax.plot(xdata, self.fun(xdata, *self.popt), 'r', linewidth = 3)
+
+        else:    
+            ax.plot(xdata, ydata, 'o')
+            ax.plot(xdata, self.fun(xdata, *self.popt), 'r', linewidth = 3)
+
         ax.set_yscale(scale)
         #ax.set_xscale(scale)
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
         ax.set_xlim([np.min(xdata), np.max(xdata)])
     
-    def plt_residuals(self, xdata, ydata, ax, scale = 'linear', xlabel = 'X', ylabel = 'Residual', label = '', errs = []):
+    def plt_residuals(self, xdata, ydata, ax, scale = 'linear', xlabel = 'X', ylabel = 'Residual', label = '', errors = []):
         #modifies an axis object to plot the residuals from a fit.
         xdata, ydata = sort_pts(xdata, ydata)
-        if errs:
-            ax.errorbar(xdata, self.fun(xdata, *self.popt) - ydata, fmt = 'o')
+        if len(errors):
+            ax.errorbar(xdata, self.fun(xdata, *self.popt) - ydata, errors, fmt = 'o')
         else:
             
             ax.plot(xdata, (self.fun(xdata, *self.popt) - ydata), 'o')
@@ -126,13 +133,13 @@ def get_h5files(dir):
     files = sorted(files, key = bu.find_str)
     return files
 
-def pos_loader(fname, sep):
+def pos_loader(fname, sep, cant_axis = 2):
     #Generate all of the position attibutes of interest for a single file. Returns a Data_file object.
     print "Processing: ", fname
     fobj = Data_file()
     fobj.load(fname, sep)
     fobj.ms()
-    fobj.spatial_bin()
+    fobj.spatial_bin(cant_axis = cant_axis)
     fobj.close_dat()
     return fobj
 
@@ -146,7 +153,27 @@ def H_loader(fname, sep):
     fobj.close_dat()
     return fobj
 
-
+def sb_loader(fname, sep = [0,0,0], col = 1, find = 16):
+    #loads the spacings between the drive frequency and the sidebands
+    fobj = Data_file()
+    fobj.load(fname, sep)
+    fobj.ms()
+    fobj.psd()
+    b, a = sig.butter(4, 0.1, btype = 'high')
+    psd = sig.filtfilt(b, a, np.ravel(fobj.psds[col]))
+    f = fobj.psd_freqs
+    df = fobj.electrode_settings[find]
+    find = np.argmin((f - df)**2)
+    lpsd = psd[:find]
+    lf = f[:find]
+    hpsd = psd[find:2*find]
+    hf = -f[find:2*find] + 2.*df
+    #plt.plot(lf, lpsd*hpsd)
+    #plt.plot(hf, hpsd)
+    #plt.plot(f[:find], rdpsd[:find]*(rdpsd[find:2*find][::-1]))
+    #plt.plot(f, psd, 'o', markersize = 3)
+    #plt.show()
+    return fobj
 
 #define a class with all of the attributes and methods necessary for processing a single data file to 
     
@@ -179,7 +206,7 @@ class Data_file:
         self.psd_freqs = "psd freqs not computed"
         self.thermal_cal = "Thermal calibration not computed"
         self.H = "bead electrode transfer function not computed"
-
+        self.sb_spacing = "sideband spacing not computed."
 
     def load(self, fstr, sep, cant_cal = 8., stage_travel = 80., cut_samp = 2000):
         #Methods to load the attributes from a single data file. sep is a vector of the distances of closes approach for each direction ie. [xsep, ysep, zsep] 
@@ -214,24 +241,25 @@ class Data_file:
         ms = lambda vec: vec - np.mean(vec)
         self.pos_data  = map(ms, self.pos_data)
 
-    def spatial_bin(self, bin_size = 0.5, cant_axis = 2):
+    def spatial_bin(self, bin_sizes = [.1, 10., .1], cant_axis = 2):
         #Method for spatially binning data based on stage z  position.
         
-        self.binned_cant_data = [[], [], []]
-        self.binned_pos_data = [[], [], []]
-        self.binned_data_errors = [[], [], []]
+        self.binned_cant_data = [[[], [], []], [[], [], []], [[], [], []]]
+        self.binned_pos_data = [[[], [], []], [[], [], []], [[], [], []]]
+        self.binned_data_errors = [[[], [], []], [[], [], []], [[], [], []]]
 
-        for i, v in enumerate(self.pos_data): 
-            bins, y_binned, y_errors = sbin(self.cant_data[cant_axis], v, bin_size)
-            self.binned_cant_data[i] = bins
-            self.binned_pos_data[i] = y_binned 
-            self.binned_data_errors[i] = y_errors 
+        for i, v in enumerate(self.pos_data):
+            for j, pv in enumerate(self.cant_data):
+                bins, y_binned, y_errors = sbin(self.cant_data[j], v, bin_sizes[j])
+                self.binned_cant_data[i][j] = bins
+                self.binned_pos_data[i][j] = y_binned 
+                self.binned_data_errors[i][j] = y_errors 
         
         self.binned_cant_data = np.array(self.binned_cant_data)
         self.binned_pos_data = np.array(self.binned_pos_data)
         self.binned_data_errors = np.array(self.binned_data_errors)
 
-    def psd(self, NFFT = 2**12):
+    def psd(self, NFFT = 2**16):
         #uses matplotlib mlab psd to take a psd of the microsphere position data.
         psder = lambda v: matplotlib.mlab.psd(v, NFFT = NFFT, Fs = self.Fsamp)[0]
         self.psds = np.array(map(psder, self.pos_data))
@@ -273,6 +301,10 @@ class Data_file:
         find = np.argmin(np.abs(freq - self.fft_freqs)) #index corresponding to freq
         self.H = self.data_fft[resp_axis][find]/dfft[find]
 
+    def plt_psd(self, col = 1):
+        #plots psd
+        #b, a = sig.butter(4, 0.01, btype = 'highpass')
+        plt.loglog(self.psd_freqs, self.psds[col], label = str(self.electrode_settings[24]))
 
     def close_dat(self, p = True, psd = True, ft = True, elecs = True):
         #Method to reinitialize the values of some lage attributes to avoid running out of memory.
@@ -314,7 +346,7 @@ class Data_dir:
     def load_dir(self, loadfun):
         #Extracts information from the files using the function loadfun which return a Data_file object given a separation and a filename.
         l = lambda fname: loadfun(fname, self.sep)
-        self.fobjs = map(l, self.files)
+        self.fobjs = map(l, self.files[:10:1])
 
     def force_v_p(self):
         #Calculates the force vs position for all of the files in the data directory.
