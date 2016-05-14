@@ -774,17 +774,17 @@ def load_dir_file( f ):
         
         lparts = l.split(";")
         
-        if( len( lparts ) < 8 ):
+        if( len( lparts ) < 4 ):
             continue
 
-        idx = lparts[0]
-        out_dict[idx] = [lparts[1].strip(), lparts[2].strip(), int(lparts[3]), int(lparts[4]), int(lparts[5]), int(lparts[6]), int(lparts[7]), float(lparts[8])]
+        idx = int(lparts[0])
+        out_dict[idx] = [lparts[1].strip(), lparts[2].strip(), int(lparts[3]), float(lparts[4])]
 
     return out_dict
 
 def data_list_to_dict( d ):
     out_dict = {"path": d[0], "label": d[1], "drive_idx": d[2],
-                "calib_fac": d[7]}
+                "calib_fac": d[4]}
     return out_dict
 
 

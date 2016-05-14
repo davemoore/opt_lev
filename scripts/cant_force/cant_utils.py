@@ -112,7 +112,6 @@ def thermal_fit(psd, freqs, fit_freqs = [10., 400.], kelvin = 300., fudge_fact =
     f = Fit(popt, pcov, thermal_psd_spec)
     return f
 
-
 def sbin(xvec, yvec, bin_size):
     #Bins yvec based on binning xvec into bin_size
     fac = 1./bin_size
@@ -127,19 +126,47 @@ def sbin(xvec, yvec, bin_size):
         y_errors[i] = scipy.stats.sem(yvec[idx])
     return bins, y_binned, y_errors
 
+def sbin_pn(xvec, yvec, bin_size, vel_mult = 0.):
+    #Bins yvec based on binning xvec into bin_size for velocities*vel_mult>0.
+    fac = 1./bin_size
+    bins_vals = np.around(fac*xvec)
+    bins_vals /= fac
+    bins = np.unique(bins_vals)
+    y_binned = np.zeros_like(bins)
+    y_errors = np.zeros_like(bins)
+    if vel_mult:
+        vb = np.gradient(xvec)*vel_mult>0.
+        yvec2 = yvec[vb]
+    else:
+        vb = yvec == yvec
+        yvec2 = yvec
+
+    for i, b in enumerate(bins):
+        idx = bins_vals[vb] == b
+        y_binned[i] = np.mean(yvec2[idx])
+        y_errors[i] = scipy.stats.sem(yvec2[idx])
+    return bins, y_binned, y_errors
+
 
 def get_h5files(dir):
     files = glob.glob(dir + '/*.h5') 
     files = sorted(files, key = bu.find_str)
     return files
 
-def pos_loader(fname, sep, cant_axis = 2):
+def simple_loader(fname, sep):
+    print "Processing: ", fname
+    fobj = Data_file()
+    fobj.load(fname, sep)
+    fobj.close_dat(elecs=False)
+    return fobj
+
+def pos_loader(fname, sep):
     #Generate all of the position attibutes of interest for a single file. Returns a Data_file object.
     print "Processing: ", fname
     fobj = Data_file()
     fobj.load(fname, sep)
     fobj.ms()
-    fobj.spatial_bin(cant_axis = cant_axis)
+    fobj.spatial_bin()
     fobj.close_dat()
     return fobj
 
@@ -148,8 +175,7 @@ def H_loader(fname, sep):
     print "Processing: ", fname
     fobj = Data_file()
     fobj.load(fname, sep)
-    freq = fobj.electrode_settings[19]
-    fobj.find_H(freq)
+    fobj.find_H()
     fobj.close_dat()
     return fobj
 
@@ -177,6 +203,21 @@ def sb_loader(fname, sep = [0,0,0], col = 1, find = 16):
 
 #define a class with all of the attributes and methods necessary for processing a single data file to 
     
+
+class Hmat:
+    #this class holds transfer matricies between electrode drives and bead response.
+    def __init__(self, finds, electrodes, Hmats):
+        self.finds = finds #Indicies of frequences where there is an electrode being driven above threshold 
+        self.electrodes = electrodes #the electrodes where there is statistically significant signal
+        self.Hmats = Hmats #Transfer matrix at the frequencies 
+
+    def get_3by3_matrix(self):
+        # from the full 3x7 transfer matrix, return appropriate 3x3
+        return
+
+
+
+
 
 class Data_file:
     #This is a class with all of the attributes and methods for a single data file.
@@ -208,7 +249,8 @@ class Data_file:
         self.H = "bead electrode transfer function not computed"
         self.sb_spacing = "sideband spacing not computed."
 
-    def load(self, fstr, sep, cant_cal = 8., stage_travel = 80., cut_samp = 2000):
+    def load(self, fstr, sep, cant_cal = 8., stage_travel = 80., cut_samp = 2000, \
+             elec_inds = [8, 9, 10, 12, 13, 14, 15]):
         #Methods to load the attributes from a single data file. sep is a vector of the distances of closes approach for each direction ie. [xsep, ysep, zsep] 
         dat, attribs, f = bu.getdata(fstr)
         
@@ -236,24 +278,43 @@ class Data_file:
 
         f.close()
 
+    def get_stage_settings(self, axis=2):
+        if axis == 0:
+            mask = np.array([1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0], dtype=bool)
+        elif axis == 1:
+            mask = np.array([0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0], dtype=bool)
+        elif axis == 2:
+            mask = np.array([0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1], dtype=bool)
+
+        return self.stage_settings[mask]
+
+
     def ms(self):
         #mean subtracts the position data.
         ms = lambda vec: vec - np.mean(vec)
         self.pos_data  = map(ms, self.pos_data)
 
-    def spatial_bin(self, bin_sizes = [.1, 10., .1], cant_axis = 2):
+    def spatial_bin(self, bin_sizes = [1., 1., 4.], cant_axis = 2):
         #Method for spatially binning data based on stage z  position.
         
-        self.binned_cant_data = [[[], [], []], [[], [], []], [[], [], []]]
-        self.binned_pos_data = [[[], [], []], [[], [], []], [[], [], []]]
-        self.binned_data_errors = [[[], [], []], [[], [], []], [[], [], []]]
+        self.binned_cant_data = [[[[], [], []], [[], [], []], [[], [], []]], \
+                                 [[[], [], []], [[], [], []], [[], [], []]], \
+                                 [[[], [], []], [[], [], []], [[], [], []]]] 
+        self.binned_pos_data = [[[[], [], []], [[], [], []], [[], [], []]], \
+                                [[[], [], []], [[], [], []], [[], [], []]], \
+                                [[[], [], []], [[], [], []], [[], [], []]]]
+        self.binned_data_errors = [[[[], [], []], [[], [], []], [[], [], []]], \
+                                   [[[], [], []], [[], [], []], [[], [], []]], \
+                                   [[[], [], []], [[], [], []], [[], [], []]]]
 
         for i, v in enumerate(self.pos_data):
             for j, pv in enumerate(self.cant_data):
-                bins, y_binned, y_errors = sbin(self.cant_data[j], v, bin_sizes[j])
-                self.binned_cant_data[i][j] = bins
-                self.binned_pos_data[i][j] = y_binned 
-                self.binned_data_errors[i][j] = y_errors 
+                for si in np.arange(-1, 2, 1):
+                    bins, y_binned, y_errors = \
+                            sbin_pn(self.cant_data[j], v, bin_sizes[j], vel_mult = si)
+                    self.binned_cant_data[si][i][j] = bins
+                    self.binned_pos_data[si][i][j] = y_binned 
+                    self.binned_data_errors[si][i][j] = y_errors 
         
         self.binned_cant_data = np.array(self.binned_cant_data)
         self.binned_pos_data = np.array(self.binned_pos_data)
@@ -292,14 +353,25 @@ class Data_file:
             plt.show()
 
     
-    def find_H(self, freq, d_axis = 4, resp_axis = 1):
+    def find_H(self, dpsd_thresh = 1e-2, mfreq = 1.):
         #Finds the phase lag between the electrode drive and the respose at a given frequency.
         #check to see if fft has been computed. Comput if not
         if type(self.data_fft) == str:
             self.get_fft()
-        dfft = np.fft.rfft(self.electrode_data[d_axis]) #fft of electrode drive in daxis.   
-        find = np.argmin(np.abs(freq - self.fft_freqs)) #index corresponding to freq
-        self.H = self.data_fft[resp_axis][find]/dfft[find]
+        
+        
+        dfft = np.fft.rfft(self.electrode_data) #fft of electrode drive in daxis. 
+        
+        N = np.shape(self.pos_data)[1]#number of samples
+        dpsd = np.abs(dfft)**2*2./(N*self.Fsamp) #psd for all electrode drives
+        
+        inds = np.where(dpsd>dpsd_thresh)#Where the dpsd is over the threshold for being used.
+        Hmatst = np.einsum('ij, kj->ikj', self.data_fft, 1./dfft) #transfer matrix between electrodes and bead motion for all frequencies
+        finds = inds[1] #frequency index with significant drive
+        cinds = inds[0] #colun index with significant drive
+        b = finds>np.argmin(np.abs(self.fft_freqs - mfreq))
+        self.H = Hmat(finds[b], cinds[b], Hmatst[:, :, finds[b]])
+
 
     def plt_psd(self, col = 1):
         #plots psd
@@ -337,8 +409,9 @@ class Data_dir:
         self.thermal_calibration = "No thermal calibration"
         self.charge_step_calibration = "No charge step calibration"
         self.ave_force_vs_pos = "Average force vs position not computed"
+        self.ave_pressure = 'pressures not loaded'
         self.path = path
-        self.out_path = path.replace("/data/","/home/arider/analysis/")
+        self.out_path = path.replace("/data/","/home/charles/analysis/")
         if len(self.files) == 0:
             print "Warning: empty directory"
 
@@ -346,7 +419,9 @@ class Data_dir:
     def load_dir(self, loadfun):
         #Extracts information from the files using the function loadfun which return a Data_file object given a separation and a filename.
         l = lambda fname: loadfun(fname, self.sep)
-        self.fobjs = map(l, self.files[:10:1])
+        self.fobjs = map(l, self.files)
+        per = lambda fobj: fobj.pressures
+        self.ave_pressure = np.mean(map(per, self.fobjs), axis = 0) 
 
     def force_v_p(self):
         #Calculates the force vs position for all of the files in the data directory.
@@ -357,12 +432,12 @@ class Data_dir:
         #self.load_dir(pos_loader)
         
     
-    def avg_force_v_p(self, axis = 1, bin_size = 0.5, cant_indx = 24):
+    def avg_force_v_p(self, axis = 2, bin_size = 0.5, cant_indx = 24):
         #Averages force vs positon over files with the same potential. Returns a list of average force vs position for each cantilever potential in the directory.
         if type(self.fobjs) == str:
             self.load_dir(pos_loader)
         
-        extractor = lambda fobj: [fobj.binned_cant_data[axis], fobj.binned_pos_data[axis], fobj.electrode_settings[cant_indx]] #extracts [cant data, pos data, cant voltage]
+        extractor = lambda fobj: [fobj.binned_cant_data[axis, 2], fobj.binned_pos_data[axis,2], fobj.electrode_settings[cant_indx]] #extracts [cant data, pos data, cant voltage]
         
         extracted = np.array(map(extractor, self.fobjs))
         self.ave_force_vs_pos = {}
@@ -371,7 +446,7 @@ class Data_dir:
             xout, yout, yerrs = sbin(np.hstack(extracted[boolv, 0]), np.hstack(extracted[boolv, 1]), bin_size)
             self.ave_force_vs_pos[str(v)] =  [xout, yout, yerrs]
 
-    def H_vec(self):
+    def H_vec(self, pcol = 1, ecol = 3):
         #Generates an array of Hs for the whole directory.
         #First check to make sure files are loaded and H is computed.
         if type(self.fobjs) == str: 
@@ -380,7 +455,7 @@ class Data_dir:
         if type(self.fobjs[0].H) == str:
             self.load_dir(H_loader)
             
-        Her = lambda fobj: fobj.H
+        Her = lambda fobj: np.mean(fobj.H.Hmats[pcol, ecol, :], axis = 0)
         self.Hs = map(Her, self.fobjs)
         
     def step_cal(self, dir_obj, n_phi = 140, plate_sep = 0.004, amp_gain = 200.):
@@ -392,7 +467,7 @@ class Data_dir:
         phi = np.mean(np.angle(dir_obj.Hs[0:n_phi])) #measure the phase angle from the first n_phi samples.
         yfit =  np.abs(dir_obj.Hs)*np.cos(np.angle(dir_obj.Hs) - phi)
         plt.plot(yfit, 'o')
-        plt.show()
+        plt.show(hold=False)
         nstep = input("Enter guess at number of steps and charge at steps [[q1, q2, q3, ...], [x1, x2, x3, ...], vpq]: ")
         
         #function for fit with volts per charge as only arg.
