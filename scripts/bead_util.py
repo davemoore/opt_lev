@@ -778,7 +778,12 @@ def load_dir_file( f ):
             continue
 
         idx = int(lparts[0])
-        out_dict[idx] = [lparts[1].strip(), lparts[2].strip(), int(lparts[3]), float(lparts[4])]
+        dirs = lparts[1].split(',')
+        dirs_list = []
+        for cdir in dirs:
+            dirs_list.append(cdir.strip())
+
+        out_dict[idx] = [dirs_list, lparts[2].strip(), int(lparts[3]), float(lparts[4])]
 
     return out_dict
 

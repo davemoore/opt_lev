@@ -188,7 +188,7 @@ def oset_correct(ave_f_dicts):
     return out_dict
 
 def step_cal(dir_objs, step_indx = 0):
-    #Charge step calibration to get from voltage to force units.
+    #Charge step calibratioon to get from voltage to force units.
     dir_objs[step_indx].step_cal(dir_objs[step_indx])
     print dir_objs[step_indx].charge_step_calibration.popt
 

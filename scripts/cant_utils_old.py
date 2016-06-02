@@ -176,7 +176,7 @@ def H_loader(fname, sep):
     fobj = Data_file()
     fobj.load(fname, sep)
     fobj.find_H()
-    fobj.close_dat(ft=False)
+    fobj.close_dat()
     return fobj
 
 def sb_loader(fname, sep = [0,0,0], col = 1, find = 16):
@@ -211,10 +211,10 @@ class Hmat:
         self.electrodes = electrodes #the electrodes where there is statistically significant signal
         self.Hmats = Hmats #Transfer matrix at the frequencies 
 
-
     def get_3by3_matrix(self):
         # from the full 3x7 transfer matrix, return appropriate 3x3
         return
+
 
 
 
@@ -247,7 +247,6 @@ class Data_file:
         self.psd_freqs = "psd freqs not computed"
         self.thermal_cal = "Thermal calibration not computed"
         self.H = "bead electrode transfer function not computed"
-        self.Hfreq = "transfer function not computed"
         self.sb_spacing = "sideband spacing not computed."
 
     def load(self, fstr, sep, cant_cal = 8., stage_travel = 80., cut_samp = 2000, \
@@ -274,9 +273,8 @@ class Data_file:
         
         #Data vectors and their transforms
         self.pos_data = np.transpose(dat[:, 0:3]) #x, y, z bead position
-        #self.pos_data = np.transpose(dat[:,[elec_inds[1],elec_inds[3],elec_inds[5]]])
         self.cant_data = np.transpose(np.resize(sep, np.shape(np.transpose(self.pos_data)))) + stage_travel - np.transpose(dat[:, 17:20])*cant_cal
-        self.electrode_data = np.transpose(dat[:, elec_inds]) #Record of voltages on the electrodes
+        self.electrode_data = np.transpose(dat[:, 8:16]) #Record of voltages on the electrodes
 
         f.close()
 
@@ -355,11 +353,12 @@ class Data_file:
             plt.show()
 
     
-    def find_H(self, dpsd_thresh = 2e-2, mfreq = 1.):
+    def find_H(self, dpsd_thresh = 1e-2, mfreq = 1.):
         #Finds the phase lag between the electrode drive and the respose at a given frequency.
         #check to see if fft has been computed. Comput if not
         if type(self.data_fft) == str:
-            self.get_fft()        
+            self.get_fft()
+        
         
         dfft = np.fft.rfft(self.electrode_data) #fft of electrode drive in daxis. 
         
@@ -368,66 +367,10 @@ class Data_file:
         
         inds = np.where(dpsd>dpsd_thresh)#Where the dpsd is over the threshold for being used.
         Hmatst = np.einsum('ij, kj->ikj', self.data_fft, 1./dfft) #transfer matrix between electrodes and bead motion for all frequencies
-
-        # Here we assume only one electrode of drive per file
-        cind = np.unique(inds[0])[0]
-
         finds = inds[1] #frequency index with significant drive
-
-        drive_freq_inds = []
-
-        curr_ind = finds[0]
-        temp_inds = []
-        temp_inds.append(curr_ind)
-
-        psd = dpsd[cind].flatten()
-
-        for i in range(len(finds[1:])):
-            ind = finds[i+1]
-            if ind - curr_ind < 5.5:
-                temp_inds.append(ind)
-                curr_ind = ind
-            else:
-                if len(temp_inds) > 2:
-                    temp_inds = np.array(temp_inds)
-                    max_ind = np.argmax(psd[temp_inds]) + temp_inds[0]
-                    drive_freq_inds.append(max_ind)
-                curr_ind = ind
-                temp_inds = []
-                temp_inds.append(curr_ind)
-
-        max_ind = np.argmax(psd[temp_inds]) + temp_inds[0]
-        drive_freq_inds.append(max_ind)
-
-        cinds = np.zeros(len(drive_freq_inds)) + cind
-
-        voltage = self.electrode_settings[8 + cind]
-        fac = (voltage / 0.004) * 1 # add in charge_step cal
-        
-        # Code left in a form easy to change to multiple freqs
-        Hfreqs = []
-        Hfreqs.append(self.electrode_settings[16 + cind])
-        self.Hfreq = Hfreqs
-
-        #b = finds>np.argmin(np.abs(self.fft_freqs - mfreq))
-
-        Hout = Hmatst[:,:,drive_freq_inds]
-
-        for i in range(len(drive_freq_inds)):
-            ind = drive_freq_inds[i]
-            Htemp = np.einsum('ijk->ij', Hmatst[:,:,[ind-1,ind,ind+1]]) / 3.
-            Hout[:,:,i] = Htemp
-
-        self.H = Hmat(drive_freq_inds, cinds, Hmatst[:,:,drive_freq_inds])
-
-
-
-    def show_Hmat(self):
-        finds = self.H.finds
-        cinds = self.H.electrodes
-        freqs = self.fft_freqs[finds]
-        for i in range(len(freqs)):
-            print cinds[i], freqs[i], self.H.Hmats[:,:,i]
+        cinds = inds[0] #colun index with significant drive
+        b = finds>np.argmin(np.abs(self.fft_freqs - mfreq))
+        self.H = Hmat(finds[b], cinds[b], Hmatst[:, :, finds[b]])
 
 
     def plt_psd(self, col = 1):
@@ -458,20 +401,16 @@ class Data_file:
 class Data_dir:
     #Holds all of the information from a directory of data files.
 
-    def __init__(self, paths, sep):
-        all_files = []
-        for path in paths:
-            all_files =  (all_files + get_h5files(path))[:]
-        self.files = sorted(all_files, key = bu.find_str)
+    def __init__(self, path, sep):
+        self.files = get_h5files(path)
         self.sep = sep
         self.fobjs = "Files not loaded"
         self.Hs = "Transfer functions not loaded"
-        self.Hfreqs = "Frequencies not computed"
         self.thermal_calibration = "No thermal calibration"
         self.charge_step_calibration = "No charge step calibration"
         self.ave_force_vs_pos = "Average force vs position not computed"
         self.ave_pressure = 'pressures not loaded'
-        self.paths = paths
+        self.path = path
         self.out_path = path.replace("/data/","/home/charles/analysis/")
         if len(self.files) == 0:
             print "Warning: empty directory"
@@ -518,108 +457,6 @@ class Data_dir:
             
         Her = lambda fobj: np.mean(fobj.H.Hmats[pcol, ecol, :], axis = 0)
         self.Hs = map(Her, self.fobjs)
-
-    
-    def build_uncalibrated_H(self):
-        # Loop over file objects and construct a dictionary with frequencies 
-        # as keys and 3x3 transfer matrices as values
-        if type(self.fobjs) == str:
-            self.load_dir(H_loader)
-
-        def emap(eind):
-            # map from electrode number to data axis
-            if eind == 1 or eind == 2:
-                return 2
-            elif eind == 3 or eind == 4:
-                return 1
-            elif eind == 5 or eind == 6:
-                return 0
-
-        Hout = {}
-        
-        Hfreqs = []
-        for obj in self.fobjs:
-            einds = obj.H.electrodes
-            finds = obj.H.finds
-            freqs = obj.Hfreq
-            
-            for i in range(len(freqs)):
-                Hfreqs.append(freqs[i])
-                if freqs[i] not in Hout:
-                    Hout[freqs[i]] = np.zeros((3,3), dtype=np.complex128)
-        
-                outind = emap(einds[i])
-                Hout[freqs[i]][:,outind] = obj.H.Hmats[:,einds[i],i]
-
-        self.Hfreqs = Hfreqs
-        self.Hs = Hout
-
-
-
-
-
-    def calibrate_H(self):
-        return
-
-
-
-
-
-    def build_avgH(self, fthresh = 150):
-        # average over frequencies f < 0.5*f_natural
-        if type(self.Hs) == str:
-            self.build_uncalibrated_H()
-
-        keys = self.Hs.keys()
-
-        mats = []
-        for key in keys:
-            if key < fthresh:
-                mats.append(self.Hs[key])
-
-        mats = np.array(mats)
-        return np.mean(mats, axis=0)
-
-        
-
-
-    def plot_H(self, phase=False):
-        # plot all the transfer functions
-
-        if type(self.Hs) == str:
-            print "need to build H's first..."
-            self.build_uncalibrated_H()
-
-        keys = self.Hs.keys()
-        keys.sort()
-
-        mats = []
-        for freq in keys:
-            mats.append(self.Hs[freq])
-
-        mats = np.array(mats)
-        for drive in [0,1,2]:
-            plt.figure()
-            plt.title("Drive in %i Direction"%drive)
-            for response in [0,1,2]:
-                plt.subplot(3,1,response+1)
-                plt.loglog(keys, np.abs(mats[:,drive,response]))
-            plt.xlabel("Frequency [Hz]")
-
-        if phase:
-            for drive in [0,1,2]:
-                plt.figure()
-                plt.title("Drive in %i Direction"%drive)
-                for response in [0,1,2]:
-                    plt.subplot(3,1,response+1)
-                    plt.semilogx(keys, np.angle(mats[:,drive,response]))
-                plt.xlabel("Frequency [HZ]")
-        
-
-        plt.show()
-
-                
-
         
     def step_cal(self, dir_obj, n_phi = 140, plate_sep = 0.004, amp_gain = 200.):
         #Produce a conversion between voltage and force given a directory with single electron steps.
@@ -630,7 +467,7 @@ class Data_dir:
         phi = np.mean(np.angle(dir_obj.Hs[0:n_phi])) #measure the phase angle from the first n_phi samples.
         yfit =  np.abs(dir_obj.Hs)*np.cos(np.angle(dir_obj.Hs) - phi)
         plt.plot(yfit, 'o')
-        plt.show()
+        plt.show(hold=False)
         nstep = input("Enter guess at number of steps and charge at steps [[q1, q2, q3, ...], [x1, x2, x3, ...], vpq]: ")
         
         #function for fit with volts per charge as only arg.

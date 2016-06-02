@@ -16,3 +16,7 @@
 
 
 9; /data/20160510/bead1/slow_sine_xstep_hp; 2.3 Hz, 0.01 mbar; 20; 5e-14
+
+10; /data/20160510/bead1/diag/elec1sweep, /data/20160510/bead1/diag/elec3sweep, /data/20160510/bead1/diag/elec5sweep; LABEL; 20; 1e-13
+
+11; /data/20160510/bead1/chargelp_cal; LABEL2; 20; 1e-13
