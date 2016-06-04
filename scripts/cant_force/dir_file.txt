@@ -20,3 +20,13 @@
 10; /data/20160510/bead1/diag/elec1sweep, /data/20160510/bead1/diag/elec3sweep, /data/20160510/bead1/diag/elec5sweep; LABEL; 20; 1e-13
 
 11; /data/20160510/bead1/chargelp_cal; LABEL2; 20; 1e-13
+
+12; /data/20160601/bead1/transfer_func_20160302/freq_comb_elec1, /data/20160601/bead1/transfer_func_20160302/freq_comb_elec3, /data/20160601/bead1/transfer_func_20160302/freq_comb_elec5; LABEL; 20; 1e-13
+
+13; /data/20160601/bead1/transfer_func_20160602/freq_comb_elec1_long, /data/20160601/bead1/transfer_func_20160602/freq_comb_elec3_long, /data/20160601/bead1/transfer_func_20160602/freq_comb_elec5_long; Yesterday 1; 20; 1e-13
+
+14; /data/20160601/bead1/transfer_func_20160602/freq_comb_elec1_optphase, /data/20160601/bead1/transfer_func_20160602/freq_comb_elec3_optphase, /data/20160601/bead1/transfer_func_20160602/freq_comb_elec5_optphase; Yesterday 2; 20; 1e-13
+
+15; /data/20160601/bead1/transfer_func_20160603/freq_comb_elec1_optphase2, /data/20160601/bead1/transfer_func_20160603/freq_comb_elec3_optphase2, /data/20160601/bead1/transfer_func_20160603/freq_comb_elec5_optphase2; Today; 20; 1e-13
+
+16; /data/20160601/bead1/transfer_func_20160603/freq_comb_elec1_optphase2_long, /data/20160601/bead1/transfer_func_20160603/freq_comb_elec3_optphase2_long, /data/20160601/bead1/transfer_func_20160603/freq_comb_elec5_optphase2_long; Today 2; 20; 1e-13

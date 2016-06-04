@@ -10,7 +10,7 @@ from scipy.optimize import curve_fit
 import bead_util as bu
 from scipy.optimize import minimize_scalar as minimize 
 
-dirs = [10,]
+dirs = [13,14,15,16]
 cal = 5.0e-14
 
 ddict = bu.load_dir_file( "/home/charles/opt_lev_classy/scripts/cant_force/dir_file.txt" )
@@ -21,7 +21,7 @@ load_from_file = False
 def proc_dir(d):
     dv = ddict[d]
 
-    dir_obj = cu.Data_dir(dv[0], [0,0,dv[-2]])
+    dir_obj = cu.Data_dir(dv[0], [0,0,dv[-2]], dv[1])
     dir_obj.load_dir(cu.H_loader)
     
     return dir_obj
@@ -37,4 +37,9 @@ for obj in dir_objs:
     #obj.step_cal(cal_dir)
     #print obj.charge_step_calibration
 
-    obj.plot_H(phase=True)
+    if obj != dir_objs[-1]:
+        obj.plot_H(phase=True, show=False, label=True)
+        continue
+
+    obj.plot_H(phase=True, label=True)
+    obj.save_H("optphase2_Hout.p")
