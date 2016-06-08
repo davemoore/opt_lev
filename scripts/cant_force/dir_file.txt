@@ -29,4 +29,20 @@
 
 15; /data/20160601/bead1/transfer_func_20160603/freq_comb_elec1_optphase2, /data/20160601/bead1/transfer_func_20160603/freq_comb_elec3_optphase2, /data/20160601/bead1/transfer_func_20160603/freq_comb_elec5_optphase2; Today; 20; 1e-13
 
-16; /data/20160601/bead1/transfer_func_20160603/freq_comb_elec1_optphase2_long, /data/20160601/bead1/transfer_func_20160603/freq_comb_elec3_optphase2_long, /data/20160601/bead1/transfer_func_20160603/freq_comb_elec5_optphase2_long; Today 2; 20; 1e-13
+16; /data/20160601/bead1/transfer_func_20160603/freq_comb_elec1_optphase2_long2, /data/20160601/bead1/transfer_func_20160603/freq_comb_elec3_optphase2_long, /data/20160601/bead1/transfer_func_20160603/freq_comb_elec5_optphase2_long; Today 2; 20; 1e-13
+
+17; /data/20160601/bead1/transfer_func_20160603/freq_comb_elec1_optphase2_long; Long 1; 20; 1e-13
+18; /data/20160601/bead1/transfer_func_20160603/freq_comb_elec1_optphase2_long2; Long 2; 20; 1e-13
+
+19; /data/20160601/bead1/blind_forces/blind_force_1; Blind 1; 20; 1e-13
+20; /data/20160601/bead1/blind_forces/blind_force_2; Blind 2; 20; 1e-13
+21; /data/20160601/bead1/blind_forces/blind_force_3; Blind 3; 20; 1e-13
+22; /data/20160601/bead1/blind_forces/blind_force_4; Blind 4; 20; 1e-13
+
+23; /data/20160601/bead1/transfer_func_20160603/freq_comb_elec1_optphase2_long3, /data/20160601/bead1/transfer_func_20160603/freq_comb_elec3_optphase2_long2, /data/20160601/bead1/transfer_func_20160603/freq_comb_elec5_optphase2_long2; Canonical; 20; 1e-13
+
+24; /data/20160601/bead1/transfer_func_20160607/freq_comb_elec2_optphase2, /data/20160601/bead1/transfer_func_20160607/freq_comb_elec4_optphase2, /data/20160601/bead1/transfer_func_20160607/freq_comb_elec6_optphase2; Opposite Elecs; 20; 1e-13
+
+25; /data/20160601/bead1/transfer_func_20160607/freq_comb_elec1_higherf, /data/20160601/bead1/transfer_func_20160607/freq_comb_elec3_higherf, /data/20160601/bead1/transfer_func_20160607/freq_comb_elec5_higherf; Higher F; 20; 1e-13
+
+26; /data/20160601/bead1/transfer_func_20160607/freq_comb_elec1_optphase2_lessamp, /data/20160601/bead1/transfer_func_20160607/freq_comb_elec3_optphase2_lessamp, /data/20160601/bead1/transfer_func_20160607/freq_comb_elec5_optphase2_lessamp; Less Drive; 20; 1e-13

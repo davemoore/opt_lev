@@ -20,4 +20,20 @@ load_from_file = False
 new_obj = cu.Data_dir('shit_path', [0,0,0], "wheeeee")
 
 new_obj.load_H("optphase2_Hout.p")
-new_obj.plot_H(phase=True, label=True)
+#new_obj.plot_H(phase=True, label=True)
+
+Hmat = new_obj.build_avgH(fthresh = 60)
+
+plt.imshow(np.abs(Hmat))
+plt.show()
+
+Hmat_diag = np.linalg.inv(Hmat)
+
+plt.imshow(np.abs(Hmat_diag))
+plt.show()
+
+print np.abs(Hmat)
+
+print np.abs(Hmat_diag)
+
+print np.abs(np.einsum('ij,jk -> ik', Hmat, Hmat_diag))

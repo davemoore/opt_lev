@@ -40,6 +40,15 @@ def sort_pts(xvec, yvec):
     xvec, yvec = zip(*zl)
     return np.array(xvec), np.array(yvec)
 
+def emap(eind):
+    # map from electrode number to data axis
+    if eind == 1 or eind == 2:
+        return 2
+    elif eind == 3 or eind == 4:
+        return 1
+    elif eind == 5 or eind == 6:
+        return 0
+
 
 class Fit:
     #holds the optimal parameters and errors from a fit. Contains methods to plot the fit, the fit data, and the residuals.
@@ -170,12 +179,22 @@ def pos_loader(fname, sep):
     fobj.close_dat()
     return fobj
 
+def ft_loader(fname, sep):
+    # Load files and computer FFTs. For testing out diagonalization
+    print "Processing: ", fname
+    fobj = Data_file()
+    fobj.load(fname, sep)
+    fobj.ms()
+    fobj.get_fft()
+    return fobj
+
 def H_loader(fname, sep):
     #Generates transfer func data for a single file. Returns a Data_file object.
     print "Processing: ", fname
     fobj = Data_file()
     fobj.load(fname, sep)
     fobj.find_H()
+    fobj.ms()
     fobj.close_dat(ft=False)
     return fobj
 
@@ -220,6 +239,7 @@ class Data_file:
         self.fname = "Filename not assigned."
         #self.path = "Directory not assigned." #Assuming directory in filename
         self.pos_data = "bead position data not loaded"
+        self.dc_pos = "DC positions not computed"
         self.binned_pos_data = "Binned data not computed"
         self.binned_data_errors = "bined data errors not computed"
         self.cant_data = "cantilever position data no loaded"
@@ -241,7 +261,7 @@ class Data_file:
         self.psd_freqs = "psd freqs not computed"
         self.thermal_cal = "Thermal calibration not computed"
         self.H = "bead electrode transfer function not computed"
-        self.Hfreq = "transfer function not computed"
+        self.noiseH = "noise electrode transfer function not computed"
         self.sb_spacing = "sideband spacing not computed."
 
     def load(self, fstr, sep, cant_cal = 8., stage_travel = 80., cut_samp = 2000, \
@@ -268,6 +288,7 @@ class Data_file:
         
         #Data vectors and their transforms
         self.pos_data = np.transpose(dat[:, 0:3]) #x, y, z bead position
+        self.dc_pos =  np.mean(self.pos_data, axis = -1)
         #self.pos_data = np.transpose(dat[:,[elec_inds[1],elec_inds[3],elec_inds[5]]])
         self.cant_data = np.transpose(np.resize(sep, np.shape(np.transpose(self.pos_data)))) + stage_travel - np.transpose(dat[:, 17:20])*cant_cal
         self.electrode_data = np.transpose(dat[:, elec_inds]) #Record of voltages on the electrodes
@@ -289,6 +310,7 @@ class Data_file:
         #mean subtracts the position data.
         ms = lambda vec: vec - np.mean(vec)
         self.pos_data  = map(ms, self.pos_data)
+
 
     def spatial_bin(self, bin_sizes = [1., 1., 4.], cant_axis = 2):
         #Method for spatially binning data based on stage z  position.
@@ -365,14 +387,32 @@ class Data_file:
         finds = inds[1] #frequency index with significant drive
         cinds = inds[0] #colun index with significant drive
 
-        #plt.loglog(self.fft_freqs, dpsd[cinds[0]])
-        #plt.show()
-
         b = finds>np.argmin(np.abs(self.fft_freqs - mfreq))
 
-        print cinds[b]
+        data_psd = np.abs(self.data_fft)**2*2./(N*self.Fsamp)
+
+        dat_ind = emap(cinds[b][0])
+        #plt.loglog(self.fft_freqs, dpsd[cinds[b][0]])
+        #plt.loglog(self.fft_freqs, data_psd[dat_ind])
+        #plt.show()
+
+        #print cinds[b][0]
+
+        # roll the response fft to compute a noise H
+        shift = int(0.5 * (finds[b][1]-finds[b][0])) 
+        randadd = np.random.choice(np.arange(-int(0.1*shift), int(0.1*shift)+1, 1))
+        shift = shift+randadd
+
+        rolled_data_fft = np.roll(self.data_fft, shift, axis=-1)
+
+        #print finds[b]
+        #print shift_for_noise
+        #raw_input()
+
+        Hmatst_noise = np.einsum('ij, kj->ikj', rolled_data_fft, 1./dfft)
 
         self.H = Hmat(finds[b], cinds[b], Hmatst[:, :, finds[b]])
+        self.noiseH = Hmat(finds[b], cinds[b], Hmatst_noise[:, :, finds[b]])
 
 
     def plt_psd(self, col = 1):
@@ -412,10 +452,13 @@ class Data_dir:
         self.sep = sep
         self.fobjs = "Files not loaded"
         self.Hs = "Transfer functions not loaded"
-        self.Hfreqs = "Frequencies not computed"
+        self.noiseHs = "Noise Transfer functions not loaded"
+        self.Havg = "Havg not computed"
         self.thermal_calibration = "No thermal calibration"
         self.charge_step_calibration = "No charge step calibration"
         self.ave_force_vs_pos = "Average force vs position not computed"
+        self.ave_pos_data = "Average response not computed"
+        self.ave_dc_pos = "Mean positions not computed"
         self.ave_pressure = 'pressures not loaded'
         self.paths = paths
         self.out_path = path.replace("/data/","/home/charles/analysis/")
@@ -423,12 +466,22 @@ class Data_dir:
             print "Warning: empty directory"
 
 
-    def load_dir(self, loadfun, maxfiles=10000):
+    def load_dir(self, loadfun, maxfiles=10000, save_dc=False):
         #Extracts information from the files using the function loadfun which return a Data_file object given a separation and a filename.
         l = lambda fname: loadfun(fname, self.sep)
         self.fobjs = map(l, self.files[:maxfiles])
         per = lambda fobj: fobj.pressures
-        self.ave_pressure = np.mean(map(per, self.fobjs), axis = 0) 
+        self.ave_pressure = np.mean(map(per, self.fobjs), axis = 0)
+
+        
+        self.ave_dc_pos = np.zeros(3)
+        count = 0
+        for obj in self.fobjs:
+            if type(obj.dc_pos) != str:
+                self.ave_dc_pos += obj.dc_pos
+                count += 1
+        if count:
+            self.ave_dc_pos = self.ave_dc_pos / count
 
     def force_v_p(self):
         #Calculates the force vs position for all of the files in the data directory.
@@ -453,6 +506,34 @@ class Data_dir:
             xout, yout, yerrs = sbin(np.hstack(extracted[boolv, 0]), np.hstack(extracted[boolv, 1]), bin_size)
             self.ave_force_vs_pos[str(v)] =  [xout, yout, yerrs]
 
+    def avg_pos_data(self):
+        if type(self.fobjs) == str:
+            self.load_dir(ft_loader)
+
+        avg = self.fobjs[0].pos_data
+        counts = 1.
+        for obj in self.fobjs[1:]:
+            for i in range(len(avg)):
+                avg[i] += obj.pos_data[i]
+            counts += 1.
+        for i in range(len(avg)):
+            avg[i] = avg[i] / counts
+        self.ave_pos_data = avg
+
+    def diagonalize_ave_pos(self):
+        if type(self.Havg) == str:
+            self.build_avgH()
+        if type(self.ave_pos_data) == str:
+            self.avg_pos_data()
+
+        ft = np.fft.rfft(self.ave_pos_data)
+        H = np.linalg.inv(self.Havg)
+        
+        ft_diag = np.einsum('ij, jk -> ik', H, ft)
+
+        return np.fft.irfft(ft_diag)
+
+
     def H_vec(self, pcol = 1, ecol = 3):
         #Generates an array of Hs for the whole directory.
         #First check to make sure files are loaded and H is computed.
@@ -472,16 +553,9 @@ class Data_dir:
         if type(self.fobjs) == str:
             self.load_dir(H_loader)
 
-        def emap(eind):
-            # map from electrode number to data axis
-            if eind == 1 or eind == 2:
-                return 2
-            elif eind == 3 or eind == 4:
-                return 1
-            elif eind == 5 or eind == 6:
-                return 0
-
         Hout = {}
+        Hout_noise = {}
+
         Hout_counts = {}
 
         for obj in self.fobjs:
@@ -492,18 +566,22 @@ class Data_dir:
             for i in range(len(freqs)):
                 if freqs[i] not in Hout:
                     Hout[freqs[i]] = np.zeros((3,3), dtype=np.complex128)
+                    Hout_noise[freqs[i]] = np.zeros((3,3), dtype=np.complex128)
                     Hout_counts[freqs[i]] = np.zeros(3)
 
                 outind = emap(einds[i])
                 Hout[freqs[i]][:,outind] += obj.H.Hmats[:,einds[i],i]
+                Hout_noise[freqs[i]][:,outind] += obj.noiseH.Hmats[:,einds[i],i]
                 Hout_counts[freqs[i]][outind] += 1
 
         # Compute the average transfer function
         for key in Hout.keys():
             for i in [0,1,2]:
                 Hout[key][:,i] = Hout[key][:,i] / Hout_counts[key][i]
+                Hout_noise[key][:,i] = Hout_noise[key][:,i] / Hout_counts[key][i]
         
         self.Hs = Hout
+        self.noiseHs = Hout_noise
 
     def save_H(self, fname):
         pickle.dump(self.Hs, open(fname, "wb"))
@@ -534,42 +612,60 @@ class Data_dir:
                 mats.append(self.Hs[key])
 
         mats = np.array(mats)
-        return np.mean(mats, axis=0)
+        self.Havg =  np.mean(mats, axis=0)
 
         
 
 
-    def plot_H(self, phase=False, show=True, label=False):
+    def plot_H(self, phase=False, show=True, label=False, noise=False,\
+               show_zDC=False):
         # plot all the transfer functions
 
         if type(self.Hs) == str:
             print "need to build H's first..."
             self.build_uncalibrated_H()
-
-        keys = self.Hs.keys()
+            
+        if noise:
+            keys = self.noiseHs.keys()
+        else:
+            keys = self.Hs.keys()
         keys.sort()
 
         mats = []
         for freq in keys:
-            mats.append(self.Hs[freq])
+            if noise:
+                mats.append(self.noiseHs[freq])
+            else:
+                mats.append(self.Hs[freq])
 
+        # Plot the magnitude of the transfer function:
+        #     Makes separate plots for a given direction of drive
+        #     each with three subplots detailing x, y, and z response
+        #     to a drive in a particular direction
         mats = np.array(mats)
         for drive in [0,1,2]:
             plt.figure(drive+1)
             for response in [0,1,2]:
-                plt.subplot(3,1,response+1)
+                ax1 = plt.subplot(3,1,response+1)                    
                 mag = np.abs(mats[:,response,drive])
+
+                # check for NaNs from empty directory or incomplete
+                # measurements and replace with unity
                 nans = np.isnan(mag)
                 mag[nans] = np.zeros(len(mag[nans])) + 1
                 if np.mean(mag) == 0 and np.std(mag) == 0:
                     mag = mag + 1.
 
-                if label and (response == 0):
+                if label and response == 0:
                     plt.loglog(keys, mag, label = self.label)
-                    if show:
-                        plt.legend()
+                elif show_zDC and response == 2:
+                    plt.loglog(keys, mag, \
+                               label="Avg Z: %0.4f"%self.ave_dc_pos[-1])
                 else:
                     plt.loglog(keys, mag)
+
+                if show:
+                    ax1.legend(loc=0)
             plt.xlabel("Frequency [Hz]")
         
         for drive in [0,1,2]:
@@ -577,13 +673,18 @@ class Data_dir:
             plt.subplot(3,1,1)
             plt.title("Drive in direction \'%i\'"%drive)
 
-            
-        if phase:
+        # Plot the phase of the transfer function:
+        #     Same plot/subplot breakdown as before
+        if phase and not noise:
             for drive in [0,1,2]:
                 plt.figure(drive+4)
                 for response in [0,1,2]:
-                    plt.subplot(3,1,response+1)
+                    ax2 = plt.subplot(3,1,response+1)
                     phase = np.angle(mats[:,response,drive])
+
+                    # Check for NaNs in phase and replace with ~0 
+                    # (the semilogx doesn't like when one vector is 
+                    # identically 0 so I add 1e-12)
                     nans = np.isnan(phase)
                     phase[nans] = np.zeros(len(phase[nans])) + 1e-12
                     if np.mean(phase) == 0 and np.std(phase) == 0:
@@ -591,14 +692,38 @@ class Data_dir:
                     unphase = np.unwrap(phase)
                     if unphase[0] < -2.5:
                         unphase = unphase + 2 * np.pi
-                    plt.semilogx(keys, unphase)
-                plt.xlabel("Frequency [HZ]")
+
+                    if label and response == 0:
+                        plt.semilogx(keys, unphase, label = self.label)
+                    elif show_zDC and response == 2:
+                        plt.semilogx(keys, unphase, \
+                                   label="Avg Z: %0.4f"%self.ave_dc_pos[-1])
+                    else:
+                        plt.semilogx(keys, unphase)
+
+                    if show:
+                        ax2.legend(loc=0)
+
+                plt.xlabel("Frequency [Hz]")
 
             for drive in [0,1,2]:
                 plt.figure(drive+4)
                 plt.subplot(3,1,1)
                 plt.title("Drive in direction \'%i\'"%drive)
+
+        # If the show command was on a noise plot, the phase plots
+        # need to be correctly labeled with their legend, as the phase
+        # response of the noise is never plotted and thus this function
+        # never reaches the 'ax2.legend()' line in the phase block above
+        elif noise and show:
+            if show:
+                for drive in [0,1,2]:
+                    plt.figure(drive+4)
+                    for response in [0,1,2]:
+                        plt.subplot(3,1,response+1)
+                        plt.legend(loc=0)
             
+        # Show all the plots that have been built up
         if show:
             plt.show()
 
