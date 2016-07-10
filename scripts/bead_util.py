@@ -279,7 +279,7 @@ def good_corr(drive, response, fsamp, fdrive):
     n_corr = len(drive)
     for i in range(len(corr)):
         #Correct for loss of points at end
-        correct_fac = 1.0*n_corr/(n_corr-i)
+        correct_fac = 2.0*n_corr/(n_corr-i) # x2 from empirical tests
         corr[i] = np.sum(drive*response[i:i+n_corr])*correct_fac
     return corr
 
@@ -299,7 +299,6 @@ def corr_func(drive, response, fsamp, fdrive, good_pts = [], filt = False, band_
     #Compute the number of points and drive amplitude to normalize correlation
     lentrace = len(drive)
     drive_amp = np.sqrt(2)*np.std(drive)
-
       
     #Throw out bad points if desired
     if len(good_pts):
@@ -783,13 +782,12 @@ def load_dir_file( f ):
         for cdir in dirs:
             dirs_list.append(cdir.strip())
 
-        out_dict[idx] = [dirs_list, lparts[2].strip(), int(lparts[3]), float(lparts[4])]
+        out_dict[idx] = [dirs_list, lparts[2].strip(), int(lparts[3])]
 
     return out_dict
 
 def data_list_to_dict( d ):
-    out_dict = {"path": d[0], "label": d[1], "drive_idx": d[2],
-                "calib_fac": d[4]}
+    out_dict = {"path": d[0], "label": d[1], "drive_idx": d[2]}
     return out_dict
 
 

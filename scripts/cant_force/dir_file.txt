@@ -46,3 +46,137 @@
 25; /data/20160601/bead1/transfer_func_20160607/freq_comb_elec1_higherf, /data/20160601/bead1/transfer_func_20160607/freq_comb_elec3_higherf, /data/20160601/bead1/transfer_func_20160607/freq_comb_elec5_higherf; Higher F; 20; 1e-13
 
 26; /data/20160601/bead1/transfer_func_20160607/freq_comb_elec1_optphase2_lessamp, /data/20160601/bead1/transfer_func_20160607/freq_comb_elec3_optphase2_lessamp, /data/20160601/bead1/transfer_func_20160607/freq_comb_elec5_optphase2_lessamp; Less Drive; 20; 1e-13
+
+27; /data/20160601/bead1/transfer_func_20160608_aperatureadjust/freq_comb_elec1_optphase2, /data/20160601/bead1/transfer_func_20160608_aperatureadjust/freq_comb_elec3_optphase2, /data/20160601/bead1/transfer_func_20160608_aperatureadjust/freq_comb_elec5_optphase2; Adj. Ap.; 20; 1e-13
+
+28; /data/20160601/bead1/transfer_func_20160609_noap/freq_comb_elec1_optphase2, /data/20160601/bead1/transfer_func_20160609_noap/freq_comb_elec3_optphase2, /data/20160601/bead1/transfer_func_20160609_noap/freq_comb_elec5_optphase2; No Ap.; 20; 1e-13
+
+29; /data/20160610/bead1/transfer_func_20160610/freq_comb_elec1_optphase2_lessamp, /data/20160610/bead1/transfer_func_20160610/freq_comb_elec3_optphase2_lessamp, /data/20160610/bead1/transfer_func_20160610/freq_comb_elec5_optphase2_lessamp; New Bead; 20; 1e-13
+
+30; /data/20160610/bead1/transfer_func_20160613/freq_comb_elec1_optphase2_lessamp, /data/20160610/bead1/transfer_func_20160613/freq_comb_elec3_optphase2_lessamp, /data/20160610/bead1/transfer_func_20160613/freq_comb_elec5_optphase2_lessamp; New Bead, Later; 20; 1e-13
+
+31; /data/20160610/bead1/transfer_func_20160613/freq_comb_elec1_higherf_lessamp, /data/20160610/bead1/transfer_func_20160613/freq_comb_elec3_higherf_lessamp, /data/20160610/bead1/transfer_func_20160613/freq_comb_elec5_higherf_lessamp; Nominal Elecs; 20; 1e-13
+
+32; /data/20160610/bead1/transfer_func_20160613/freq_comb_elec2_higherf_lessamp, /data/20160610/bead1/transfer_func_20160613/freq_comb_elec4_higherf_lessamp, /data/20160610/bead1/transfer_func_20160613/freq_comb_elec6_higherf_lessamp; Opposite Elecs; 20; 1e-13
+
+33; /data/20160613/bead1/transfer_func_20160614/freq_comb_elec1_1-500Hz_1_5Vppamp, /data/20160613/bead1/transfer_func_20160614/freq_comb_elec3_1-500Hz_1_5Vppamp, /data/20160613/bead1/transfer_func_20160614/freq_comb_elec5_1-500Hz_1_5Vppamp; Nominal Elecs; 20; 1e-13
+
+34; /data/20160613/bead1/transfer_func_20160614/freq_comb_elec2_1-500Hz_1_5Vppamp, /data/20160613/bead1/transfer_func_20160614/freq_comb_elec4_1-500Hz_1_5Vppamp, /data/20160613/bead1/transfer_func_20160614/freq_comb_elec6_1-500Hz_1_5Vppamp; Opposite Elecs; 20; 1e-13
+
+35; /data/20160613/bead1/transfer_func_20160614/freq_comb_elec1_1-500Hz_3Vppamp, /data/20160613/bead1/transfer_func_20160614/freq_comb_elec3_1-500Hz_3Vppamp, /data/20160613/bead1/transfer_func_20160614/freq_comb_elec5_1-500Hz_3Vppamp; Nom. Elecs, Opp. Charge; 20; 1e-13
+
+
+
+
+####################################################
+###### CHANGED CODE TO NO LONGER TAKE CAL_FAC ######
+####################################################
+
+
+
+
+#### Testing charge calibration in object-oriented code
+
+36; /data/20160613/bead1/chargelp_cal3; Cal; 20
+
+
+
+#### Working on Step1 Sweep1 Code for finding height
+
+37; /data/20160613/bead1/find_height2; Height; 20
+
+
+
+#### Determining Sign of Pressure Force
+
+38; /data/20160613/bead1/pressures/0_0006mbar_cant_sweep_20um; Height; 20
+39; /data/20160613/bead1/pressures/0_001mbar_cant_sweep_20um; Height; 20
+40; /data/20160613/bead1/pressures/0_003mbar_cant_sweep_20um; Height; 20
+41; /data/20160613/bead1/pressures/0_007mbar_cant_sweep_20um; Height; 20
+42; /data/20160613/bead1/cant_sweep_background; Height; 20
+
+43; /data/20160613/bead1/cant_sweep_with_bias; Height; 20
+
+
+
+
+##### TF after significant imaging changes
+
+45; /data/20160627/bead1/tf_20160628/freq_comb_elec1_1-500Hz_1_5Vppamp, /data/20160627/bead1/tf_20160628/freq_comb_elec3_1-500Hz_1_5Vppamp, /data/20160627/bead1/tf_20160628/freq_comb_elec5_1-500Hz_1_5Vppamp; 2016-06-28: No Ap; 20
+
+
+37; /data/20160627/bead1/find_height; Height; 20
+
+
+#### Looking at backgrounds with and without aperature
+#### Seeing if I can eliminate the jumping in z-position
+
+46; /data/20160627/bead1/noap/cant_sweep_18Hz; Turbo Base Bkgnd. ~ 18Hz; 15
+47; /data/20160627/bead1/noap/cant_sweep_18Hz_closer; Close ~ 18Hz; 15
+48; /data/20160627/bead1/noap/cant_sweep_18Hz_closer2; Close ~ 18Hz - 2; 15
+49; /data/20160627/bead1/noap/cant_sweep_7Hz_closer; Close ~ 7Hz; 15
+50; /data/20160627/bead1/noap/cant_sweep_3Hz_closer; Close ~ 3Hz; 15
+51; /data/20160627/bead1/noap/cant_sweep_18Hz_far; Far Away ~ 18Hz; 15
+52; /data/20160627/bead1/noap/cant_sweep_7Hz_far; Far Away ~ 7Hz; 15
+53; /data/20160627/bead1/noap/cant_sweep_3Hz_far; Far Away ~ 3Hz; 15
+
+
+##### TF With Aperature
+
+54; /data/20160627/bead1/tf_20160630_withap/freq_comb_elec1_1-500Hz_5Vppamp, /data/20160627/bead1/tf_20160630_withap/freq_comb_elec3_1-500Hz_5Vppamp, /data/20160627/bead1/tf_20160630_withap/freq_comb_elec5_1-500Hz_5Vppamp; 2016-06-30: With Ap; 20
+
+55; /data/20160627/bead1/tf_20160630_withap2/freq_comb_elec1_1-500Hz_5Vppamp, /data/20160627/bead1/tf_20160630_withap2/freq_comb_elec3_1-500Hz_5Vppamp, /data/20160627/bead1/tf_20160630_withap2/freq_comb_elec5_1-500Hz_5Vppamp; 2016-06-30: With Ap; 20
+
+56; /data/20160627/bead1/tf_20160630_withap/freq_comb_elec2_1-500Hz_5Vppamp, /data/20160627/bead1/tf_20160630_withap/freq_comb_elec4_1-500Hz_5Vppamp, /data/20160627/bead1/tf_20160630_withap/freq_comb_elec6_1-500Hz_5Vppamp; TF 20160630 Opp. Elecs.; 20
+
+
+
+##### Find Height 
+
+57; /data/20160627/bead1/find_height_withap; Find Height; 20
+58; /data/20160627/bead1/find_height_withap2; Find Height; 20
+59; /data/20160627/bead1/find_height_withap3; Find Height; 20
+60; /data/20160627/bead1/find_height_withap4; Find Height; 20
+
+
+##### Background with Aperature
+
+61; /data/20160627/bead1/cant_sweep_18Hz_withap; Background; 20
+62; /data/20160627/bead1/overnight_background_withap; Overnight Background; 15
+
+63; /data/20160627/bead1/cant_sweep_18Hz_background_long_withap; New Background; 15
+64; /data/20160627/bead1/overnight_background_withap2; Overnight Background 2; 15
+
+
+##### Straightening up Motion
+
+65; /data/20160627/bead1/cant_sweep_18Hz_sweepy_stepz; Sweep Y, Step Z; 0
+
+
+
+##### Reconstructing Forces
+
+66; /data/20160627/bead1/force_reconstruction/known_force_1; Known 1; 0
+67; /data/20160627/bead1/force_reconstruction/known_force_2; Known 2; 0
+68; /data/20160627/bead1/force_reconstruction/known_force_3; Known 3; 0
+69; /data/20160627/bead1/force_reconstruction/known_force_4; Known 4; 0
+
+70; /data/20160627/bead1/force_reconstruction/blind_force_1; Blind 1; 0
+71; /data/20160627/bead1/force_reconstruction/blind_force_2; Blind 2; 0
+72; /data/20160627/bead1/force_reconstruction/blind_force_3; Blind 3; 0
+73; /data/20160627/bead1/force_reconstruction/blind_force_4; Blind 4; 0
+
+
+
+
+##### Residual Gas Damping Force: Post LOTS of imaging/cross-talk changes
+
+74; /data/20160627/bead1/pressures/cant_sweep_18Hz_baseP_1; Turbo Base; 15
+75; /data/20160627/bead1/pressures/cant_sweep_18Hz_2e-4_1; 2e-4 mbar; 15
+76; /data/20160627/bead1/pressures/cant_sweep_18Hz_5e-4_1; 5e-4 mbar; 15
+77; /data/20160627/bead1/pressures/cant_sweep_18Hz_1e-3_1; 1e-3 mbar; 15
+78; /data/20160627/bead1/pressures/cant_sweep_18Hz_2e-3_1; 2e-3 mbar; 15
+79; /data/20160627/bead1/pressures/cant_sweep_18Hz_5e-3_1; 5e-3 mbar; 15
+
+
+

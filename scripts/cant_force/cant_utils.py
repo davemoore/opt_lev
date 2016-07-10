@@ -2,22 +2,44 @@ import numpy as np
 import matplotlib
 import bead_util as bu
 import scipy
-import os
+import os, sys
 from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
 import glob
 import cPickle as pickle
 import copy
 import scipy.signal as sig
+import math
 
-#Define functions and classes for use processing and fitting data.
-def thermal_psd_spec(f, A, f0, g, n, s):
+def round_sig(x, sig=2):
+    return round(x, sig-int(math.floor(math.log10(x)))-1)
+
+def trend_fun(x, a, b):
+    # Define a simple linear function to de-trend datasets
+    return a*x + b
+
+# Define functions and classes for use processing and fitting data.
+
+
+def damped_osc_amp(f, A, f0, g):
+    w = 2. * np.pi * f
+    w0 = 2. * np.pi * f0
+    denom = np.sqrt((w0**2 - w**2)**2 + w**2 * g**2)
+    return A / denom
+
+def damped_osc_phase(f, A, f0, g, phase0 = 0.):
+    w = 2. * np.pi * f
+    w0 = 2. * np.pi * f0
+    return A * np.arctan2(-w * g, w0**2 - w**2) + phase0
+    
+
+def thermal_psd_spec(f, A, f0, g):
     #The position power spectrum of a microsphere normalized so that A = (volts/meter)^2*2kb*t/M
     w = 2.*np.pi*f #Convert to angular frequency.
     w0 = 2.*np.pi*f0
     num = g
     denom = ((w0**2 - w**2)**2 + w**2*g**2)
-    return A*num/denom + n + s*w
+    return 2 * (A*num/denom) # Extra factor of 2 from single-sided PSD
 
 def step_fun(x, q, x0):
     #decreasing step function at x0 with step size q.
@@ -49,6 +71,16 @@ def emap(eind):
     elif eind == 5 or eind == 6:
         return 0
 
+def emap2(drive):
+    # map from data axis back to electrode number, using nominal elecs
+    # 1, 3 and 5, as TF data was taken with these electrodes
+    if drive == 0:
+        return 5
+    elif drive == 1:
+        return 3
+    elif drive == 2:
+        return 1
+
 
 class Fit:
     #holds the optimal parameters and errors from a fit. Contains methods to plot the fit, the fit data, and the residuals.
@@ -72,7 +104,7 @@ class Fit:
             ax.plot(xdata, self.fun(xdata, *self.popt), 'r', linewidth = 3)
 
         ax.set_yscale(scale)
-        #ax.set_xscale(scale)
+        ax.set_xscale(scale)
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
         ax.set_xlim([np.min(xdata), np.max(xdata)])
@@ -83,7 +115,6 @@ class Fit:
         if len(errors):
             ax.errorbar(xdata, self.fun(xdata, *self.popt) - ydata, errors, fmt = 'o')
         else:
-            
             ax.plot(xdata, (self.fun(xdata, *self.popt) - ydata), 'o')
         
         #ax.set_xscale(scale)
@@ -100,12 +131,10 @@ class Fit:
     #def plt_chi_sq(self,xdata, ydata, errs, ax):
         #plots chi square contours. 
 
-    
-
 
         
 
-def thermal_fit(psd, freqs, fit_freqs = [10., 400.], kelvin = 300., fudge_fact = 1e-6, noise_floor = 0., noise_slope = 0.):
+def thermal_fit(psd, freqs, fit_freqs = [1., 500.], kelvin = 300., fudge_fact = 1e-6, p0=[]):
     #Function to fit the thermal spectra of a bead's motion
     #First need good intitial guesses for fit parameters.
     fit_bool = bu.inrange(freqs, fit_freqs[0], fit_freqs[1]) #Boolian vector of frequencies over which the fit is performed
@@ -114,8 +143,20 @@ def thermal_fit(psd, freqs, fit_freqs = [10., 400.], kelvin = 300., fudge_fact =
     vpmsq = bu.bead_mass/(bu.kb*kelvin)*np.sum(psd[fit_bool])*df*len(psd)/np.sum(fit_bool) #Guess at volts per meter using equipartition
     g0 = 1./2.*f0 #Guess at damping assuming critical damping
     A0 = vpmsq*2.*bu.kb*kelvin/(bu.bead_mass*fudge_fact)
-    p0 = [A0, f0, g0, noise_floor, noise_slope] #Initial parameter vectors 
-    popt, pcov = curve_fit(thermal_psd_spec, freqs[fit_bool], psd[fit_bool], p0 = p0)
+    if len(p0) == 0:
+        p0 = [A0, f0, g0] #Initial parameter vectors 
+    #bounds = ([-np.inf, 0, 0, 0, -np.inf], [np.inf, 500, np.inf, 1e-10, 0])
+    #weights = np.zeros(len(psd[fit_bool])) + 1
+    #for i in range(len(freqs[fit_bool])):
+    #    freq = freqs[fit_bool][i]
+    #    if freq < 100:
+    #        weights[i] = 1e-2
+
+    psd = psd.reshape((len(psd),))
+    popt, pcov = curve_fit(thermal_psd_spec, freqs[fit_bool], psd[fit_bool], \
+                           p0 = p0)#, sigma=weights)#, bounds = bounds)
+    #print popt
+    popt[0] = popt[0]
     if not np.shape(pcov):
         print 'Warning: Bad fit'
     f = Fit(popt, pcov, thermal_psd_spec)
@@ -163,39 +204,49 @@ def get_h5files(dir):
     return files
 
 def simple_loader(fname, sep):
-    print "Processing: ", fname
+    #print "Processing: ", fname
     fobj = Data_file()
     fobj.load(fname, sep)
-    fobj.close_dat(elecs=False)
+    return fobj
+
+def diag_loader(fname, sep):
+    #Generate all of the position attibutes of interest for a single file. Returns a Data_file object.
+    #print "Processing: ", fname
+    fobj = Data_file()
+    fobj.load(fname, sep)
+    fobj.detrend()
+    fobj.get_fft()
+    fobj.spatial_bin()
     return fobj
 
 def pos_loader(fname, sep):
     #Generate all of the position attibutes of interest for a single file. Returns a Data_file object.
-    print "Processing: ", fname
+    #print "Processing: ", fname
     fobj = Data_file()
     fobj.load(fname, sep)
-    fobj.ms()
+    #fobj.ms()
+    fobj.detrend()
     fobj.spatial_bin()
-    fobj.close_dat()
+    fobj.close_dat(ft=False)
     return fobj
 
 def ft_loader(fname, sep):
     # Load files and computer FFTs. For testing out diagonalization
-    print "Processing: ", fname
+    #print "Processing: ", fname
     fobj = Data_file()
     fobj.load(fname, sep)
-    fobj.ms()
+    fobj.detrend()
     fobj.get_fft()
     return fobj
 
 def H_loader(fname, sep):
     #Generates transfer func data for a single file. Returns a Data_file object.
-    print "Processing: ", fname
+    #print "Processing: ", fname
     fobj = Data_file()
     fobj.load(fname, sep)
     fobj.find_H()
     fobj.ms()
-    fobj.close_dat(ft=False)
+    #fobj.close_dat(p=False,ft=False,elecs=False)
     return fobj
 
 def sb_loader(fname, sep = [0,0,0], col = 1, find = 16):
@@ -239,6 +290,7 @@ class Data_file:
         self.fname = "Filename not assigned."
         #self.path = "Directory not assigned." #Assuming directory in filename
         self.pos_data = "bead position data not loaded"
+        self.diag_pos_data = "Position Data not diagonalize"
         self.dc_pos = "DC positions not computed"
         self.binned_pos_data = "Binned data not computed"
         self.binned_data_errors = "bined data errors not computed"
@@ -257,15 +309,18 @@ class Data_file:
         self.stage_settings = "Stage setting not loaded yet"
         self.psds = "psds not computed"
         self.data_fft = "fft not computed"
+        self.diag_data_fft = "fft not diagonalized"
         self.fft_freqs = "fft freqs not computed"
         self.psd_freqs = "psd freqs not computed"
         self.thermal_cal = "Thermal calibration not computed"
+        self.step_cal_response = "Step-cal response not computed"
         self.H = "bead electrode transfer function not computed"
         self.noiseH = "noise electrode transfer function not computed"
+        self.Hcomponents = "bead electrode transfer function not computed"
         self.sb_spacing = "sideband spacing not computed."
 
-    def load(self, fstr, sep, cant_cal = 8., stage_travel = 80., cut_samp = 2000, \
-             elec_inds = [8, 9, 10, 12, 13, 14, 15]):
+    def load(self, fstr, sep, cant_cal = 8., stage_travel = 80., \
+             cut_samp = 2000, elec_inds = [8, 9, 10, 12, 13, 14, 15]):
         #Methods to load the attributes from a single data file. sep is a vector of the distances of closes approach for each direction ie. [xsep, ysep, zsep] 
         dat, attribs, f = bu.getdata(fstr)
         
@@ -305,6 +360,14 @@ class Data_file:
 
         return self.stage_settings[mask]
 
+    def detrend(self):
+        # Remove linear drift from data
+        for i in [0,1,2]:
+            dat = self.pos_data[i]
+            x = np.array(range(len(dat)))
+            popt, pcov = curve_fit(trend_fun, x, dat)
+            self.pos_data[i] = dat - (popt[0]*x + popt[1])
+            
 
     def ms(self):
         #mean subtracts the position data.
@@ -312,31 +375,43 @@ class Data_file:
         self.pos_data  = map(ms, self.pos_data)
 
 
-    def spatial_bin(self, bin_sizes = [1., 1., 4.], cant_axis = 2):
+    def spatial_bin(self, bin_sizes = [1., 1., 1.], diag=False):
         #Method for spatially binning data based on stage z  position.
         
-        self.binned_cant_data = [[[[], [], []], [[], [], []], [[], [], []]], \
+        if diag:
+            dat = self.diag_pos_data
+        else:
+            dat = self.pos_data
+
+        binned_cant_data = [[[[], [], []], [[], [], []], [[], [], []]], \
                                  [[[], [], []], [[], [], []], [[], [], []]], \
                                  [[[], [], []], [[], [], []], [[], [], []]]] 
-        self.binned_pos_data = [[[[], [], []], [[], [], []], [[], [], []]], \
+        binned_pos_data = [[[[], [], []], [[], [], []], [[], [], []]], \
                                 [[[], [], []], [[], [], []], [[], [], []]], \
                                 [[[], [], []], [[], [], []], [[], [], []]]]
-        self.binned_data_errors = [[[[], [], []], [[], [], []], [[], [], []]], \
+        binned_data_errors = [[[[], [], []], [[], [], []], [[], [], []]], \
                                    [[[], [], []], [[], [], []], [[], [], []]], \
                                    [[[], [], []], [[], [], []], [[], [], []]]]
 
-        for i, v in enumerate(self.pos_data):
+        for i, v in enumerate(dat):
             for j, pv in enumerate(self.cant_data):
                 for si in np.arange(-1, 2, 1):
                     bins, y_binned, y_errors = \
                             sbin_pn(self.cant_data[j], v, bin_sizes[j], vel_mult = si)
-                    self.binned_cant_data[si][i][j] = bins
-                    self.binned_pos_data[si][i][j] = y_binned 
-                    self.binned_data_errors[si][i][j] = y_errors 
-        
-        self.binned_cant_data = np.array(self.binned_cant_data)
-        self.binned_pos_data = np.array(self.binned_pos_data)
-        self.binned_data_errors = np.array(self.binned_data_errors)
+                    binned_cant_data[si][i][j] = bins
+                    binned_pos_data[si][i][j] = y_binned 
+                    binned_data_errors[si][i][j] = y_errors 
+    
+        if diag:
+            self.diag_binned_cant_data = np.array(binned_cant_data)
+            self.diag_binned_pos_data = np.array(binned_pos_data)
+            self.diag_binned_data_errors = np.array(binned_data_errors)
+
+        else:
+            self.binned_cant_data = np.array(binned_cant_data)
+            self.binned_pos_data = np.array(binned_pos_data)
+            self.binned_data_errors = np.array(binned_data_errors)
+
 
     def psd(self, NFFT = 2**16):
         #uses matplotlib mlab psd to take a psd of the microsphere position data.
@@ -355,29 +430,95 @@ class Data_file:
         #Check to see if psds is computed and compute if not.
         if type(self.psds) == str:
             self.psd()
-            
-        caler = lambda v: thermal_fit(v, self.psd_freqs) 
-        self.thermal_cal = map(caler, self.psds)
+
+        caler = lambda v: thermal_fit(v, self.psd_freqs)
+
+        self.thermal_cal = []
+        for i in [0,1,2]:
+            if i == 1:
+                p0 = self.thermal_cal[0].popt
+            else:
+                p0 = []
+
+            if i == 2:
+                fit_freqs = [1.,200.]
+            else:
+                fit_freqs = [1.,500.]
+            newfit = thermal_fit(self.psds[i], self.psd_freqs, \
+                                 fit_freqs = fit_freqs, p0=p0)
+            self.thermal_cal.append(newfit)
+        
+        
+
+    def get_thermal_cal_facs(self):
+        if type(self.thermal_cal) == str:
+            self.thermal_calibration()
+        out = []
+        for i in [0,1,2]:
+            fit_obj = self.thermal_cal[i]
+            amp = fit_obj.popt[0]
+            f = fit_obj.popt[1]
+            omega = 2. * np.pi * f
+            # Although the factor can be simplified, we leave it in the following
+            # form to help make clear from where it is derived
+            fac = (2*bu.kb*293)/(bu.bead_mass*amp) * (bu.bead_mass * omega**2)**2
+            out.append(fac)
+
+        return np.sqrt(np.array(out))
+
     
     def plt_thermal_fit(self, coordinate = 0):
         #plots the thermal calibration and residuals
         if type(self.thermal_cal) == str:
             print "No thermal calibration"
         else:
-            f, axarr = plt.subplots(2, sharex = True)
-            fit_obj = self.thermal_cal[coordinate]
-            fit_obj.plt_fit(self.psd_freqs, self.psds[coordinate], axarr[0]) 
-            fit_obj.plt_residuals(self.psd_freqs, self.psds[coordinate], axarr[1])
+            f, axarr = plt.subplots(3, sharex = True)
+            print "plotting thermal fit"
+            for i in [0,1,2]:
+                if i == 0:
+                    xlabel = ''
+                    ylabel = 'X PSD [V^2/rt(Hz)]'
+                elif i == 1:
+                    xlabel = ''
+                    ylabel = 'Y PSD'
+                elif i == 2:
+                    xlabel = 'Frequency [Hz]'
+                    ylabel = 'Z PSD'
+
+                fit_obj = self.thermal_cal[i]
+                fit_obj.plt_fit(self.psd_freqs, self.psds[i], axarr[i], \
+                                scale = "log", xlabel=xlabel, ylabel=ylabel) 
+            #f2, axarr2 = plt.subplots(3, sharex = True)
+            #print "plotting residuals"
+            #for i in [0,1,2]:
+            #    if i == 0:
+            #        f2.suptitle('Residuals')
+            #        xlabel = ''
+            #        ylabel = 'X PSD [V^2/rt(Hz)]'
+            #    elif i == 1:
+            #        xlabel = ''
+            #        ylabel = 'Y PSD'
+            #    elif i == 2:
+            #        xlabel = 'Frequency [Hz]'
+            #        ylabel = 'Z PSD'
+            #
+            #    fit_obj = self.thermal_cal[i]
+            #    fit_obj.plt_residuals(self.psd_freqs, self.psds[i], axarr2[i], \
+            #                    scale = "log", xlabel=xlabel, ylabel=ylabel) 
+            #fit_obj.plt_residuals(self.psd_freqs, self.psds[coordinate], axarr[1])
+
             plt.show()
 
     
-    def find_H(self, dpsd_thresh = 2e-2, mfreq = 1.):
+    def find_H(self, dpsd_thresh = 6e-2, mfreq = 1.):
         #Finds the phase lag between the electrode drive and the respose at a given frequency.
         #check to see if fft has been computed. Comput if not
         if type(self.data_fft) == str:
             self.get_fft()        
         
-        dfft = np.fft.rfft(self.electrode_data) #fft of electrode drive in daxis. 
+        edat = np.roll(self.electrode_data,0,axis=-1)
+
+        dfft = np.fft.rfft(edat) #fft of electrode drive in daxis. 
         
         N = np.shape(self.pos_data)[1]#number of samples
         dpsd = np.abs(dfft)**2*2./(N*self.Fsamp) #psd for all electrode drives
@@ -389,14 +530,35 @@ class Data_file:
 
         b = finds>np.argmin(np.abs(self.fft_freqs - mfreq))
 
+        # Find and correct for arbitrary pi phase shift
+        # This is equivalent to retaking transfer function data, adding appropriate
+        # minus signs in the elctrode to keep the response in phase with the drive
+        init_phases = np.mean(np.angle(Hmatst[:,:,finds[b]])[:,:,:2],axis=-1)
+        #print init_phases
+        for drive in [0,1,2]:
+            j = emap2(drive)
+            if np.abs(init_phases[drive,j]) > 2.0:
+                #print "found out of phase", drive, np.abs(init_phases[drive,j])
+                #raw_input()
+                Hmatst[:,j,:] = Hmatst[:,j,:] * (-1)
+            #for resp in [0,1,2]:
         data_psd = np.abs(self.data_fft)**2*2./(N*self.Fsamp)
 
         dat_ind = emap(cinds[b][0])
+
+        ######################
+        #### Sanity Check ####
+        ######################
+
         #plt.loglog(self.fft_freqs, dpsd[cinds[b][0]])
         #plt.loglog(self.fft_freqs, data_psd[dat_ind])
         #plt.show()
 
-        #print cinds[b][0]
+        #print np.sqrt(2.*np.sum(dpsd[cinds[b][0],finds[b]]) / (N / self.Fsamp))
+        #plt.plot(self.electrode_data[3])
+        #plt.show()
+
+        ######################
 
         # roll the response fft to compute a noise H
         shift = int(0.5 * (finds[b][1]-finds[b][0])) 
@@ -414,11 +576,92 @@ class Data_file:
         self.H = Hmat(finds[b], cinds[b], Hmatst[:, :, finds[b]])
         self.noiseH = Hmat(finds[b], cinds[b], Hmatst_noise[:, :, finds[b]])
 
+        self.Hcomponents = (self.data_fft[:,b], dfft[:,b])
+
+
+
+    def find_step_cal_response(self, drive_freq = 41., dpsd_thresh = 2e-2, \
+                               mfreq = 1., cut_samp = 2000, pcol = 1, ecol = 3, \
+                               band_width = 1.):
+        #Finds the phase lag between the electrode drive and the respose at a given frequency.
+        #check to see if fft has been computed. Compute if not
+        if type(self.data_fft) == str:
+            self.get_fft()        
+        
+        drive = self.electrode_data[ecol]
+        response = self.pos_data[pcol]
+        
+        N = len(self.pos_data[0])
+        dt = 1. / self.Fsamp
+        t = np.linspace(0,(N+cut_samp-1)*dt, N+cut_samp)
+        t = t[cut_samp:]
+
+        b, a = sig.butter(3, [2.*(drive_freq-band_width/2.)/self.Fsamp, 2.*(drive_freq+band_width/2.)/self.Fsamp ], btype = 'bandpass')
+        responsefilt = sig.filtfilt(b, a, response)
+
+        ### CORR_FUNC TESTING ###
+        #test = 3.14159 * np.sin(2 * np.pi * drive_freq * t)
+        #test_corr = bu.corr_func(7 * drive, test, self.Fsamp, drive_freq)
+        #print np.max(test_corr)
+        #########################
+
+        corr_full = bu.corr_func(drive, response, self.Fsamp, drive_freq)
+
+        response_amp2 = np.max(corr_full)
+        #response_amp2 = corr_full[0]
+
+        drive_amp = np.sqrt(2) * np.std(drive)
+        response_amp = np.sqrt(2) * np.std(responsefilt)
+
+        sign = 1 #np.sign(np.mean(drive*responsefilt))
+
+        ideal_response = sign * response_amp * np.sin(2 * np.pi * drive_freq * t)
+        ideal_response2 = sign * response_amp2 * np.sin(2 * np.pi * drive_freq * t)
+
+        #plt.subplot(2,1,1)
+        #plt.plot(response)
+        #plt.subplot(2,1,2)
+        #plt.plot(ideal_response)
+        #plt.plot(ideal_response2)
+        #plt.plot(responsefilt)
+        #plt.show()
+
+        self.step_cal_response = sign * response_amp2 / drive_amp
+
+
+
 
     def plt_psd(self, col = 1):
         #plots psd
         #b, a = sig.butter(4, 0.01, btype = 'highpass')
         plt.loglog(self.psd_freqs, self.psds[col], label = str(self.electrode_settings[24]))
+
+
+    def diagonalize(self, mat):
+        #print "Transfer Matrix"
+        #print np.abs(mat)
+        diag_ffts = np.einsum('ij, jk -> ik', mat, self.data_fft)
+        self.diag_data_fft = diag_ffts
+        self.diag_pos_data = np.fft.irfft(diag_ffts)
+
+        N = np.shape(self.pos_data)[1] # number of samples
+        norm_fac = 2./(N*self.Fsamp) # psd normalization
+
+        ######################
+        #### SANITY CHECK ####
+        ######################
+
+        #plt.figure()
+        #for i in [0,1,2]:
+        #    plt.subplot(3,1,i+1)
+        #    plt.loglog(self.fft_freqs, np.abs(self.data_fft[i])*np.sqrt(norm_fac))
+        #plt.figure()
+        #for i in [0,1,2]:
+        #    plt.subplot(3,1,i+1)
+        #    plt.loglog(self.fft_freqs, np.abs(diag_ffts[i])*np.sqrt(norm_fac))
+        #plt.show()
+
+
 
     def close_dat(self, p = True, psd = True, ft = True, elecs = True):
         #Method to reinitialize the values of some lage attributes to avoid running out of memory.
@@ -439,37 +682,78 @@ class Data_file:
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #Define a class to hold information about a whole directory of files.
 class Data_dir:
     #Holds all of the information from a directory of data files.
 
     def __init__(self, paths, sep, label):
         all_files = []
-        for path in paths:
-            all_files =  (all_files + get_h5files(path))[:]
+        if paths:
+            for path in paths:
+                all_files =  (all_files + get_h5files(path))[:]
         self.label = label
         self.files = sorted(all_files, key = bu.find_str)
         self.sep = sep
         self.fobjs = "Files not loaded"
         self.Hs = "Transfer functions not loaded"
+        self.Hs_cal = "Transfer functions not calibrated"
         self.noiseHs = "Noise Transfer functions not loaded"
         self.Havg = "Havg not computed"
-        self.thermal_calibration = "No thermal calibration"
+        self.Havg_cal = "Calibrated Havg not compute"
+        self.Hfuncs = "Transfer function not fit yet"
+        self.step_cal_vec = "Single drive TF (for charge cal) not computed"
+        self.thermal_cal_file_path = "No thermal calibration file set"
+        self.thermal_cal_fobj = "No thermal calibration"
         self.charge_step_calibration = "No charge step calibration"
-        self.ave_force_vs_pos = "Average force vs position not computed"
-        self.ave_pos_data = "Average response not computed"
+        self.conv_facs = "Final calibration factors not computed"
+        self.avg_force_v_pos = "Average force vs position not computed"
+        self.avg_diag_force_v_pos = "Average diagonalized force vs position not computed"
+        self.avg_pos_data = "Average response not computed"
         self.ave_dc_pos = "Mean positions not computed"
         self.ave_pressure = 'pressures not loaded'
         self.paths = paths
-        self.out_path = path.replace("/data/","/home/charles/analysis/")
+        if paths:
+            self.out_path = paths[0].replace("/data/","/home/charles/analysis/")
         if len(self.files) == 0:
             print "Warning: empty directory"
 
 
     def load_dir(self, loadfun, maxfiles=10000, save_dc=False):
         #Extracts information from the files using the function loadfun which return a Data_file object given a separation and a filename.
-        l = lambda fname: loadfun(fname, self.sep)
-        self.fobjs = map(l, self.files[:maxfiles])
+        nfiles = len(self.files[:maxfiles])
+        print "#########################################"
+        print "Entering Directories: ", self.paths
+        print "Processing %i files:" % nfiles
+        self.fobjs = []
+        for i in range(nfiles):
+            print i,
+            sys.stdout.flush()
+            if i == nfiles - 1:
+                print
+            self.fobjs.append(loadfun(self.files[i], self.sep))
+            
+        #l = lambda fname: loadfun(fname, self.sep)
+        #self.fobjs = map(l, self.files[:maxfiles])
         per = lambda fobj: fobj.pressures
         self.ave_pressure = np.mean(map(per, self.fobjs), axis = 0)
 
@@ -483,6 +767,17 @@ class Data_dir:
         if count:
             self.ave_dc_pos = self.ave_dc_pos / count
 
+    def thermal_calibration(self):
+        if 'not computed' in self.thermal_cal_file_path:
+            print self.thermal_cal_file_path
+        else:
+            cal_fobj = Data_file()
+            cal_fobj.load(self.thermal_cal_file_path, [0,0,0])
+            cal_fobj.thermal_calibration()
+            self.thermal_cal_fobj = cal_fobj
+
+
+
     def force_v_p(self):
         #Calculates the force vs position for all of the files in the data directory.
         #First check to make sure files are loaded and force vs position is computed.
@@ -491,22 +786,101 @@ class Data_dir:
         
         #self.load_dir(pos_loader)
         
+
+
     
-    def avg_force_v_p(self, axis = 2, bin_size = 0.5, cant_indx = 24):
+    def get_avg_force_v_pos(self, axis = 1, cant_axis = 2, bin_size = 0.5, \
+                            cant_indx = 24, vel_mult = 0,
+                            bias = False, pressures = False,
+                            baratron_indx = 2):
         #Averages force vs positon over files with the same potential. Returns a list of average force vs position for each cantilever potential in the directory.
+
         if type(self.fobjs) == str:
             self.load_dir(pos_loader)
-        
-        extractor = lambda fobj: [fobj.binned_cant_data[axis, 2], fobj.binned_pos_data[axis,2], fobj.electrode_settings[cant_indx]] #extracts [cant data, pos data, cant voltage]
+        if bias:
+            def extractor(fobj):
+                cant_dat = fobj.binned_cant_data[vel_mult][axis, cant_axis]
+                pos_dat = fobj.binned_pos_data[vel_mult][axis, cant_axis]
+                cantV = fobj.electrode_settings[cant_indx]
+                return [cant_dat, pos_dat, cantV]
+            
+        elif pressures:
+            def extractor(fobj):
+                #extracts [cant data, pos data, baratron pressure]
+                cant_dat = fobj.binned_cant_data[vel_mult][axis, cant_axis]
+                pos_dat = fobj.binned_pos_data[vel_mult][axis, cant_axis]
+                pressure = round_sig(fobj.pressures[baratron_indx],1)
+                if pressure < 5e-5:
+                    pressure = 'Base ~ 1e-6'
+                else:
+                    pressure = '%.1e' % pressure
+                return [cant_dat, pos_dat, pressure]
+        else:
+            def extractor(fobj):
+                cant_dat = fobj.binned_cant_data[vel_mult][axis, cant_axis]
+                pos_dat = fobj.binned_pos_data[vel_mult][axis, cant_axis]
+                return [cant_dat, pos_dat, 1]
         
         extracted = np.array(map(extractor, self.fobjs))
-        self.ave_force_vs_pos = {}
+        
+        self.avg_force_v_pos = {}
         for v in np.unique(extracted[:, 2]):
             boolv = extracted[:, 2] == v
-            xout, yout, yerrs = sbin(np.hstack(extracted[boolv, 0]), np.hstack(extracted[boolv, 1]), bin_size)
-            self.ave_force_vs_pos[str(v)] =  [xout, yout, yerrs]
+            xout, yout, yerrs = sbin_pn(np.hstack(extracted[boolv, 0]), \
+                                        np.hstack(extracted[boolv, 1]), \
+                                        bin_size, vel_mult = vel_mult)
+            self.avg_force_v_pos[str(v)] =  [xout, yout, yerrs]
 
-    def avg_pos_data(self):
+
+
+    def get_avg_diag_force_v_pos(self, axis = 1, cant_axis = 2, bin_size = 0.5, \
+                            cant_indx = 24, vel_mult = 0,
+                            bias = False, pressures = False,
+                            baratron_indx = 2):
+        #Averages force vs positon over files with the same potential. Returns a list of average force vs position for each cantilever potential in the directory.
+
+        if type(self.fobjs) == str:
+            self.load_dir(pos_loader)
+        if bias:
+            def extractor(fobj):
+                cant_dat = fobj.diag_binned_cant_data[vel_mult][axis, cant_axis]
+                pos_dat = fobj.diag_binned_pos_data[vel_mult][axis, cant_axis]
+                cantV = fobj.electrode_settings[cant_indx]
+                return [cant_dat, pos_dat, cantV]
+            
+        elif pressures:
+            def extractor(fobj):
+                #extracts [cant data, pos data, baratron pressure]
+                cant_dat = fobj.diag_binned_cant_data[vel_mult][axis, cant_axis]
+                pos_dat = fobj.diag_binned_pos_data[vel_mult][axis, cant_axis]
+                pressure = round_sig(fobj.pressures[baratron_indx],1)
+                if pressure < 5e-5:
+                    pressure = 'Base ~ 1e-6'
+                else:
+                    pressure = '%.1e' % pressure
+                return [cant_dat, pos_dat, pressure]
+        else:
+            def extractor(fobj):
+                cant_dat = fobj.diag_binned_cant_data[vel_mult][axis, cant_axis]
+                pos_dat = fobj.diag_binned_pos_data[vel_mult][axis, cant_axis]
+                return [cant_dat, pos_dat, 1]
+        
+        extracted = np.array(map(extractor, self.fobjs))
+        
+        self.avg_diag_force_v_pos = {}
+        for v in np.unique(extracted[:, 2]):
+            boolv = extracted[:, 2] == v
+            xout, yout, yerrs = sbin_pn(np.hstack(extracted[boolv, 0]), \
+                                        np.hstack(extracted[boolv, 1]), \
+                                        bin_size, vel_mult = vel_mult)
+            self.avg_diag_force_v_pos[str(v)] =  [xout, yout, yerrs]
+
+
+
+
+
+
+    def get_avg_pos_data(self):
         if type(self.fobjs) == str:
             self.load_dir(ft_loader)
 
@@ -518,36 +892,42 @@ class Data_dir:
             counts += 1.
         for i in range(len(avg)):
             avg[i] = avg[i] / counts
-        self.ave_pos_data = avg
+        self.avg_pos_data = avg
 
-    def diagonalize_ave_pos(self):
+    def diagonalize_avg_pos(self):
         if type(self.Havg) == str:
-            self.build_avgH()
+            self.build_Havg()
         if type(self.ave_pos_data) == str:
             self.avg_pos_data()
 
         ft = np.fft.rfft(self.ave_pos_data)
-        H = np.linalg.inv(self.Havg)
+
+        # invert from response/drive -> drive/response
+        H = np.linalg.inv(self.Havg_cal) 
         
+        # Diagonalize and calibrate the response
         ft_diag = np.einsum('ij, jk -> ik', H, ft)
 
         return np.fft.irfft(ft_diag)
 
 
-    def H_vec(self, pcol = 1, ecol = 3):
-        #Generates an array of Hs for the whole directory.
-        #First check to make sure files are loaded and H is computed.
+    def build_step_cal_vec(self, drive_freq = 41., pcol = 1, ecol = 3):
+        # Generates an array of step_cal values for the whole directory.
+        # First check to make sure files are loaded and H is computed.
         if type(self.fobjs) == str: 
-            self.load_dir(H_loader)
-        
-        if type(self.fobjs[0].H) == str:
-            self.load_dir(H_loader)
+            self.load_dir(simple_loader)
             
-        Her = lambda fobj: np.mean(fobj.H.Hmats[pcol, ecol, :], axis = 0)
-        self.Hs = map(Her, self.fobjs)
+        for fobj in self.fobjs:
+            fobj.find_step_cal_response(drive_freq = drive_freq, \
+                                        pcol = pcol, ecol = ecol)
+
+        Her = lambda fobj: fobj.step_cal_response
+        self.step_cal_vec = map(Her, self.fobjs)
+
+
 
     
-    def build_uncalibrated_H(self):
+    def build_uncalibrated_H(self, average_first=False, dpsd_thresh = 6e-2, mfreq = 1.):
         # Loop over file objects and construct a dictionary with frequencies 
         # as keys and 3x3 transfer matrices as values
         if type(self.fobjs) == str:
@@ -558,67 +938,440 @@ class Data_dir:
 
         Hout_counts = {}
 
-        for obj in self.fobjs:
-            einds = obj.H.electrodes
-            finds = obj.H.finds
-            freqs = obj.fft_freqs[finds]
+        if average_first:
+            avg_drive_fft = {}
+            avg_data_fft = {}
+            counts = {}
+
+            for fobj in self.fobjs:
+
+                if type(fobj.data_fft) == str:
+                    fobj.get_fft()        
+
+                dfft = np.fft.rfft(fobj.electrode_data) #fft of electrode drive in daxis. 
+                data_fft = fobj.data_fft
+
+                N = np.shape(fobj.pos_data)[1]#number of samples
+                Fsamp = fobj.Fsamp
+
+                dpsd = np.abs(dfft)**2*2./(N*fobj.Fsamp) #psd for all electrode drives   
+                inds = np.where(dpsd>dpsd_thresh)#Where the dpsd is over the threshold for being used.
+                b = inds[1] > np.argmin(np.abs(fobj.fft_freqs - mfreq))
+                eind = np.unique(inds[0])[0]
+
+                if eind not in avg_drive_fft:
+                    avg_drive_fft[eind] = np.zeros(dfft.shape, dtype=np.complex128)
+                    avg_data_fft[eind] = np.zeros(data_fft.shape, dtype=np.complex128)
+                    counts[eind] = 0.
             
-            for i in range(len(freqs)):
-                if freqs[i] not in Hout:
-                    Hout[freqs[i]] = np.zeros((3,3), dtype=np.complex128)
-                    Hout_noise[freqs[i]] = np.zeros((3,3), dtype=np.complex128)
-                    Hout_counts[freqs[i]] = np.zeros(3)
+                avg_drive_fft[eind] += dfft
+                avg_data_fft[eind] += data_fft
+                counts[eind] += 1.
 
-                outind = emap(einds[i])
-                Hout[freqs[i]][:,outind] += obj.H.Hmats[:,einds[i],i]
-                Hout_noise[freqs[i]][:,outind] += obj.noiseH.Hmats[:,einds[i],i]
-                Hout_counts[freqs[i]][outind] += 1
+            for eind in counts.keys():
+                avg_drive_fft[eind] = avg_drive_fft[eind] / counts[eind]
+                avg_data_fft[eind] = avg_data_fft[eind] / counts[eind]
 
-        # Compute the average transfer function
-        for key in Hout.keys():
-            for i in [0,1,2]:
-                Hout[key][:,i] = Hout[key][:,i] / Hout_counts[key][i]
-                Hout_noise[key][:,i] = Hout_noise[key][:,i] / Hout_counts[key][i]
+            for eind in avg_drive_fft.keys():
+                dpsd = np.abs(avg_drive_fft[eind])**2 * 2. / (N*Fsamp)
+                inds = np.where(dpsd > dpsd_thresh)
+
+                finds = inds[1]
+                
+                mfreq = 1.0
+                b = finds > np.argmin(np.abs(self.fobjs[0].fft_freqs - mfreq))
+
+                freqs = self.fobjs[0].fft_freqs[finds[b]]
+
+                Hmatst = np.einsum('ij, kj -> ikj', \
+                                     avg_data_fft[eind], 1. / avg_drive_fft[eind])
+                
+                Hmatst_good = Hmatst[:,:,finds[b]]
+
+                shift = int(0.5 * (finds[b][1] - finds[b][0]))
+                randadd = np.random.choice(np.arange(-int(0.1*shift), \
+                                                     int(0.1*shift)+1, 1))
+                shift = shift + randadd
+                rolled_data_fft = np.roll(avg_data_fft[eind], shift, axis=-1)
+                
+                Hmatst_noise = np.einsum('ij, kj -> ikj', \
+                                         rolled_data_fft, 1. / avg_drive_fft[eind])
+                Hmatst_noise = Hmatst_noise[:,:,finds[b]]
+
+                outind = emap(eind)
+                for i, freq in enumerate(freqs):
+                    if freq not in Hout:
+                        Hout[freq] = np.zeros((3,3), dtype=np.complex128)
+                        Hout_noise[freq] = np.zeros((3,3), dtype=np.complex128)
+                    Hout[freq][:,outind] += Hmatst_good[:,eind,i]
+                    Hout_noise[freq][:,outind] += Hmatst_noise[:,eind,i]
+
+
+        if not average_first:
+            for obj in self.fobjs:
+                einds = obj.H.electrodes
+                finds = obj.H.finds
+                freqs = obj.fft_freqs[finds]
+
+                for i, freq in enumerate(freqs):
+                    if freq not in Hout:
+                        Hout[freq] = np.zeros((3,3), dtype=np.complex128)
+                        Hout_noise[freq] = np.zeros((3,3), dtype=np.complex128)
+                        Hout_counts[freq] = np.zeros(3)
+
+                    outind = emap(einds[i])
+                    Hout[freq][:,outind] += obj.H.Hmats[:,einds[i],i]
+                    Hout_noise[freq][:,outind] += obj.noiseH.Hmats[:,einds[i],i]
+                    Hout_counts[freq][outind] += 1
+
+            # Compute the average transfer function
+            for key in Hout.keys():
+                for i in [0,1,2]:
+                    Hout[key][:,i] = Hout[key][:,i] / Hout_counts[key][i]
+                    Hout_noise[key][:,i] = Hout_noise[key][:,i] / Hout_counts[key][i]
         
+        first_mats = []
+        freqs = Hout.keys()
+        freqs.sort()
+        for freq in freqs[:1]:
+            first_mats.append(Hout[freq])
+        first_mats = np.array(first_mats)
+        
+        init_phases = np.mean(np.angle(first_mats), axis=0)
+        for drive in [0,1,2]:
+            if np.abs(init_phases[drive,drive]) > 2.0:
+                print "Correcting phase shift", drive
+                sys.stdout.flush()
+                for freq in freqs:
+                    Hout[freq][:,drive] = Hout[freq][:,drive] * (-1)
+
+
         self.Hs = Hout
         self.noiseHs = Hout_noise
 
-    def save_H(self, fname):
-        pickle.dump(self.Hs, open(fname, "wb"))
+
+    def calibrate_H(self, step_cal_drive_channel = 1, drive_freq = 41.,\
+                    plate_sep = 0.004, bins_to_avg = 2):
+        if type(self.charge_step_calibration) == str:
+            print self.charge_step_calibration
+            return
+        if type(self.Hs) == str:
+            self.build_uncalibrated_H()
+        print "CALIBRATING H FROM SINGLE-CHARGE STEP"
+        freqs = np.array(self.Hs.keys())
+        ind = np.argmin(np.abs(freqs-drive_freq))
+        
+        j = step_cal_drive_channel
+        bins = bins_to_avg
+
+        # Compute Vresponse / Vdrive on q = q0:
+        npfreqs = np.array(freqs)
+        freqs_to_avg = npfreqs[ind-bins:ind+bins+1]
+
+        resps = []
+        for freq in freqs_to_avg:
+            resps.append(np.abs(self.Hs[freq][j,j]))
+
+        qfac = np.mean(resps)  
+        qfac = qfac * plate_sep # convert V -> E-field -> Force
+            
+        if type(self.conv_facs) == str:
+            self.get_conv_facs()
+        fac = 1. / self.conv_facs[j]  # Vresponse / Ndrive on q=1
+
+        q = qfac / fac
+        outstr = "Charge-step calibration implies "+\
+                 "%0.2f charge during H measurement" % (q / bu.e_charge)
+        print outstr
+
+        Hs_cal = {}
+        for freq in freqs:
+            # Normalize transfer functions by charge number
+            # and convert to force with capacitor plate separation
+            # F = q*E = q*(V/d) so we take
+            # (Vresp / Vdrive) * d / q = Vresp / Fdrive
+            Hs_cal[freq] = np.copy(self.Hs[freq]) * (plate_sep / q)
+
+        self.Hs_cal = Hs_cal
+
+
+
+    def diagonalize_files(self, fthresh = 80., simpleDCmat=False):
+        if type(self.Hs_cal) == str:
+            try:
+                self.calibrate_H()
+            except:
+                print self.Hs_cal
+
+        print "Diagonalizing Data:"
+        sys.stdout.flush()
+        
+        if simpleDCmat:
+            self.build_Havg(fthresh = fthresh)
+            mat = np.linalg.inv(self.Havg_cal)
+
+            for fobj in self.fobjs:
+                fobj.diagonalize(mat)
+                fobj.spatial_bin(diag=True)
+                fobj.close_dat(ft=False, elecs=False)
+            
+            return
+        
+        print "  Building TF array...",
+        sys.stdout.flush()
+        Harr = []
+        freqs = self.fobjs[0].fft_freqs
+        Nfreqs = len(freqs)
+        percent = 0
+        for freqind, freq in enumerate(freqs):
+            if (100. * float(freqind) / float(Nfreqs)) > percent:
+                print percent,
+                sys.stdout.flush()
+                percent += 10
+            newmat = np.zeros((3,3),dtype=np.complex128)
+            for drive in [0,1,2]:
+                for resp in [0,1,2]:
+                    magparams = self.Hfuncs[resp][drive][0]
+                    phaseparams = self.Hfuncs[resp][drive][1]
+                    phase0 = self.Hfuncs[resp][drive][2]
+                    
+                    mag = damped_osc_amp(freq, magparams[0], magparams[1], magparams[2])
+                    phase = damped_osc_phase(freq, phaseparams[0], phaseparams[1], \
+                                             phaseparams[2], phase0=phase0)
+
+                    newmat[drive,resp] = mag * np.exp(1.0j * phase)
+            newmat_inv = np.linalg.inv(newmat)
+            Harr.append(np.copy(newmat_inv))
+
+        Harr = np.array(Harr)
+
+        print
+        print "  Applying TF to files...",
+        sys.stdout.flush()
+        Nfobjs = len(self.fobjs)
+        percent = 0
+        for fobjind, fobj in enumerate(self.fobjs):
+            if (100. * float(fobjind) / float(Nfobjs)) > percent:
+                print percent,
+                sys.stdout.flush()
+                percent += 10
+            assert np.array_equal(fobj.fft_freqs, freqs)
+
+            diag_fft = np.einsum('ikj,ki->ji', Harr, fobj.data_fft)
+            fobj.diag_pos_data = np.fft.irfft(diag_fft)
+            fobj.diag_data_fft = diag_fft
+            
+            fobj.spatial_bin(diag=True)
+            fobj.close_dat(ft=False, elecs=False)
+        print
+
+
+
+    def save_H(self, fname, cal=False):
+        out = (self.Hs, self.noiseHs, self.Hs_cal, self.Hfuncs)
+        pickle.dump(out, open(fname, "wb"))
 
     def load_H(self, fname):
         newH = pickle.load( open(fname, "rb"))
-        self.Hs = newH
+        self.Hs = newH[0]
+        self.noiseHs = newH[1]
+        self.Hs_cal = newH[2]
+        self.Hfuncs = newH[3]
 
 
-
-    def calibrate_H(self):
-        return
-
-
-
-
-
-    def build_avgH(self, fthresh = 80):
+    def build_Havg(self, fthresh = 80):
         # average over frequencies f < 0.5*f_natural
         if type(self.Hs) == str:
             self.build_uncalibrated_H()
+            self.calibrate_H()
 
         keys = self.Hs.keys()
 
         mats = []
+        mats_cal = []
         for key in keys:
             if key < fthresh:
                 mats.append(self.Hs[key])
+                mats_cal.append(self.Hs_cal[key])
 
         mats = np.array(mats)
+        mats_cal = np.array(mats_cal)
+
         self.Havg =  np.mean(mats, axis=0)
+        self.Havg_cal = np.mean(mats_cal, axis=0)
 
         
 
+################################################################################
+################################################################################
+################################################################################
+
+
+    def build_Hfuncs(self, fit_freqs = [120.,500], fpeaks=[240.,240.,50.], \
+                     weight_peak=False, weight_above_thresh=False, weight_thresh=150., \
+                     weight_phase=False, plot_fits=False, plot_inits=False):
+        # Build the calibrated transfer function array
+        # i.e. transfer matrices at each frequency and fit functions to each component
+
+        if type(self.Hs_cal) == str:
+            self.calibrate_H()
+            
+        keys = self.Hs_cal.keys()
+        keys.sort()
+
+        keys = np.array(keys)
+
+        mats = []
+        for freq in keys:
+            mat = self.Hs_cal[freq]
+            mats.append(mat)
+
+        mats = np.array(mats)
+        fits = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+
+        for drive in [0,1,2]:
+            for resp in [0,1,2]:
+                # Build the array of TF magnitudes and remove NaNs
+                mag = np.abs(mats[:,resp,drive])
+                nans = np.isnan(mag)
+                for nanind, boolv in enumerate(nans):
+                    if boolv:
+                        mag[nanind] = mag[nanind-1]
+
+                # Build the array of TF phases and remove NaNs
+                phase = np.angle(mats[:,resp,drive])
+                nans2 = np.isnan(phase)
+                for nanind, boolv in enumerate(nans2):
+                    if boolv:
+                        phase[nanind] = phase[nanind-1]
+
+                # Unwrap the phase
+                unphase = np.unwrap(phase, discont=1.5*np.pi)
+                
+                # Make initial guess based on high-pressure thermal spectra fits
+                therm_fits = self.thermal_cal_fobj.thermal_cal
+                if (drive == 2) or (resp == 2):
+                    # Z-direction is considerably different than X or Y
+                    Amp = 1e17
+                    f0 = therm_fits[2].popt[1]
+                    g = therm_fits[2].popt[2]
+                    fit_freqs = [1.,100.]
+                    fpeak = fpeaks[2]
+                else:
+                    Amp = 1e19
+                    f0 = therm_fits[resp].popt[1] * 1.5
+                    g = therm_fits[resp].popt[2]
+                    fit_freqs = [1.,500.]
+                    fpeak = fpeaks[resp]
+                
+                # Construct initial paramter arrays
+                p0_mag = [Amp, f0, g]
+                p0_phase = [1., f0, g]  # includes arbitrary smearing amplitude
+
+                b1 = keys > fit_freqs[0]
+                b2 = keys < fit_freqs[1]
+                b = b1 * b2
+
+                # Construct weights if desired
+                npkeys = np.array(keys)
+                weights = np.zeros(len(npkeys)) + 1.
+                if weight_peak:
+                    weights = weights - 0.7 * np.exp(-(npkeys-fpeak)**2 / (2 * 600) )
+                if weight_above_thresh:
+                    ind = np.argmin(np.abs(npkeys - weight_thresh))
+                    weights[ind:] *= 0.5
+                phase_weights = np.zeros(len(npkeys)) + 1.
+                if weight_phase and (drive != 2 and resp != 2):
+                    ind = np.argmin(np.abs(npkeys - 50.))
+                    phase_weights[:ind] *= 0.05
+
+                # Fit the TF magnitude
+                popt_mag, pcov_mag = curve_fit(damped_osc_amp, keys[b], mag[b], \
+                                               sigma=weights[b], p0=p0_mag, maxfev=10000)
+
+                # Fit the TF phase with varying phi(DC): -pi, 0 and pi and
+                # select the sign based on sum of residuals
+                phase_fits = {}
+                phase_resids = [0.,0.,0.]
+                bounds = ([0.1, -np.inf, -np.inf], [10, np.inf, np.inf])
+                for pmult in np.arange(-1,2,1):
+                    # Wrap fitting in a try/except block since trying all 3
+                    # phi(DC) will inevitably lead to some bad fits
+                    try:
+                        fitfun = lambda x,a,b,c:damped_osc_phase(x,a,b,c,phase0=np.pi*pmult)
+                        popt, pcov = curve_fit(fitfun, keys[b], unphase[b], \
+                                               p0=p0_phase, bounds=bounds,
+                                               sigma=phase_weights[b])
+                    except:
+                        #print "bad fit...", drive, resp, np.pi*pmult
+                        popt = p0_phase
+                    
+                    # Save the fits and the residuals
+                    phase_fits[pmult] = np.copy(popt)
+                    phase_resids[pmult] = np.sum( np.abs(damped_osc_phase(keys[b], popt[0], \
+                                                                popt[1], popt[2], phase0=np.pi*pmult) \
+                                                         - unphase[b]) )
+
+                #print drive, resp, phase_resids
+                mult = np.argmin(phase_resids)
+                if mult == 2:
+                    mult = -1
+
+                popt_phase = phase_fits[mult]
+                phase0 = np.pi * mult
+                
+                fits[resp][drive] = (popt_mag, popt_phase, phase0)
+
+                if plot_fits:
+
+                    fitmag = damped_osc_amp(keys[b], popt_mag[0], \
+                                        popt_mag[1], popt_mag[2])
+                    fitphase = damped_osc_phase(keys[b], popt_phase[0], \
+                                            popt_phase[1], popt_phase[2], phase0=phase0)
+
+                    if plot_inits:
+                        maginit = damped_osc_amp(keys[b], p0_mag[0], p0_mag[1], p0_mag[2])
+                        phaseinit = damped_osc_phase(keys[b], p0_phase[0], p0_phase[1], \
+                                             p0_phase[2], phase0=phase0)
+
+                    plt.figure(drive+1)
+                    plt.subplot(3,1,resp+1)
+                    plt.loglog(keys, mag)
+                    plt.loglog(keys[b], fitmag, color='r', linewidth=3)
+                    if plot_inits:
+                        plt.loglog(keys[b], maginit, color='k', linewidth=2)
+
+                    plt.figure(drive+4)
+                    plt.subplot(3,1,resp+1)
+                    plt.semilogx(keys, unphase)
+                    plt.semilogx(keys[b], fitphase, color='r', linewidth=3)
+                    if plot_inits:
+                        plt.semilogx(keys[b], phaseinit, color='k', linewidth=2)
+
+        self.Hfuncs = fits
+
+        #for drive in [0,1,2]:
+        #    for resp in [0,1,2]:
+        #        print drive, resp, fits[resp][drive]
+        #print fits
+
+        if plot_fits:
+            plt.show()
+
+                
+            
+
+
+
+
+################################################################################
+################################################################################
+################################################################################
+
 
     def plot_H(self, phase=False, show=True, label=False, noise=False,\
-               show_zDC=False):
+               show_zDC=False, thermal_calib=False, cal=False, \
+               lim=False, inv=False):
         # plot all the transfer functions
 
         if type(self.Hs) == str:
@@ -627,6 +1380,8 @@ class Data_dir:
             
         if noise:
             keys = self.noiseHs.keys()
+        elif cal and not noise:
+            keys = self.Hs_cal.keys()
         else:
             keys = self.Hs.keys()
         keys.sort()
@@ -634,15 +1389,29 @@ class Data_dir:
         mats = []
         for freq in keys:
             if noise:
-                mats.append(self.noiseHs[freq])
+                mat = self.noiseHs[freq]
+            elif cal and not noise:
+                mat = self.Hs_cal[freq]
             else:
-                mats.append(self.Hs[freq])
+                mat = self.Hs[freq]
 
+            if inv:
+                mat = np.linalg.inv(mat)
+            mats.append(mat)
         # Plot the magnitude of the transfer function:
         #     Makes separate plots for a given direction of drive
         #     each with three subplots detailing x, y, and z response
         #     to a drive in a particular direction
         mats = np.array(mats)
+        facs = [1.,1.,1.]
+        if thermal_calib:
+            if type(self.thermal_cal_fobj) == str:
+                print "No thermal calibration"
+            else:
+                facs = self.thermal_cal_fobj.get_thermal_cal_facs()
+                for i in [0,1,2]:
+                    mats[:,i,:] = mats[:,i,:] * np.sqrt(facs[i])
+
         for drive in [0,1,2]:
             plt.figure(drive+1)
             for response in [0,1,2]:
@@ -652,10 +1421,10 @@ class Data_dir:
                 # check for NaNs from empty directory or incomplete
                 # measurements and replace with unity
                 nans = np.isnan(mag)
-                mag[nans] = np.zeros(len(mag[nans])) + 1
-                if np.mean(mag) == 0 and np.std(mag) == 0:
-                    mag = mag + 1.
-
+                for nanind, boolv in enumerate(nans):
+                    if boolv:
+                        mag[nanind] = mag[nanind-1]
+                #mag[nans] = np.zeros(len(mag[nans])) + mag[nans-1]
                 if label and response == 0:
                     plt.loglog(keys, mag, label = self.label)
                 elif show_zDC and response == 2:
@@ -689,7 +1458,7 @@ class Data_dir:
                     phase[nans] = np.zeros(len(phase[nans])) + 1e-12
                     if np.mean(phase) == 0 and np.std(phase) == 0:
                         phase = phase + 1e-12
-                    unphase = np.unwrap(phase)
+                    unphase = np.unwrap(phase, discont=1.5*np.pi)
                     if unphase[0] < -2.5:
                         unphase = unphase + 2 * np.pi
 
@@ -700,6 +1469,9 @@ class Data_dir:
                                    label="Avg Z: %0.4f"%self.ave_dc_pos[-1])
                     else:
                         plt.semilogx(keys, unphase)
+
+                    if lim:
+                        plt.ylim(-1.5*np.pi, 1.5*np.pi)
 
                     if show:
                         ax2.legend(loc=0)
@@ -730,16 +1502,21 @@ class Data_dir:
                 
 
         
-    def step_cal(self, dir_obj, n_phi = 140, plate_sep = 0.004, amp_gain = 200.):
+    def step_cal(self, n_phi = 20, plate_sep = 0.004, \
+                 drive_freq = 41., amp_gain = 200.):
         #Produce a conversion between voltage and force given a directory with single electron steps.
         #Check to see that Hs have been calculated.
-        if type(dir_obj.Hs) == str:
-            dir_obj.H_vec()
+        if type(self.step_cal_vec) == str:
+            self.build_step_cal_vec(drive_freq = drive_freq)
         
-        phi = np.mean(np.angle(dir_obj.Hs[0:n_phi])) #measure the phase angle from the first n_phi samples.
-        yfit =  np.abs(dir_obj.Hs)*np.cos(np.angle(dir_obj.Hs) - phi)
+        #phi = np.mean(np.angle(dir_obj.step_cal_vec[:n_phi])) #measure the phase angle from the first n_phi samples.
+        #yfit =  np.abs(dir_obj.step_cal_vec)*np.cos(np.angle(dir_obj.step_cal_vec) - phi)
+        yfit = np.abs(self.step_cal_vec)
+        plt.figure(1)
+        plt.ion()
         plt.plot(yfit, 'o')
         plt.show()
+        print "CHARGE STEP CALIBRATION"
         nstep = input("Enter guess at number of steps and charge at steps [[q1, q2, q3, ...], [x1, x2, x3, ...], vpq]: ")
         
         #function for fit with volts per charge as only arg.
@@ -747,7 +1524,7 @@ class Data_dir:
             qqs = vpq*np.array(nstep[0])
             return multi_step_fun(x, qqs, nstep[1])
 
-        xfit = np.arange(len(dir_obj.Hs))
+        xfit = np.arange(len(self.step_cal_vec))
         
         #fit
         p0 = nstep[2]#Initial guess for the fit
@@ -755,15 +1532,50 @@ class Data_dir:
 
         fitobj = Fit(popt, pcov, ffun)#Store fit in object.
 
+        plt.close(1)
+        plt.ioff()
         f, axarr = plt.subplots(2, sharex = True)#Plot fit
         fitobj.plt_fit(xfit, yfit, axarr[0])
         fitobj.plt_residuals(xfit, yfit, axarr[1])
         plt.show()
         
         #Determine force calibration.
-        fitobj.popt *= 1./(amp_gain*bu.e_charge/plate_sep)
-        fitobj.errs *= 1./(amp_gain*bu.e_charge/plate_sep)
+        fitobj.popt = fitobj.popt * 1./(amp_gain*bu.e_charge/plate_sep)
+        fitobj.errs = fitobj.errs * 1./(amp_gain*bu.e_charge/plate_sep)
         self.charge_step_calibration = fitobj
+
+    def save_step_cal(self, fname):
+        fitobj = self.charge_step_calibration
+        step_cal_out = [fitobj.popt, fitobj.errs]
+        pickle.dump(step_cal_out, open(fname, "wb"))
+
+    def load_step_cal(self, fname):
+        def ffun(x, vpq):
+            qqs = vpq*np.array(nstep[0])
+            return multi_step_fun(x, qqs, nstep[1])
+
+        step_cal_in = pickle.load( open(fname, "rb"))
+        new_fitobj = Fit(step_cal_in[0], step_cal_in[1], ffun)
+        self.charge_step_calibration = new_fitobj
+
+
+    def get_conv_facs(self, step_cal_drive_channel = 1, drive_freq = 41.):
+        # Use transfer function to get charge step calibration in all channels
+        # from the channel in which is was performed (nominally Y)
+        fac = 1. / self.charge_step_calibration.popt[0]   # Gives Newton / Volt
+        freqs = np.array(self.Hs.keys())
+        ind = np.argmin(np.abs(drive_freq - freqs))
+        freq = freqs[ind]
+        mat = self.Hs[freq]
+
+        facs = []
+        j = step_cal_drive_channel
+
+        for i in [0,1,2]:
+            newfac = fac * np.abs(mat[j,j]) / np.abs(mat[i,i])
+            facs.append(newfac)
+            
+        self.conv_facs = np.array(facs)
         
         
     def save_dir(self):
@@ -781,5 +1593,5 @@ class Data_dir:
         self.Hs = temp_obj.Hs
         self.thermal_calibration = temp_obj.thermal_calibration
         self.charge_step_calibration = temp_obj.charge_step_calibration
-        self.ave_force_vs_pos = temp_obj.ave_force_vs_pos
+        self.avg_force_v_pos = temp_obj.avg_force_v_pos
 
