@@ -180,3 +180,6 @@
 
 
 
+##### Weekend Background before Z-correction
+
+80; /data/20160627/bead1/weekend_background_withap; Weekend; 15
