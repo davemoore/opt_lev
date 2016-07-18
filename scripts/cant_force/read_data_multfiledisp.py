@@ -12,7 +12,7 @@ from scipy.optimize import minimize_scalar as minimize
 import cPickle as pickle
 
 #dirs = [42,38,39,40,41]
-dirs = [80,]
+dirs = [119,]
 
 ddict = bu.load_dir_file( "/home/charles/opt_lev_classy/scripts/cant_force/dir_file.txt" )
 #print ddict
@@ -23,7 +23,8 @@ calibrate = True
 init_data = [0., 0., 20.]
 
 load_charge_cal = True
-files = np.arange(0,40,1)
+#files = np.arange(0,40,1)
+files = np.array([25,])
 maxfiles = 1000
 
 #################

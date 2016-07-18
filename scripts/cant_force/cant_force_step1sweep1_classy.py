@@ -10,48 +10,37 @@ from scipy.optimize import curve_fit
 import bead_util as bu
 from scipy.optimize import minimize_scalar as minimize 
 
-dirs = [65,]
+dirs = [155,]
 
 ddict = bu.load_dir_file( "/home/charles/opt_lev_classy/scripts/cant_force/dir_file.txt" )
 #print ddict
 
 load_from_file = False
-cant_axis = 1
-step_axis = 2
+cant_axis = 2
+step_axis = 0
 respaxis = 1
-init_data = [0., 0., 0]
+bin_size = 5
+
+init_data = [0., 0., 20.]
 load_charge_cal = True
 
-fit_height = False
+fit_height = True
+fit_dist = 30.   # um
 
-maxfiles=1000
+maxfiles = 1000
+
+fig_title = 'Force vs. Cantilever Position: Finding height'
+
+tf_path = './trans_funcs/Hout_20160715.p'
+step_cal_path = './calibrations/step_cal_20160715.p'
 
 #################
 
 def ffn(x, a, b):
-    return a * (1. / x) + b
+    return a * (1. / x)**2 + b * (1. / x)
 
 def ffn2(x, a, b, c):
     return a * (x - b)**2 + c
-
-#################
-
-if not load_charge_cal:
-    cal = [['/data/20160627/bead1/chargelp_withap_2nd_cal2'], 'Cal', 20]
-
-    cal_dir_obj = cu.Data_dir(cal[0], [0,0,cal[2]], cal[1])
-    cal_dir_obj.load_dir(cu.simple_loader)
-    cal_dir_obj.build_step_cal_vec()
-    cal_dir_obj.step_cal()
-    cal_dir_obj.save_step_cal('./calibrations/step_cal_20160701.p')
-
-    for fobj in cal_dir_obj.fobjs:
-        fobj.close_dat()
-
-    step_calibration = cal_dir_obj.charge_step_calibration
-
-
-#################
 
 
 
@@ -86,55 +75,83 @@ pos_keys.sort()
 
 force_at_closest = {}
 fits = {}
+diag_fits = {}
 
+f, axarr = plt.subplots(3,2,sharex='all',sharey='all',figsize=(10,12),dpi=100)
 for i, pos in enumerate(pos_keys):
     newobj = cu.Data_dir(0, init_data, pos)
     newobj.files = pos_dict[pos]
     newobj.load_dir(cu.diag_loader, maxfiles=maxfiles)
-    newobj.get_avg_force_v_pos(axis = respaxis, \
-                               cant_axis=cant_axis, bin_size = 4)
+    newobj.get_avg_force_v_pos(cant_axis=cant_axis, bin_size = bin_size)
 
-    newobj.load_H("./trans_funcs/Hout_20160630.p")
+    #newobj.load_H("./trans_funcs/Hout_20160630.p")
+    newobj.load_H(tf_path)
     #newobj.plot_H(show=True)
 
     if load_charge_cal:
-        newobj.load_step_cal('./calibrations/step_cal_20160701.p')
+        #newobj.load_step_cal('./calibrations/step_cal_20160628.p') 
+        newobj.load_step_cal(step_cal_path)
     else:
         newobj.charge_step_calibration = step_calibration
 
-    newobj.calibrate_H()
+    #newobj.get_conv_facs()
 
-    newobj.get_conv_facs()
-
-    newobj.diagonalize_files()
-    newobj.get_avg_diag_force_v_pos(axis = respaxis, \
-                                    cant_axis = cant_axis, bin_size = 4)
+    newobj.diagonalize_files(reconstruct_lowf=True,lowf_thresh=200., # plot_Happ=True, \
+                             build_conv_facs=True, drive_freq=18.)
+    newobj.get_avg_diag_force_v_pos(cant_axis = cant_axis, bin_size = bin_size)
 
 
     keys = newobj.avg_diag_force_v_pos.keys()
-    #cal_facs = newobj.conv_facs
-    cal_facs = [1.,1.,1.]
+    cal_facs = newobj.conv_facs
+    #cal_facs = [1.,1.,1.]
     color = colors[i]
     posshort = '%0.2f' % float(pos)
     for key in keys:
-        dat = newobj.avg_diag_force_v_pos[key]
-        offset = - dat[1][-1]
+        diagdat = newobj.avg_diag_force_v_pos[key]
+        dat = newobj.avg_force_v_pos[key]
         #offset = 0
         lab = posshort + ' um'
-        xdat = dat[0]
-        ydat = (dat[1]+offset)*cal_facs[respaxis]
-        plt.errorbar(dat[0], (dat[1]+offset)*1e15, dat[2]*1e15, fmt='.-', ms=10, color = color, label=lab)
-        plt.xlabel('Distance from Cantilever [um]')
-        plt.ylabel('Force [fN]')
-        ind = np.argmin(dat[0])
+        for resp in [0,1,2]:
+            offset = - dat[resp,0][1][-1]
+            diagoffset = - diagdat[resp,0][1][-1]
+            axarr[resp,0].errorbar(dat[resp,0][0], \
+                                   (dat[resp,0][1]+offset)*cal_facs[resp]*1e15, \
+                                   dat[resp,0][2]*cal_facs[resp]*1e15, \
+                                   fmt='.-', ms=10, color = color, label=lab)
+            axarr[resp,1].errorbar(diagdat[resp,0][0], \
+                                   (diagdat[resp,0][1]+diagoffset)*1e15, \
+                                   diagdat[resp,0][2]*1e15, \
+                                   fmt='.-', ms=10, color = color, label=lab)
 
         if fit_height:
-            popt, pcov = curve_fit(ffn, xdat, ydat, p0=[1.,0])
+            offset = -dat[respaxis,0][1][-1]
+            diagoffset = -diagdat[respaxis,0][1][-1]
+            popt, pcov = curve_fit(ffn, dat[respaxis,0][0], \
+                                           (dat[respaxis,0][1]+offset)*cal_facs[respaxis]*1e15, \
+                                           p0=[1.,0.1])
+            diagpopt, diagpcov = curve_fit(ffn, diagdat[respaxis,0][0], \
+                                           (diagdat[respaxis,0][1]+diagoffset)*1e15, \
+                                           p0=[1.,0.1])
 
             fits[pos] = (popt, pcov)
-            force_at_closest[pos] = ydat[ind]
+            diag_fits[pos] = (diagpopt, diagpcov)
 
-plt.legend(loc=0, numpoints=1)
+axarr[0,0].set_title('Raw Data: X, Y and Z-response')
+axarr[0,1].set_title('Diagonalized Data: X, Y and Z-response')
+
+for col in [0,1]:
+    axarr[2,col].set_xlabel('Distance from Cantilever [um]')
+
+axarr[0,0].set_ylabel('X-direction Force [fN]')
+axarr[1,0].set_ylabel('Y-direction Force [fN]')
+axarr[2,0].set_ylabel('Z-direction Force [fN]')
+
+axarr[0,0].legend(loc=0, numpoints=1, ncol=2, fontsize=9)
+
+if len(fig_title):
+    f.suptitle(fig_title, fontsize=18)
+
+
 
 if fit_height:
     keys = fits.keys()
@@ -142,14 +159,9 @@ if fit_height:
     keys = map(float, keys)
     arr1 = []
     arr2 = []
-    arr3 = []
     for key in keys:
-        arr1.append(force_at_closest[key])
-        arr2.append(ffn(30., fits[key][0][0], fits[key][0][1]))
-        arr3.append(np.sqrt(fits[key][1][0,0]))
-    errs = np.array(arr3) / np.array(keys)
-    #arr1 = np.array(arr1)
-    #arr2 = np.array(arr2)
+        arr1.append(ffn(fit_dist, fits[key][0][0], fits[key][0][1]))
+        arr2.append(ffn(fit_dist, diag_fits[key][0][0], diag_fits[key][0][1]))
 
     diff1 = np.abs(np.amax(arr1) - np.amin(arr1))
     diff2 = np.abs(np.amax(arr2) - np.amin(arr2))
@@ -164,10 +176,12 @@ if fit_height:
     fxx2 = ffn2(xx, fit2[0], fit2[1], fit2[2]) 
 
     plt.figure()
+    plt.suptitle("Fit of Raw Data")
     plt.plot(keys, arr1)
     plt.plot(xx, fxx1)
     plt.figure()
-    plt.errorbar(keys, arr2, errs)
+    plt.suptitle("Fit of Diagonalized Data")
+    plt.plot(keys, arr2)
     plt.plot(xx, fxx2)
 
     print "Best fit positions: ", fit1[1], fit2[1]

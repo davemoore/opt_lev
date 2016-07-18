@@ -421,15 +421,24 @@ class Data_file:
         for i in [0,1,2]:
             if i == 1:
                 p0 = self.thermal_cal[0].popt
+            elif i == 2:
+                p0 = [1e-5, 20, 1. / 100.] 
             else:
                 p0 = []
 
             if i == 2:
-                fit_freqs = [1.,200.]
+                fit_freqs = [1.,300.]
             else:
                 fit_freqs = [1.,500.]
             newfit = thermal_fit(self.psds[i], self.psd_freqs, \
                                  fit_freqs = fit_freqs, p0=p0)
+
+            # Since the PSD only cares about |omega| sometimes it fits to a 
+            # negative frequency. The following corrects for that
+            if newfit.popt[1] < 0:
+                print newfit.popt[1]
+                newfit.popt[1] *= (-1)
+
             self.thermal_cal.append(newfit)
         
 
@@ -463,7 +472,7 @@ class Data_file:
             for i in [0,1,2]:
                 if i == 0:
                     xlabel = ''
-                    ylabel = 'X PSD [V^2/rt(Hz)]'
+                    ylabel = 'X PSD [V^2/Hz]'
                 elif i == 1:
                     xlabel = ''
                     ylabel = 'Y PSD'
@@ -588,6 +597,7 @@ class Data_file:
         ### CORR_FUNC TESTING ###
         #test = 3.14159 * np.sin(2 * np.pi * drive_freq * t)
         #test_corr = bu.corr_func(7 * drive, test, self.Fsamp, drive_freq)
+        #print np.sqrt(2) * np.std(test)
         #print np.max(test_corr)
         #########################
 
@@ -603,6 +613,11 @@ class Data_file:
 
         ideal_response = sign * response_amp * np.sin(2 * np.pi * drive_freq * t)
         ideal_response2 = sign * response_amp2 * np.sin(2 * np.pi * drive_freq * t)
+        ideal_drive = drive_amp * np.sin(2 * np.pi * drive_freq * t) + drive_amp
+
+        #plt.plot(t, drive)
+        #plt.plot(t, ideal_drive)
+        #plt.show()
 
         #plt.subplot(2,1,1)
         #plt.plot(response)
@@ -708,11 +723,13 @@ class Data_dir:
         self.avg_diag_force_v_pos = "Average diagonalized force vs position not computed"
         self.avg_pos_data = "Average response not computed"
         self.ave_dc_pos = "Mean positions not computed"
-        self.ave_pressure = 'pressures not loaded'
+        self.avg_pressure = 'pressures not loaded'
+        self.var_pressure = 'Pressures not loaded'
         self.paths = paths
         if paths:
             self.out_path = paths[0].replace("/data/","/home/charles/analysis/")
         if len(self.files) == 0:
+            print "#########################################"
             print "Warning: empty directory"
 
 
@@ -733,7 +750,8 @@ class Data_dir:
         #l = lambda fname: loadfun(fname, self.sep)
         #self.fobjs = map(l, self.files[:maxfiles])
         per = lambda fobj: fobj.pressures
-        self.ave_pressure = np.mean(map(per, self.fobjs), axis = 0)
+        self.avg_pressure = np.mean(map(per, self.fobjs), axis = 0)
+        self.var_pressure = np.std(map(per, self.fobjs), axis = 0)
 
         
         self.ave_dc_pos = np.zeros(3)
@@ -755,27 +773,27 @@ class Data_dir:
             self.thermal_cal_fobj = cal_fobj
 
 
-    
-    def get_avg_force_v_pos(self, axis = 1, cant_axis = 2, bin_size = 0.5, \
-                            cant_indx = 24, vel_mult = 0,
-                            bias = False, pressures = False,
-                            baratron_indx = 2):
-        #Averages force vs positon over files with the same potential. Returns a list of average force vs position for each cantilever potential in the directory.
+
+
+
+    def get_avg_force_v_pos(self, cant_axis = 2, bin_size = 0.5, \
+                                 cant_indx = 24, bias = False, \
+                                 baratron_indx = 2, pressures = False):
 
         if type(self.fobjs) == str:
             self.load_dir(pos_loader)
         if bias:
             def extractor(fobj):
-                cant_dat = fobj.binned_cant_data[vel_mult][axis, cant_axis]
-                pos_dat = fobj.binned_pos_data[vel_mult][axis, cant_axis]
+                cant_dat = fobj.binned_cant_data
+                pos_dat = fobj.binned_pos_data
                 cantV = fobj.electrode_settings[cant_indx]
                 return [cant_dat, pos_dat, cantV]
             
         elif pressures:
             def extractor(fobj):
                 #extracts [cant data, pos data, baratron pressure]
-                cant_dat = fobj.binned_cant_data[vel_mult][axis, cant_axis]
-                pos_dat = fobj.binned_pos_data[vel_mult][axis, cant_axis]
+                cant_dat = fobj.binned_cant_data
+                pos_dat = fobj.binned_pos_data
                 pressure = round_sig(fobj.pressures[baratron_indx],1)
                 if pressure < 5e-5:
                     pressure = 'Base ~ 1e-6'
@@ -784,44 +802,59 @@ class Data_dir:
                 return [cant_dat, pos_dat, pressure]
         else:
             def extractor(fobj):
-                cant_dat = fobj.binned_cant_data[vel_mult][axis, cant_axis]
-                pos_dat = fobj.binned_pos_data[vel_mult][axis, cant_axis]
+                cant_dat = fobj.binned_cant_data
+                pos_dat = fobj.binned_pos_data
                 return [cant_dat, pos_dat, 1]
         
         extracted = np.array(map(extractor, self.fobjs))
         
         self.avg_force_v_pos = {}
         for v in np.unique(extracted[:, 2]):
-            boolv = extracted[:, 2] == v
-            xout, yout, yerrs = sbin_pn(np.hstack(extracted[boolv, 0]), \
-                                        np.hstack(extracted[boolv, 1]), \
-                                        bin_size, vel_mult = vel_mult)
-            self.avg_force_v_pos[str(v)] =  [xout, yout, yerrs]
+            new_arr = [[[], [], []], \
+		       [[], [], []], \
+		       [[], [], []]]
+            
+            for axis in [0,1,2]:
+                for vel_mult in [-1,0,1]:
+                    boolv = extracted[:, 2] == v
+
+                    cant_dat_curr = []
+                    for fil in extracted[boolv,0]:
+                        cant_dat_curr.append(fil[vel_mult][axis,cant_axis])
+                    cant_dat_curr = np.concatenate(cant_dat_curr, axis=0)
+
+                    pos_dat_curr = []
+                    for fil in extracted[boolv,1]:
+                        pos_dat_curr.append(fil[vel_mult][axis,cant_axis])
+                    pos_dat_curr = np.concatenate(pos_dat_curr, axis=0)
+
+                    xout, yout, yerrs = sbin_pn(cant_dat_curr, pos_dat_curr, \
+                                        bin_size=bin_size, vel_mult = vel_mult)
+                    new_arr[axis][vel_mult] = [xout, yout, yerrs]
+
+
+            self.avg_force_v_pos[str(v)] =  np.array(new_arr)
 
 
 
-    def get_avg_diag_force_v_pos(self, axis = 1, cant_axis = 2, bin_size = 0.5, \
-                            cant_indx = 24, vel_mult = 0,
-                            bias = False, pressures = False,
-                            baratron_indx = 2):
-        # Averages force vs positon over files with various similarities
-        # Returns a list of average force vs position for each value of the 
-        # parameter varied in the directory.
+    def get_avg_diag_force_v_pos(self, cant_axis = 2, bin_size = 0.5, \
+                                 cant_indx = 24, bias = False, \
+                                 baratron_indx = 2, pressures = False):
 
         if type(self.fobjs) == str:
             self.load_dir(pos_loader)
         if bias:
             def extractor(fobj):
-                cant_dat = fobj.diag_binned_cant_data[vel_mult][axis, cant_axis]
-                pos_dat = fobj.diag_binned_pos_data[vel_mult][axis, cant_axis]
+                cant_dat = fobj.diag_binned_cant_data
+                pos_dat = fobj.diag_binned_pos_data
                 cantV = fobj.electrode_settings[cant_indx]
                 return [cant_dat, pos_dat, cantV]
             
         elif pressures:
             def extractor(fobj):
                 #extracts [cant data, pos data, baratron pressure]
-                cant_dat = fobj.diag_binned_cant_data[vel_mult][axis, cant_axis]
-                pos_dat = fobj.diag_binned_pos_data[vel_mult][axis, cant_axis]
+                cant_dat = fobj.diag_binned_cant_data
+                pos_dat = fobj.diag_binned_pos_data
                 pressure = round_sig(fobj.pressures[baratron_indx],1)
                 if pressure < 5e-5:
                     pressure = 'Base ~ 1e-6'
@@ -830,19 +863,39 @@ class Data_dir:
                 return [cant_dat, pos_dat, pressure]
         else:
             def extractor(fobj):
-                cant_dat = fobj.diag_binned_cant_data[vel_mult][axis, cant_axis]
-                pos_dat = fobj.diag_binned_pos_data[vel_mult][axis, cant_axis]
+                cant_dat = fobj.diag_binned_cant_data
+                pos_dat = fobj.diag_binned_pos_data
                 return [cant_dat, pos_dat, 1]
         
         extracted = np.array(map(extractor, self.fobjs))
         
         self.avg_diag_force_v_pos = {}
         for v in np.unique(extracted[:, 2]):
-            boolv = extracted[:, 2] == v
-            xout, yout, yerrs = sbin_pn(np.hstack(extracted[boolv, 0]), \
-                                        np.hstack(extracted[boolv, 1]), \
-                                        bin_size, vel_mult = vel_mult)
-            self.avg_diag_force_v_pos[str(v)] =  [xout, yout, yerrs]
+            new_arr = [[[], [], []], \
+		       [[], [], []], \
+		       [[], [], []]]
+            
+            for axis in [0,1,2]:
+                for vel_mult in [-1,0,1]:
+                    boolv = extracted[:, 2] == v
+
+                    cant_dat_curr = []
+                    for fil in extracted[boolv,0]:
+                        cant_dat_curr.append(fil[vel_mult][axis,cant_axis])
+                    cant_dat_curr = np.concatenate(cant_dat_curr, axis=0)
+
+                    pos_dat_curr = []
+                    for fil in extracted[boolv,1]:
+                        pos_dat_curr.append(fil[vel_mult][axis,cant_axis])
+                    pos_dat_curr = np.concatenate(pos_dat_curr, axis=0)
+
+                    xout, yout, yerrs = sbin_pn(cant_dat_curr, pos_dat_curr, \
+                                        bin_size=bin_size, vel_mult = vel_mult)
+                    new_arr[axis][vel_mult] = [xout, yout, yerrs]
+
+
+            self.avg_diag_force_v_pos[str(v)] =  np.array(new_arr)
+
 
 
     def get_avg_pos_data(self):
@@ -858,6 +911,7 @@ class Data_dir:
         for i in range(len(avg)):
             avg[i] = avg[i] / counts
         self.avg_pos_data = avg
+
 
     def diagonalize_avg_pos(self):
         if type(self.Havg) == str:
@@ -917,9 +971,8 @@ class Data_dir:
                 N = np.shape(fobj.pos_data)[1]#number of samples
                 Fsamp = fobj.Fsamp
 
-                dpsd = np.abs(dfft)**2*2./(N*fobj.Fsamp) #psd for all electrode drives   
+                dpsd = np.abs(dfft)**2 * 2./(N*fobj.Fsamp) #psd for all electrode drives   
                 inds = np.where(dpsd>dpsd_thresh)#Where the dpsd is over the threshold for being used.
-                b = inds[1] > np.argmin(np.abs(fobj.fft_freqs - mfreq))
                 eind = np.unique(inds[0])[0]
 
                 if eind not in avg_drive_fft:
@@ -1059,7 +1112,9 @@ class Data_dir:
 
 
 
-    def diagonalize_files(self, fthresh = 40., simpleDCmat=False):
+    def diagonalize_files(self, fthresh = 40., simpleDCmat=False, plot_Happ=False, \
+                          reconstruct_lowf=False, lowf_thresh=100., \
+                          build_conv_facs=False, drive_freq=41.):
         if type(self.Hs_cal) == str:
             try:
                 self.calibrate_H()
@@ -1106,6 +1161,43 @@ class Data_dir:
 
         Harr = np.linalg.inv(Harr)
 
+        if build_conv_facs:
+            convind = np.argmin(np.abs(freqs-drive_freq)) 
+
+            convmat = Harr[convind,:,:]
+            self.conv_facs = np.abs(np.array([convmat[0,0], convmat[1,1], convmat[2,2]]))
+            #print self.conv_facs, type(self.conv_facs)
+
+        if reconstruct_lowf:
+            ind = np.argmin(np.abs(freqs - lowf_thresh))
+            Harr[ind:,:,:] = 0.+0.j
+
+        if plot_Happ:
+            f1, axarr1 = plt.subplots(3,3,sharex='all',sharey='all')
+            f2, axarr2 = plt.subplots(3,3,sharex='all',sharey='all')
+            for resp in [0,1,2]:
+                for drive in [0,1,2]:
+                    TF = Harr[:,resp,drive]
+                    mag = np.abs(TF)
+                    phase = np.angle(TF)
+                    unphase = np.unwrap(phase)
+
+                    if type(self.conv_facs) != str:
+                        conv_vec = np.zeros(len(freqs)) + self.conv_facs[resp]
+                        axarr1[resp,drive].loglog(freqs, conv_vec)
+                    axarr1[resp,drive].loglog(freqs, mag)
+                    axarr1[resp,drive].grid()
+                    axarr2[resp,drive].semilogx(freqs, unphase)
+                    axarr2[resp,drive].grid()
+            for drive in [0,1,2]:
+                axarr1[2,drive].set_xlabel('Frequency [Hz]')
+                axarr2[2,drive].set_xlabel('Frequency [Hz]')
+            for resp in [0,1,2]:
+                axarr1[resp,0].set_ylabel('Mag [Newton/Volt]')
+                axarr2[resp,0].set_ylabel('Phase [rad]')
+            axarr1[0,0].set_ylim(1e-15,1e-10)
+            plt.show()
+
         print
         print "  Applying TF to files...",
         sys.stdout.flush()
@@ -1122,8 +1214,20 @@ class Data_dir:
             fobj.diag_pos_data = np.fft.irfft(diag_fft)
             fobj.diag_data_fft = diag_fft
             
+            #for ind in [0,1,2]:
+            #    plt.subplot(3,1,ind+1)
+            #    plt.loglog(freqs, np.abs(fobj.data_fft[ind]))
+
+            #plt.figure()
+            #for ind in [0,1,2]:
+            #    plt.subplot(3,1,ind+1)
+            #    plt.loglog(freqs, np.abs(diag_fft[ind]))
+            #plt.show()
+
             fobj.spatial_bin(diag=True)
             fobj.close_dat(ft=False, elecs=False)
+        # All previous print statements have had commas so print a newline
+        print
 
 
     def save_H(self, fname, cal=False):
@@ -1162,8 +1266,9 @@ class Data_dir:
         
 
     def build_Hfuncs(self, fit_freqs = [120.,500], fpeaks=[240.,240.,50.], \
-                     weight_peak=False, weight_above_thresh=False, weight_thresh=150., \
-                     weight_phase=False, plot_fits=False, plot_inits=False):
+                     weight_peak=False, weight_lowf=False, lowf_thresh=60., \
+                     weight_phase=False, plot_fits=False, plot_inits=False, \
+                     grid = False):
         # Build the calibrated transfer function array
         # i.e. transfer matrices at each frequency and fit functions to each component
 
@@ -1182,6 +1287,12 @@ class Data_dir:
 
         mats = np.array(mats)
         fits = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+
+        if plot_fits:
+            f1, axarr1 = plt.subplots(3,3, sharex='col', sharey='row')
+            f2, axarr2 = plt.subplots(3,3, sharex='col', sharey='row')
+            f1.suptitle("Magnitude of Transfer Function")
+            f2.suptitle("Phase of Transfer Function")
 
         for drive in [0,1,2]:
             for resp in [0,1,2]:
@@ -1231,9 +1342,9 @@ class Data_dir:
                 weights = np.zeros(len(npkeys)) + 1.
                 if weight_peak:
                     weights = weights - 0.7 * np.exp(-(npkeys-fpeak)**2 / (2 * 600) )
-                if weight_above_thresh:
-                    ind = np.argmin(np.abs(npkeys - weight_thresh))
-                    weights[ind:] *= 0.5
+                if weight_lowf:
+                    ind = np.argmin(np.abs(npkeys - lowf_thresh))
+                    weights[:ind] *= 0.2
                 phase_weights = np.zeros(len(npkeys)) + 1.
                 if weight_phase and (drive != 2 and resp != 2):
                     ind = np.argmin(np.abs(npkeys - 50.))
@@ -1288,23 +1399,35 @@ class Data_dir:
                         phaseinit = damped_osc_phase(keys[b], p0_phase[0], p0_phase[1], \
                                              p0_phase[2], phase0=phase0)
 
-                    plt.figure(drive+1)
-                    plt.subplot(3,1,resp+1)
-                    plt.loglog(keys, mag)
-                    plt.loglog(keys[b], fitmag, color='r', linewidth=3)
-                    if plot_inits:
-                        plt.loglog(keys[b], maginit, color='k', linewidth=2)
+                    if grid:
+                        axarr1[resp,drive].grid()
+                        axarr2[resp,drive].grid()
 
-                    plt.figure(drive+4)
-                    plt.subplot(3,1,resp+1)
-                    plt.semilogx(keys, unphase)
-                    plt.semilogx(keys[b], fitphase, color='r', linewidth=3)
+                    axarr1[resp,drive].loglog(keys, mag)
+                    axarr1[resp,drive].loglog(keys[b], fitmag, color='r', linewidth=3)
                     if plot_inits:
-                        plt.semilogx(keys[b], phaseinit, color='k', linewidth=2)
+                        axarr1[resp,drive].loglog(keys[b], maginit, color='k', linewidth=2)
+
+                    axarr2[resp,drive].semilogx(keys, unphase)
+                    axarr2[resp,drive].semilogx(keys[b], fitphase, color='r', linewidth=3)
+                    if plot_inits:
+                        axarr2[resp,drive].semilogx(keys[b], phaseinit, color='k', linewidth=2)
 
         self.Hfuncs = fits
 
         if plot_fits:
+            
+            for drive in [0,1,2]:
+                axarr1[0, drive].set_title("Drive in direction \'%i\'"%drive)
+                axarr1[2, drive].set_xlabel("Frequency [Hz]")
+
+                axarr2[0, drive].set_title("Drive in direction \'%i\'"%drive)
+                axarr2[2, drive].set_xlabel("Frequency [Hz]")
+
+            for response in [0,1,2]:
+                axarr1[response, 0].set_ylabel("Resp in \'%i\' [Vr/Nd]" %response)
+                axarr2[response, 0].set_ylabel("Resp in \'%i\' [rad]" %response)
+
             plt.show()
 
 
@@ -1342,10 +1465,12 @@ class Data_dir:
         #     to a drive in a particular direction
         mats = np.array(mats)
 
+        f1, axarr1 = plt.subplots(3,3, sharex='col', sharey='row')
+        f1.suptitle("Magnitude of Transfer Function")
         for drive in [0,1,2]:
-            plt.figure(drive+1)
+            #plt.figure(drive+1)
             for response in [0,1,2]:
-                ax1 = plt.subplot(3,1,response+1)                    
+                #ax1 = plt.subplot(3,1,response+1)                    
                 mag = np.abs(mats[:,response,drive])
 
                 # check for NaNs from empty directory or incomplete
@@ -1356,29 +1481,32 @@ class Data_dir:
                         mag[nanind] = mag[nanind-1]
                 #mag[nans] = np.zeros(len(mag[nans])) + mag[nans-1]
                 if label and response == 0:
-                    plt.loglog(keys, mag, label = self.label)
+                    axarr1[response, drive].loglog(keys, mag, label = self.label)
                 elif show_zDC and response == 2:
-                    plt.loglog(keys, mag, \
+                    axarr1[response, drive].loglog(keys, mag, \
                                label="Avg Z: %0.4f"%self.ave_dc_pos[-1])
                 else:
-                    plt.loglog(keys, mag)
+                    axarr1[response, drive].loglog(keys, mag)
 
                 if show:
-                    ax1.legend(loc=0)
-            plt.xlabel("Frequency [Hz]")
+                    axarr1[response,drive].legend(loc=0)
+            axarr1[2, drive].set_xlabel("Frequency [Hz]")
         
         for drive in [0,1,2]:
-            plt.figure(drive+1)
-            plt.subplot(3,1,1)
-            plt.title("Drive in direction \'%i\'"%drive)
+            axarr1[0, drive].set_title("Drive in direction \'%i\'"%drive)
+        for response in [0,1,2]:
+            axarr1[response, 0].set_ylabel("Response in \'%i\' [Vr/Vd]" %response)
+
 
         # Plot the phase of the transfer function:
         #     Same plot/subplot breakdown as before
+        f2, axarr2 = plt.subplots(3,3, sharex='col', sharey='row')
+        f2.suptitle("Phase of Transfer Function")
         if phase and not noise:
             for drive in [0,1,2]:
-                plt.figure(drive+4)
+                #plt.figure(drive+4)
                 for response in [0,1,2]:
-                    ax2 = plt.subplot(3,1,response+1)
+                    #ax2 = plt.subplot(3,1,response+1)
                     phase = np.angle(mats[:,response,drive])
 
                     # Check for NaNs in phase and replace with ~0 
@@ -1393,25 +1521,26 @@ class Data_dir:
                         unphase = unphase + 2 * np.pi
 
                     if label and response == 0:
-                        plt.semilogx(keys, unphase, label = self.label)
+                        axarr2[response, drive].semilogx(keys, unphase, label = self.label)
                     elif show_zDC and response == 2:
-                        plt.semilogx(keys, unphase, \
+                        axarr2[response, drive].semilogx(keys, unphase, \
                                    label="Avg Z: %0.4f"%self.ave_dc_pos[-1])
                     else:
-                        plt.semilogx(keys, unphase)
+                        axarr2[response, drive].semilogx(keys, unphase)
 
                     if lim:
-                        plt.ylim(-1.5*np.pi, 1.5*np.pi)
+                        axarr2[response, drive].ylim(-1.5*np.pi, 1.5*np.pi)
 
                     if show:
-                        ax2.legend(loc=0)
+                        axarr2[response, drive].legend(loc=0)
 
-                plt.xlabel("Frequency [Hz]")
+                axarr2[response, drive].set_xlabel("Frequency [Hz]")
 
             for drive in [0,1,2]:
-                plt.figure(drive+4)
-                plt.subplot(3,1,1)
-                plt.title("Drive in direction \'%i\'"%drive)
+                axarr2[0, drive].set_title("Drive in direction \'%i\'"%drive)
+            
+            for response in [0,1,2]:
+                axarr2[response, 0].set_ylabel("Response in \'%i\' [rad]" %response)
 
         # If the show command was on a noise plot, the phase plots
         # need to be correctly labeled with their legend, as the phase
@@ -1420,10 +1549,8 @@ class Data_dir:
         elif noise and show:
             if show:
                 for drive in [0,1,2]:
-                    plt.figure(drive+4)
                     for response in [0,1,2]:
-                        plt.subplot(3,1,response+1)
-                        plt.legend(loc=0)
+                        axarr2[response, drive].legend(loc=0)
             
         # Show all the plots that have been built up
         if show:

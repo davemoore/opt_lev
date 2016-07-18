@@ -11,7 +11,7 @@ import bead_util as bu
 from scipy.optimize import minimize_scalar as minimize 
 
 #dirs = [29,30,31,32]
-dirs = [55,]#[45,54,55,56]  # 45 is the old one without ap
+dirs = [133,]#[45,54,55,56]  # 45 is the old one without ap
 cal = 5.0e-14
 
 ddict = bu.load_dir_file( "/home/charles/opt_lev_classy/scripts/cant_force/dir_file.txt" )
@@ -23,13 +23,13 @@ maxfiles = 1000
 #################################
 
 if not load_charge_cal:
-    cal = [['/data/20160628/bead1/chargelp_cal3'], 'Cal', 20, 1e-13]
+    cal = [['/data/20160711/bead2/chargelp_cal4'], 'Cal', 15, 1e-13]
 
     cal_dir_obj = cu.Data_dir(cal[0], [0,0,cal[2]], cal[1])
     cal_dir_obj.load_dir(cu.simple_loader)
     cal_dir_obj.build_step_cal_vec()
     cal_dir_obj.step_cal()
-    cal_dir_obj.save_step_cal('./calibrations/step_cal_20160628.p')
+    #cal_dir_obj.save_step_cal('./calibrations/step_cal_20160712.p')
 
     for fobj in cal_dir_obj.fobjs:
         fobj.close_dat()
@@ -50,7 +50,7 @@ def proc_dir(d):
     dir_obj.build_uncalibrated_H(average_first=True)
     
     if load_charge_cal:
-        dir_obj.load_step_cal('./calibrations/step_cal_20160701.p')
+        dir_obj.load_step_cal('./calibrations/step_cal_20160712.p')
     else:
         dir_obj.charge_step_calibration = step_calibration
 
@@ -61,11 +61,13 @@ def proc_dir(d):
         dir_obj.thermal_cal_file_path = '/data/20160627/bead1/1_5mbar_nocool.h5'
     elif '06-30' in dir_obj.label:
         dir_obj.thermal_cal_file_path = '/data/20160627/bead1/1_5mbar_nocool_withap.h5'
+    elif '07-15' in dir_obj.label:
+        dir_obj.thermal_cal_file_path = '/data/20160714/bead1/1_5mbar_zcool_final2.h5'
 
     dir_obj.thermal_calibration()
 
-    dir_obj.build_Hfuncs(fpeaks=[245, 255, 50], weight_peak=False, weight_above_thresh=True,\
-                         plot_fits=True, weight_phase=True)
+    dir_obj.build_Hfuncs(fpeaks=[245, 255, 50], weight_peak=False, weight_lowf=True,\
+                         plot_fits=True, weight_phase=True, grid=True)
     
     return dir_obj
 
@@ -85,12 +87,13 @@ for obj in dir_objs:
 
 for obj in dir_objs:
     if obj != dir_objs[-1]:
-        obj.plot_H(phase=True, show=False, label=True, show_zDC=True, \
+        obj.plot_H(phase=True, show=False, label=True, show_zDC=False, \
                    inv=False, lim=False)
         #obj.plot_H(phase=False, label=False, show=False, noise=True)
         continue
 
-    obj.plot_H(phase=True, label=True, show=True, show_zDC=True, \
+    obj.plot_H(phase=True, label=True, show=True, show_zDC=False, \
                inv=False, lim=False)
     #obj.plot_H(phase=False, label=False, show=True, noise=True)
-    obj.save_H("./trans_funcs/Hout_20160630.p")
+    obj.save_H("./trans_funcs/Hout_20160715.p")
+

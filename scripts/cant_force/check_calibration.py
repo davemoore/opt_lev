@@ -27,18 +27,19 @@ calibrate = True
 ## Build Charge Cal ##
 ######################
 
-charge_cal = [['/data/20160627/bead1/chargelp_withap_2nd_cal2'], 'Cal', 20]
+charge_cal = [['/data/20160714/bead1/chargelp_cal3'], 'Cal', 20]
 
 charge_cal_dir_obj = cu.Data_dir(charge_cal[0], [0,0,charge_cal[2]], charge_cal[1])
-#charge_cal_dir_obj.load_dir(cu.simple_loader)
-#charge_cal_dir_obj.build_step_cal_vec()
-#charge_cal_dir_obj.step_cal()
-charge_cal_dir_obj.load_step_cal('./calibrations/step_cal_20160701.p')
+charge_cal_dir_obj.load_dir(cu.simple_loader)
+charge_cal_dir_obj.build_step_cal_vec()
+charge_cal_dir_obj.step_cal()
+charge_cal_dir_obj.save_step_cal('./calibrations/step_cal_20160715.p')
+#charge_cal_dir_obj.load_step_cal('./calibrations/step_cal_20160701.p')
 
 #for fobj in charge_cal_dir_obj.fobjs:
 #    fobj.close_dat()
 
-charge_cal_dir_obj.load_H("./trans_funcs/Hout_20160630.p")
+charge_cal_dir_obj.load_H("./trans_funcs/Hout_20160715.p")
 
 #charge_cal_dir_obj.calibrate_H()
 charge_cal_dir_obj.get_conv_facs()
@@ -47,7 +48,9 @@ charge_cal_dir_obj.get_conv_facs()
 ### Build Therm Cal ##
 ######################
 
-therm_path = '/data/20160627/bead1/1_5mbar_nocool.h5'
+
+therm_path = '/data/20160714/bead1/1_5mbar_zcool_final2.h5'
+#therm_path = '/data/20160627/bead1/1_5mbar_zcool.h5'
 #therm_path = '/data/20160627/bead1/1_5mbar_nocool_withap.h5'
 
 charge_cal_dir_obj.thermal_cal_file_path = therm_path
@@ -81,7 +84,7 @@ print
 print "Calibration Comparison"
 print charge_step_facs
 print therm_facs
-print therm_facs * np.sqrt(2)
+#print therm_facs * np.sqrt(2)
 
 
 

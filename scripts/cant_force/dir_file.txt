@@ -171,15 +171,183 @@
 
 ##### Residual Gas Damping Force: Post LOTS of imaging/cross-talk changes
 
-74; /data/20160627/bead1/pressures/cant_sweep_18Hz_baseP_1; Turbo Base; 15
-75; /data/20160627/bead1/pressures/cant_sweep_18Hz_2e-4_1; 2e-4 mbar; 15
-76; /data/20160627/bead1/pressures/cant_sweep_18Hz_5e-4_1; 5e-4 mbar; 15
-77; /data/20160627/bead1/pressures/cant_sweep_18Hz_1e-3_1; 1e-3 mbar; 15
-78; /data/20160627/bead1/pressures/cant_sweep_18Hz_2e-3_1; 2e-3 mbar; 15
-79; /data/20160627/bead1/pressures/cant_sweep_18Hz_5e-3_1; 5e-3 mbar; 15
+74; /data/20160627/bead1/pressures_comingup/cant_sweep_18Hz_baseP_1; Turbo Base; 15
+75; /data/20160627/bead1/pressures_comingup/cant_sweep_18Hz_2e-4_1; 2e-4 mbar; 15
+76; /data/20160627/bead1/pressures_comingup/cant_sweep_18Hz_5e-4_1; 5e-4 mbar; 15
+77; /data/20160627/bead1/pressures_comingup/cant_sweep_18Hz_1e-3_1; 1e-3 mbar; 15
+78; /data/20160627/bead1/pressures_comingup/cant_sweep_18Hz_2e-3_1; 2e-3 mbar; 15
+79; /data/20160627/bead1/pressures_comingup/cant_sweep_18Hz_5e-3_1; 5e-3 mbar; 15
 
 
 
 ##### Weekend Background before Z-correction
 
 80; /data/20160627/bead1/weekend_background_withap; Weekend; 15
+
+
+
+
+##### Checking Height
+
+81; /data/20160627/bead1/find_height_withap5; Find Height; 15
+82; /data/20160627/bead1/find_height_withap6; Find Height, Longer Files; 15
+
+
+
+
+##### Residual Gas Damping Force: AGAIN
+
+83; /data/20160627/bead1/pressures_comingup2/cant_sweep_18Hz_baseP; Turbo Base; 15
+84; /data/20160627/bead1/pressures_comingup2/cant_sweep_18Hz_2e-4; 2e-4 mbar; 15
+85; /data/20160627/bead1/pressures_comingup2/cant_sweep_18Hz_5e-4; 5e-4 mbar; 15
+86; /data/20160627/bead1/pressures_comingup2/cant_sweep_18Hz_1e-3; 1e-3 mbar; 15
+87; /data/20160627/bead1/pressures_comingup2/cant_sweep_18Hz_2e-3; 2e-3 mbar; 15
+88; /data/20160627/bead1/pressures_comingup2/cant_sweep_18Hz_5e-3; 5e-3 mbar; 15
+
+
+##### TF With Stiff Z
+
+89; /data/20160711/bead2/tf_20160712/freq_comb_elec1_1-500Hz_1_5Vppamp, /data/20160711/bead2/tf_20160712/freq_comb_elec3_1-500Hz_1_5Vppamp, /data/20160711/bead2/tf_20160712/freq_comb_elec5_1-500Hz_1_5Vppamp; 2016-07-12: Stiff Z; 20
+
+90; /data/20160711/bead2/tf_20160712_2/freq_comb_elec1_1-500Hz_5Vppamp, /data/20160711/bead2/tf_20160712_2/freq_comb_elec3_1-500Hz_5Vppamp, /data/20160711/bead2/tf_20160712_2/freq_comb_elec5_1-500Hz_5Vppamp; 2016-07-12: Stiff Z; 20
+
+91; /data/20160711/bead2/tf_20160712_2/freq_comb_elec2_1-500Hz_5Vppamp, /data/20160711/bead2/tf_20160712_2/freq_comb_elec4_1-500Hz_5Vppamp, /data/20160711/bead2/tf_20160712_2/freq_comb_elec6_1-500Hz_5Vppamp; 2016-07-12: Stiff Z; 20
+
+
+
+##### Checking Height
+
+92; /data/20160711/bead2/find_height; Find Height; 10
+93; /data/20160711/bead2/find_height2; Find Height; 10
+94; /data/20160711/bead2/find_height3; Find Height; 10
+
+
+##### Background at Various Heights
+
+95; /data/20160711/bead2/init_background; Find Height; 10
+
+
+##### Various types of cantilever sweeps
+
+96; /data/20160711/bead2/cant_sweep_18Hz_60um; 60um Sweep; 10
+
+
+
+
+######## OLD BEAD RECHECK ########
+
+97; /data/20160627/nobead/cant_sweep_18Hz; No Bead; 15
+
+##################################
+
+98; /data/20160711/bead2/find_height4; Height; 10
+
+
+
+
+##### Background Assessment
+
+99; /data/20160711/bead2/backgrounds/cant_sweep_1_5Hz_60um; 1.5 Hz; 10
+100; /data/20160711/bead2/backgrounds/cant_sweep_1_5Hz_60um_2; 1.5 Hz - 2; 10
+101; /data/20160711/bead2/backgrounds/cant_sweep_9Hz_60um; 9 Hz; 10
+102; /data/20160711/bead2/backgrounds/cant_sweep_9Hz_60um_2; 9 Hz - 2; 10
+103; /data/20160711/bead2/backgrounds/cant_sweep_18Hz_60um; 18 Hz; 10
+104; /data/20160711/bead2/backgrounds/cant_sweep_18Hz_60um_2; 18 Hz - 2; 10
+105; /data/20160711/bead2/backgrounds/cant_sweep_25Hz_60um; 25 Hz; 10
+106; /data/20160711/bead2/backgrounds/cant_sweep_29Hz_60um; 29 Hz; 10
+107; /data/20160711/bead2/backgrounds/cant_sweep_33Hz_60um; 33 Hz; 10
+108; /data/20160711/bead2/backgrounds/cant_sweep_33Hz_60um_2; 33 Hz - 2; 10
+109; /data/20160711/bead2/backgrounds/cant_sweep_37Hz_60um; 37 Hz; 10
+110; /data/20160711/bead2/backgrounds/cant_sweep_37Hz_60um_2; 37 Hz - 2; 10
+
+111; /data/20160711/bead2/backgrounds/cant_sweep_18Hz_40um; 18 Hz, 40um; 10
+112; /data/20160711/bead2/backgrounds/cant_sweep_18Hz_80um; 18 Hz, 80um; 10
+
+
+##### No Bead Background
+
+113; /data/20160711/nobead/backgrounds/cant_sweep_1_5Hz_60um; 1.5 Hz; 10
+114; /data/20160711/nobead/backgrounds/cant_sweep_1_5Hz_60um_2; 1.5 Hz - 2; 10
+115; /data/20160711/nobead/backgrounds/cant_sweep_9Hz_60um; 9 Hz; 10
+116; /data/20160711/nobead/backgrounds/cant_sweep_9Hz_60um_2; 9 Hz - 2; 10
+117; /data/20160711/nobead/backgrounds/cant_sweep_18Hz_60um; 18 Hz; 10
+118; /data/20160711/nobead/backgrounds/cant_sweep_18Hz_60um_2; 18 Hz - 2; 10
+119; /data/20160711/nobead/backgrounds/cant_sweep_25Hz_60um; 25 Hz; 10
+120; /data/20160711/nobead/backgrounds/cant_sweep_25Hz_60um_2; 25 Hz-2; 10
+121; /data/20160711/nobead/backgrounds/cant_sweep_33Hz_60um; 33 Hz; 10
+122; /data/20160711/nobead/backgrounds/cant_sweep_33Hz_60um_2; 33 Hz - 2; 10
+123; /data/20160711/nobead/backgrounds/cant_sweep_37Hz_60um; 37 Hz; 10
+124; /data/20160711/nobead/backgrounds/cant_sweep_37Hz_60um_2; 37 Hz - 2; 10
+
+
+##### Other Backgrounds
+
+125; /data/20160711/nobead/backgrounds_farout/cant_sweep_1_5Hz_60um; 1.5 Hz; 10
+126; /data/20160711/nobead/backgrounds_farout/cant_sweep_18Hz_60um; 18 Hz; 10
+127; /data/20160711/nobead/backgrounds_farout/cant_sweep_32Hz_60um; 32 Hz; 10
+
+
+128; /data/20160711/nobead/backgrounds_noredin/cant_sweep_1_5Hz_60um; 1.5 Hz; 10
+129; /data/20160711/nobead/backgrounds_noredin/cant_sweep_18Hz_60um; 18 Hz; 10
+130; /data/20160711/nobead/backgrounds_noredin/cant_sweep_32Hz_60um; 32 Hz; 10
+
+
+
+########### NEW BEAD ################
+
+
+131; /data/20160714/bead1/overnight_spectra; Overnight; 20
+
+
+
+##### Transfer functions
+
+132; /data/20160714/bead1/tf_20160715/freq_comb_elec5_1-500Hz_1_5Vppamp, /data/20160714/bead1/tf_20160715/freq_comb_elec3_1-500Hz_1_5Vppamp, /data/20160714/bead1/tf_20160715/freq_comb_elec1_1-500Hz_1_5Vppamp; 2016-07-15; 20
+
+133; /data/20160714/bead1/tf_20160715/freq_comb_elec5_1-500Hz_5Vppamp, /data/20160714/bead1/tf_20160715/freq_comb_elec3_1-500Hz_5Vppamp, /data/20160714/bead1/tf_20160715/freq_comb_elec1_1-500Hz_5Vppamp; 2016-07-15; 20
+
+134; /data/20160714/bead1/tf_20160715/freq_comb_elec2_1-500Hz_5Vppamp, /data/20160714/bead1/tf_20160715/freq_comb_elec4_1-500Hz_5Vppamp, /data/20160714/bead1/tf_20160715/freq_comb_elec6_1-500Hz_5Vppamp; 2016-07-15; 20
+
+
+
+
+##### Find Height
+
+135; /data/20160714/bead1/find_height; Find Height; 20
+136; /data/20160714/bead1/find_height2; Find Height 2; 20
+137; /data/20160714/bead1/find_height3; Find Height 3; 20
+138; /data/20160714/bead1/find_height4; Find Height 4; 20
+139; /data/20160714/bead1/find_height5; Find Height 5; 20
+140; /data/20160714/bead1/find_height6; Find Height 6; 20
+141; /data/20160714/bead1/find_height7; Find Height 7; 20
+
+
+142; /data/20160714/bead1/heights/find_height_coarse; Coarse; 20
+143; /data/20160714/bead1/heights/find_height_lowerhalf; Lower Half; 20
+144; /data/20160714/bead1/heights/find_height_lowerhalf2; Lower Half; 20
+145; /data/20160714/bead1/heights/find_height_lowerhalf3; Lower Half; 20
+146; /data/20160714/bead1/heights/find_height_lowerhalf4; Lower Half; 20
+147; /data/20160714/bead1/heights/find_height_lowerhalf5; Lower Half; 20
+
+148; /data/20160714/bead1/heights/find_height_fine; Lower Half; 20
+149; /data/20160714/bead1/heights/find_height_morefine; Lower Half; 20
+
+150; /data/20160714/bead1/heights/find_height_15_25; Lower Half; 20
+151; /data/20160714/bead1/heights/find_height_15_25_moreamp; Lower Half; 20
+
+152; /data/20160714/bead1/heights/find_height_15_35_5V; Lower Half; 20
+153; /data/20160714/bead1/heights/find_height_15_35_5V_70um; Lower Half; 20
+154; /data/20160714/bead1/heights/find_height_15_35_5V_80um; Lower Half; 20
+155; /data/20160714/bead1/heights/find_height_20_30_5V_80um; Lower Half; 20
+
+
+
+##### Pressures
+
+156; /data/20160714/bead1/pressures_comingup/cant_sweep_18Hz_70um_turbobase; Turbo Base; 20
+157; /data/20160714/bead1/pressures_comingup/cant_sweep_18Hz_70um_turbobase_off; Turbo Off; 20
+158; /data/20160714/bead1/pressures_comingup/cant_sweep_18Hz_70um_2e-4mbar; 2e-4 mbar; 20
+159; /data/20160714/bead1/pressures_comingup/cant_sweep_18Hz_70um_5e-4mbar; 5e-4 mbar; 20
+160; /data/20160714/bead1/pressures_comingup/cant_sweep_18Hz_70um_1e-3mbar; 1e-3 mbar; 20
+161; /data/20160714/bead1/pressures_comingup/cant_sweep_18Hz_70um_2e-3mbar; 2e-3 mbar; 20
+162; /data/20160714/bead1/pressures_comingup/cant_sweep_18Hz_70um_5e-3mbar; 5e-3 mbar; 20
