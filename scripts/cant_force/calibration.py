@@ -10,76 +10,92 @@ from scipy.optimize import curve_fit
 import bead_util as bu
 from scipy.optimize import minimize_scalar as minimize 
 
+#dirs = [29,30,31,32]
+#dirs = [132,133,172,]
+dirs = [369,]
 
-cal = [['/data/20160613/bead1/chargelp_cal3'], 'Cal', 20, 1e-13]
+ddict = bu.load_dir_file( "/home/charles/opt_lev_classy/scripts/cant_force/dir_file.txt" )
 
-cal_dir_obj = cu.Data_dir(cal[0], [0,0,cal[2]], cal[1])
-cal_dir_obj.load_dir(cu.simple_loader)
-cal_dir_obj.build_step_cal_vec()
+load_from_file = False
+load_charge_cal = False#True
+maxfiles = 1000
 
-#print cal_dir_obj.Hs
+#################################
 
-cal_dir_obj.step_cal(cal_dir_obj)
+if not load_charge_cal:
+    cal = [['/data/20160802/bead1/20160803_chargelp_cal2'], 'Cal', 15, 1e-13]
 
-cal_dir_obj.load_H("./trans_funcs/Hout_20160613.p")
-cal_dir_obj.calibrate_H()
+    cal_dir_obj = cu.Data_dir(cal[0], [0,0,cal[2]], cal[1])
+    cal_dir_obj.load_dir(cu.simple_loader)
+    cal_dir_obj.build_step_cal_vec()
+    cal_dir_obj.step_cal()
+    cal_dir_obj.save_step_cal('./calibrations/step_cal_20160803.p')
 
-cal_dir_obj.get_conv_facs()
+    for fobj in cal_dir_obj.fobjs:
+        fobj.close_dat()
 
+    step_calibration = cal_dir_obj.charge_step_calibration
 
-test_data_obj = cu.Data_file()
-test_data_obj2 = cu.Data_file()
-test_data_obj.load("/data/20160613/bead1/cant_sweep_test/urmbar_xyzcool_cantout_stageX40000nmY40000nmZ40000nm_Zdrive40000nmAC18Hz.h5", [0,0,20])
-test_data_obj2.load("/data/20160613/bead1/cant_sweep_test/urmbar_xyzcool_cantout_stageX40000nmY40000nmZ35000nm_Zdrive35000nmAC18Hz.h5", [0,0,20])
-
-N = np.shape(test_data_obj.pos_data)[1]
-
-test_data_obj.get_fft()
-test_data_obj2.get_fft()
-
-test_data_obj.ms()
-test_data_obj2.ms()
-
-data_psd = np.abs(test_data_obj.data_fft)**2 * 2./(N * test_data_obj.Fsamp)
-data_psd2 = np.abs(test_data_obj2.data_fft)**2 * 2./(N * test_data_obj2.Fsamp)
-
-test_data_obj.spatial_bin()
-
-plt.figure()
-for i in [0,1,2]:
-    plt.subplot(3,1,i+1)
-    plt.plot(test_data_obj.binned_cant_data[0][i][2], \
-             test_data_obj.binned_pos_data[0][i][2]*cal_dir_obj.conv_facs[i])
-
-plt.figure()
-for i in [0,1,2]:
-    plt.subplot(3,1,i+1)
-    plt.loglog(test_data_obj.fft_freqs, np.sqrt(data_psd[i]) * cal_dir_obj.conv_facs[i])
-
-plt.figure()
-for i in [0,1,2]:
-    plt.subplot(3,1,i+1)
-    plt.loglog(test_data_obj2.fft_freqs, np.sqrt(data_psd2[i]) * cal_dir_obj.conv_facs[i])
-plt.show()
+#################################
 
 
 
 
-##### Compare to thermal calibration
+def proc_dir(d):
+    dv = ddict[d]
 
-cal_obj = cu.Data_file()
-cal_obj.load("/data/20160613/bead1/1_5mbar_zcool.h5", [0,0,20])
+    dir_obj = cu.Data_dir(dv[0], [0,0,dv[-1]], dv[1])
+    dir_obj.load_dir(cu.H_loader, maxfiles = maxfiles)
 
-cal_obj.thermal_calibration()
-cal_obj.plt_thermal_fit()
+    dir_obj.build_uncalibrated_H(average_first=True, fix_HF=True)
 
-norm_rats = cal_obj.get_thermal_cal_facs()
+    if load_charge_cal:
+        dir_obj.load_step_cal('./calibrations/step_cal_20160803.p')
+    else:
+        dir_obj.charge_step_calibration = step_calibration
 
-print "Charge Calibration"
-print cal_dir_obj.conv_facs
-print
-print "Thermal Calibration"
-print [np.sqrt(norm_rats[0]), np.sqrt(norm_rats[1]), np.sqrt(norm_rats[2])]
+    #print dir_obj.charge_step_calibration.popt[0]
+
+    dir_obj.calibrate_H()
+
+    dir_obj.thermal_cal_file_path = '/data/20160802/bead1/1_5mbar_zcool.h5'
+    dir_obj.thermal_calibration()
+
+    dir_obj.build_Hfuncs(fpeaks=[245, 255, 50], weight_peak=False, weight_lowf=True,\
+                         plot_fits=True, plot_inits=True, weight_phase=True, grid=True)#, fit_osc_sum=True)
+    
+    return dir_obj
+
+dir_objs = map(proc_dir, dirs)
 
 
 
+
+
+
+counter = 0
+for obj in dir_objs:
+    if obj == dir_objs[-1]:
+        obj.thermal_cal_fobj.plt_thermal_fit()
+
+
+
+f1, axarr1 = plt.subplots(3,3, sharex='all', sharey='all')
+f2, axarr2 = plt.subplots(3,3, sharex='all', sharey='all')
+
+for obj in dir_objs:
+    if obj != dir_objs[-1]:
+
+        obj.plot_H(f1, axarr1, f2, axarr2, \
+                   phase=True, show=False, label=True, show_zDC=True, \
+                   inv=False, lim=False, cal=True)
+        #obj.plot_H(phase=False, label=False, show=False, noise=True)
+        continue
+
+    obj.plot_H(f1, axarr1, f2, axarr2, \
+               phase=True, label=True, show=True, show_zDC=True, \
+               inv=False, lim=False, cal=True)
+    plt.show()
+    #obj.plot_H(phase=False, label=False, show=True, noise=True)
+    #print obj.label
+    obj.save_H("./trans_funcs/Hout_20160803.p")

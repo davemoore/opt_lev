@@ -10,7 +10,7 @@ from scipy.optimize import curve_fit
 import bead_util as bu
 from scipy.optimize import minimize_scalar as minimize 
 
-dirs = [155,]
+dirs = [370,]
 
 ddict = bu.load_dir_file( "/home/charles/opt_lev_classy/scripts/cant_force/dir_file.txt" )
 #print ddict
@@ -31,8 +31,8 @@ maxfiles = 1000
 
 fig_title = 'Force vs. Cantilever Position: Finding height'
 
-tf_path = './trans_funcs/Hout_20160715.p'
-step_cal_path = './calibrations/step_cal_20160715.p'
+tf_path = './trans_funcs/Hout_20160803.p'
+step_cal_path = './calibrations/step_cal_20160803.p'
 
 #################
 
@@ -84,19 +84,17 @@ for i, pos in enumerate(pos_keys):
     newobj.load_dir(cu.diag_loader, maxfiles=maxfiles)
     newobj.get_avg_force_v_pos(cant_axis=cant_axis, bin_size = bin_size)
 
-    #newobj.load_H("./trans_funcs/Hout_20160630.p")
+    
     newobj.load_H(tf_path)
-    #newobj.plot_H(show=True)
 
     if load_charge_cal:
-        #newobj.load_step_cal('./calibrations/step_cal_20160628.p') 
         newobj.load_step_cal(step_cal_path)
     else:
         newobj.charge_step_calibration = step_calibration
 
-    #newobj.get_conv_facs()
+    newobj.calibrate_H()
 
-    newobj.diagonalize_files(reconstruct_lowf=True,lowf_thresh=200., # plot_Happ=True, \
+    newobj.diagonalize_files(reconstruct_lowf=True,lowf_thresh=200.,# plot_Happ=True, \
                              build_conv_facs=True, drive_freq=18.)
     newobj.get_avg_diag_force_v_pos(cant_axis = cant_axis, bin_size = bin_size)
 
@@ -105,7 +103,11 @@ for i, pos in enumerate(pos_keys):
     cal_facs = newobj.conv_facs
     #cal_facs = [1.,1.,1.]
     color = colors[i]
-    posshort = '%0.2f' % float(pos)
+    if float(pos) != 0:
+        posshort = '%g' % cu.round_sig(float(pos),sig=2)
+    else:
+        posshort = '0'
+
     for key in keys:
         diagdat = newobj.avg_diag_force_v_pos[key]
         dat = newobj.avg_force_v_pos[key]
@@ -136,8 +138,9 @@ for i, pos in enumerate(pos_keys):
             fits[pos] = (popt, pcov)
             diag_fits[pos] = (diagpopt, diagpcov)
 
-axarr[0,0].set_title('Raw Data: X, Y and Z-response')
-axarr[0,1].set_title('Diagonalized Data: X, Y and Z-response')
+
+axarr[0,0].set_title('Raw Imaging Response')
+axarr[0,1].set_title('Diagonalized Forces')
 
 for col in [0,1]:
     axarr[2,col].set_xlabel('Distance from Cantilever [um]')
@@ -166,8 +169,8 @@ if fit_height:
     diff1 = np.abs(np.amax(arr1) - np.amin(arr1))
     diff2 = np.abs(np.amax(arr2) - np.amin(arr2))
 
-    p0_1 = [diff1, 40, diff1]
-    p0_2 = [diff2, 40, diff2]
+    p0_1 = [1, 40, 1]
+    p0_2 = [1, 40, 1]
 
     fit1, err1 = curve_fit(ffn2, keys, arr1, p0 = p0_1)
     fit2, err2 = curve_fit(ffn2, keys, arr2, p0 = p0_2)
@@ -179,10 +182,14 @@ if fit_height:
     plt.suptitle("Fit of Raw Data")
     plt.plot(keys, arr1)
     plt.plot(xx, fxx1)
+    plt.xlabel('Cantilever Height [um]')
+    plt.ylabel('Force [fN]')
     plt.figure()
     plt.suptitle("Fit of Diagonalized Data")
     plt.plot(keys, arr2)
     plt.plot(xx, fxx2)
+    plt.xlabel('Cantilever Height [um]')
+    plt.ylabel('Force [fN]')
 
     print "Best fit positions: ", fit1[1], fit2[1]
     

@@ -14,7 +14,10 @@ import time
 
 def round_sig(x, sig=2):
     # round a number to a certain number of sig figs
-    return round(x, sig-int(math.floor(math.log10(x)))-1)
+    if x == 0:
+        return 0
+    else:
+        return round(x, sig-int(math.floor(math.log10(x)))-1)
 
 def trend_fun(x, a, b):
     # Define a simple linear function to de-trend datasets
@@ -34,6 +37,20 @@ def damped_osc_phase(f, A, f0, g, phase0 = 0.):
     w = 2. * np.pi * f
     w0 = 2. * np.pi * f0
     return A * np.arctan2(-w * g, w0**2 - w**2) + phase0
+
+
+def sum_3osc_amp(f, A1, f1, g1, A2, f2, g2, A3, f3, g3):
+    csum = damped_osc_amp(f, A1, f1, g1)*np.exp(1.j * damped_osc_phase(f, A1, f1, g1) ) \
+           + damped_osc_amp(f, A2, f2, g2)*np.exp(1.j * damped_osc_phase(f, A2, f2, g2) ) \
+           + damped_osc_amp(f, A3, f3, g3)*np.exp(1.j * damped_osc_phase(f, A3, f3, g3) )
+    return np.abs(csum)
+
+def sum_3osc_phase(f, A1, f1, g1, A2, f2, g2, A3, f3, g3, phase0=0.):
+    csum = damped_osc_amp(f, A1, f1, g1)*np.exp(1.j * damped_osc_phase(f, A1, f1, g1) ) \
+           + damped_osc_amp(f, A2, f2, g2)*np.exp(1.j * damped_osc_phase(f, A2, f2, g2) ) \
+           + damped_osc_amp(f, A3, f3, g3)*np.exp(1.j * damped_osc_phase(f, A3, f3, g3) )
+    return np.angle(csum) + phase0
+
     
 def thermal_psd_spec(f, A, f0, g):
     #The position power spectrum of a microsphere normalized so that A = (volts/meter)^2*2kb*t/M
@@ -944,9 +961,14 @@ class Data_dir:
         self.step_cal_vec = map(Her, self.fobjs)
 
     
-    def build_uncalibrated_H(self, average_first=False, dpsd_thresh = 6e-2, mfreq = 1.):
+    def build_uncalibrated_H(self, average_first=False, dpsd_thresh = 8e-2, mfreq = 1., \
+                             fix_HF=False):
         # Loop over file objects and construct a dictionary with frequencies 
         # as keys and 3x3 transfer matrices as values
+
+        print "BUILDING H..."
+        sys.stdout.flush()
+
         if type(self.fobjs) == str:
             self.load_dir(H_loader)
 
@@ -989,38 +1011,117 @@ class Data_dir:
                 avg_data_fft[eind] = avg_data_fft[eind] / counts[eind]
 
             for eind in avg_drive_fft.keys():
+                # First find drive-frequency bins above a fixed threshold
                 dpsd = np.abs(avg_drive_fft[eind])**2 * 2. / (N*Fsamp)
                 inds = np.where(dpsd > dpsd_thresh)
 
+                # Extract the frequency indices
                 finds = inds[1]
                 
+                # Ignore DC and super low frequencies
                 mfreq = 1.0
                 b = finds > np.argmin(np.abs(self.fobjs[0].fft_freqs - mfreq))
 
                 freqs = self.fobjs[0].fft_freqs[finds[b]]
 
+                # Compute FFT of each response divided by FFT of each drive.
+                # This is way more information than we need for a single drive freq
+                # and electrode pair, but it allows a nice vectorization
                 Hmatst = np.einsum('ij, kj -> ikj', \
                                      avg_data_fft[eind], 1. / avg_drive_fft[eind])
                 
+                # Extract the TF, (response / drive), where the drive was above a 
+                # fixed threshold.
                 Hmatst_good = Hmatst[:,:,finds[b]]
 
+                # Generate a integer by which to roll the data_fft to compute the noise
+                # limit of the TF measurement
                 shift = int(0.5 * (finds[b][1] - finds[b][0]))
                 randadd = np.random.choice(np.arange(-int(0.1*shift), \
                                                      int(0.1*shift)+1, 1))
                 shift = shift + randadd
                 rolled_data_fft = np.roll(avg_data_fft[eind], shift, axis=-1)
                 
+                # Compute the Noise TF
                 Hmatst_noise = np.einsum('ij, kj -> ikj', \
                                          rolled_data_fft, 1. / avg_drive_fft[eind])
                 Hmatst_noise = Hmatst_noise[:,:,finds[b]]
 
+                # Map the 3x7xNfreq arrays to dictionaries with keys given by the drive
+                # frequencies and values given by 3x3 complex-values TF matrices
                 outind = emap(eind)
                 for i, freq in enumerate(freqs):
                     if freq not in Hout:
+                        if i != 0 and fix_HF:
+                            sep = freq - freqs[i-1]
+                            # Clause to ignore this particular frequency response if an
+                            # above threshold response is found not on a drive bin. Sometimes
+                            # random noise components pop up or some power leaks to a 
+                            # neighboring bin
+                            if sep < 0.9 * (freqs[1] - freqs[0]):
+                                continue
                         Hout[freq] = np.zeros((3,3), dtype=np.complex128)
                         Hout_noise[freq] = np.zeros((3,3), dtype=np.complex128)
+
+                    # Add the response from this drive freq/electrode pair to the TF matrix
                     Hout[freq][:,outind] += Hmatst_good[:,eind,i]
                     Hout_noise[freq][:,outind] += Hmatst_noise[:,eind,i]
+
+                # This next bit of code goes over the computed transfer function and cleans it
+                # up a little. Drive frequencies were chosen with a paricular linear spacing
+                # so if we somehow found a drive/response pair that was closely or incorrectly
+                # spaced, we sum the TF matrices over those closely spaced frequencies.
+                # 
+                # Often, this error seemed to result when the code would find an above threshold
+                # drive in one channel at a particular frequency, but NOT in the other channels
+                # thus it would generate a pair of matrices like
+                #                      [[0., 0., a]                        [[d, g, 0.]
+                # Hout = { ..., 41 Hz:  [0., 0., b]     ,   41.0000001 Hz:  [e, h, 0.]    , .... }
+                #                       [0., 0., c]]                        [f, i, 0.]]
+                # And thus we sum over these closely spaced matrices and take the average of 
+                # frequencies as a new key
+
+                if fix_HF:
+                    keys = Hout.keys()
+                    keys.sort()
+
+                    freqsep = keys[1] - keys[0]
+                    freqsep = freqsep * 0.9
+
+                    curr_sum = np.zeros((3,3), dtype=np.complex128)
+                    curr_freqs = []
+                    count = 0
+                    fixing = False
+
+                    for i, key in enumerate(keys):
+
+                        if key == keys[0]:
+                            continue
+
+                        if ((keys[i] - keys[i-1]) < freqsep) and not fixing:
+                            fixing = True
+                            curr_freqs.append(keys[i-1])
+                            curr_sum += Hout[keys[i-1]]
+                            count += 1
+
+                        if fixing:
+                            curr_freqs.append(keys[i])
+                            curr_sum += Hout[keys[i]]
+                            count += 1
+                            if i == len(keys) - 1:
+                                continue
+                            else:
+                                if keys[i+1] - keys[i] >= freqsep:
+                                    fixing = False
+
+                                    for freq in curr_freqs:
+                                        del Hout[freq]
+
+                                    newfreq = np.mean(curr_freqs)
+                                    Hout[newfreq] = curr_sum
+                                    curr_freqs = []
+                                    curr_sum = np.zeros((3,3), dtype=np.complex128)
+                                
 
 
         if not average_first:
@@ -1056,7 +1157,7 @@ class Data_dir:
         init_phases = np.mean(np.angle(first_mats), axis=0)
         for drive in [0,1,2]:
             if np.abs(init_phases[drive,drive]) > 2.0:
-                print "Correcting phase shift", drive
+                print "Correcting phase shift for drive channel", drive
                 sys.stdout.flush()
                 for freq in freqs:
                     Hout[freq][:,drive] = Hout[freq][:,drive] * (-1)
@@ -1073,8 +1174,10 @@ class Data_dir:
             return
         if type(self.Hs) == str:
             self.build_uncalibrated_H()
-        print "CALIBRATING H FROM SINGLE-CHARGE STEP"
+        print "CALIBRATING H FROM SINGLE-CHARGE STEP..."
+        sys.stdout.flush()
         freqs = np.array(self.Hs.keys())
+        freqs.sort()
         ind = np.argmin(np.abs(freqs-drive_freq))
         
         j = step_cal_drive_channel
@@ -1082,7 +1185,7 @@ class Data_dir:
 
         # Compute Vresponse / Vdrive on q = q0:
         npfreqs = np.array(freqs)
-        freqs_to_avg = npfreqs[ind-bins:ind+bins+1]
+        freqs_to_avg = npfreqs[:ind]
 
         resps = []
         for freq in freqs_to_avg:
@@ -1091,9 +1194,7 @@ class Data_dir:
         qfac = np.mean(resps)  
         qfac = qfac * plate_sep # convert V -> E-field -> Force
             
-        if type(self.conv_facs) == str:
-            self.get_conv_facs()
-        fac = 1. / self.conv_facs[j]  # Vresponse / Ndrive on q=1
+        fac = self.charge_step_calibration.popt[0]  # Vresponse / Ndrive on q=1
 
         q = qfac / fac
         outstr = "Charge-step calibration implies "+\
@@ -1268,7 +1369,7 @@ class Data_dir:
     def build_Hfuncs(self, fit_freqs = [120.,500], fpeaks=[240.,240.,50.], \
                      weight_peak=False, weight_lowf=False, lowf_thresh=60., \
                      weight_phase=False, plot_fits=False, plot_inits=False, \
-                     grid = False):
+                     grid = False, fit_osc_sum=False):
         # Build the calibrated transfer function array
         # i.e. transfer matrices at each frequency and fit functions to each component
 
@@ -1291,8 +1392,14 @@ class Data_dir:
         if plot_fits:
             f1, axarr1 = plt.subplots(3,3, sharex='col', sharey='row')
             f2, axarr2 = plt.subplots(3,3, sharex='col', sharey='row')
-            f1.suptitle("Magnitude of Transfer Function")
-            f2.suptitle("Phase of Transfer Function")
+            f1.suptitle("Magnitude of Transfer Function", fontsize=18)
+            f2.suptitle("Phase of Transfer Function", fontsize=18)
+
+            if fit_osc_sum:
+                f3, axarr3 = plt.subplots(3,3, sharex='col', sharey='row')
+                f4, axarr4 = plt.subplots(3,3, sharex='col', sharey='row')
+                f3.suptitle("Magnitude of Transfer Function", fontsize=18)
+                f4.suptitle("Phase of Transfer Function", fontsize=18)
 
         for drive in [0,1,2]:
             for resp in [0,1,2]:
@@ -1317,7 +1424,7 @@ class Data_dir:
                 therm_fits = self.thermal_cal_fobj.thermal_cal
                 if (drive == 2) or (resp == 2):
                     # Z-direction is considerably different than X or Y
-                    Amp = 1e17
+                    Amp = 1e19
                     f0 = therm_fits[2].popt[1]
                     g = therm_fits[2].popt[2]
                     fit_freqs = [1.,100.]
@@ -1351,8 +1458,11 @@ class Data_dir:
                     phase_weights[:ind] *= 0.05
 
                 # Fit the TF magnitude
-                popt_mag, pcov_mag = curve_fit(damped_osc_amp, keys[b], mag[b], \
-                                               sigma=weights[b], p0=p0_mag, maxfev=10000)
+                try:
+                    popt_mag, pcov_mag = curve_fit(damped_osc_amp, keys[b], mag[b], \
+                                                   sigma=weights[b], p0=p0_mag, maxfev=1000000)
+                except:
+                    popt_mag = p0_mag
 
                 # Fit the TF phase with varying phi(DC): -pi, 0 and pi and
                 # select the sign based on sum of residuals
@@ -1413,6 +1523,94 @@ class Data_dir:
                     if plot_inits:
                         axarr2[resp,drive].semilogx(keys[b], phaseinit, color='k', linewidth=2)
 
+
+
+        if fit_osc_sum:
+
+            sum_fits = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+            fitx = fits[0][0]
+            fity = fits[1][1]
+            fitz = fits[2][2]
+            fx = fitx[0][1]
+            fy = fity[0][1]
+            fz = fitz[0][1]
+            for drive in [0,1,2]:
+                for resp in [0,1,2]:
+                    # Build the array of TF magnitudes and remove NaNs
+                    mag = np.abs(mats[:,resp,drive])
+                    nans = np.isnan(mag)
+                    for nanind, boolv in enumerate(nans):
+                        if boolv:
+                            mag[nanind] = mag[nanind-1]
+
+                    # Build the array of TF phases and remove NaNs
+                    phase = np.angle(mats[:,resp,drive])
+                    nans2 = np.isnan(phase)
+                    for nanind, boolv in enumerate(nans2):
+                        if boolv:
+                            phase[nanind] = phase[nanind-1]
+
+                    # Unwrap the phase
+                    unphase = np.unwrap(phase, discont=1.5*np.pi)
+
+                    phase0 = fits[resp][drive][2]
+                    fit_phase_func = lambda f,a1,a2,a3:\
+                                     sum_3osc_phase(f, a1, fx, fitx[0][2], \
+                                                    a2, fy, fity[0][2], \
+                                                    a3, fz, fitz[0][2], \
+                                                    phase0=phase0)
+
+                    fit_amp_func = lambda f,a1,g1,a2,g2,a3,g3:\
+                                     sum_3osc_amp(f, a1, fx, g1, a2, fy, g2, a3, fz, g3)
+                    
+                    b1 = keys > 1.
+                    b2 = keys < 501.
+                    b = b1 * b2
+
+                    p0_mag = np.array([fitx[0][0], fitx[0][2], \
+                                       fity[0][0], fity[0][2], \
+                                       fitz[0][0], fitz[0][2], ])
+
+                    p0_phase = np.array([1.,  1., 1.])
+                    
+                    mask = np.array([0.1, 1., 0.1, 1., 0.1, 1.])
+                    if resp == drive:
+                        mask[resp*2] = 1.
+                    else:
+                        mask[resp*2] = 0.5
+
+                    p0_mag = mask * p0_mag
+                    #p0_phase = mask * p0_phase
+
+                    popt_mag, pcov_mag = curve_fit(fit_amp_func, keys[b], mag[b], \
+                                                       p0=p0_mag, maxfev=1000000)
+
+                    popt_phase, pcov_phase = curve_fit(fit_phase_func, keys[b], unphase[b], \
+                                                           p0=p0_phase, maxfev=1000000)
+
+                    sum_fits[resp][drive] = (popt_mag, popt_phase, phase0)
+                    #except:
+                    #    raw_input("Sum fit for Drive: %i, and Response: %i, FAILED" % (drive, resp))
+
+                    if plot_fits:
+
+                        fitmag = fit_amp_func(keys[b], *popt_mag)
+                        fitphase = fit_phase_func(keys[b], *popt_phase)
+
+                        if grid:
+                            axarr3[resp,drive].grid()
+                            axarr4[resp,drive].grid()
+
+                        axarr3[resp,drive].loglog(keys, mag)
+                        axarr3[resp,drive].loglog(keys[b], fitmag, color='r', linewidth=3)
+
+                        axarr4[resp,drive].semilogx(keys, unphase)
+                        axarr4[resp,drive].semilogx(keys[b], fitphase, color='r', linewidth=3)
+
+
+
+
+
         self.Hfuncs = fits
 
         if plot_fits:
@@ -1423,15 +1621,29 @@ class Data_dir:
 
                 axarr2[0, drive].set_title("Drive in direction \'%i\'"%drive)
                 axarr2[2, drive].set_xlabel("Frequency [Hz]")
+                
+                if fit_osc_sum:
+
+                    axarr3[0, drive].set_title("Drive in direction \'%i\'"%drive)
+                    axarr3[2, drive].set_xlabel("Frequency [Hz]")
+
+                    axarr4[0, drive].set_title("Drive in direction \'%i\'"%drive)
+                    axarr4[2, drive].set_xlabel("Frequency [Hz]")
 
             for response in [0,1,2]:
                 axarr1[response, 0].set_ylabel("Resp in \'%i\' [Vr/Nd]" %response)
                 axarr2[response, 0].set_ylabel("Resp in \'%i\' [rad]" %response)
 
+                if fit_osc_sum:
+
+                    axarr3[response, 0].set_ylabel("Resp in \'%i\' [Vr/Nd]" %response)
+                    axarr4[response, 0].set_ylabel("Resp in \'%i\' [rad]" %response)
+
             plt.show()
 
 
-    def plot_H(self, phase=False, show=True, label=False, noise=False,\
+    def plot_H(self, f1, axarr1, f2, axarr2, \
+               phase=False, show=False, label=False, noise=False,\
                show_zDC=False, cal=False, lim=False, inv=False):
         # plot all the transfer functions
 
@@ -1465,12 +1677,11 @@ class Data_dir:
         #     to a drive in a particular direction
         mats = np.array(mats)
 
-        f1, axarr1 = plt.subplots(3,3, sharex='col', sharey='row')
+        #f1, axarr1 = plt.subplots(3,3, sharex='col', sharey='row')
+
         f1.suptitle("Magnitude of Transfer Function")
         for drive in [0,1,2]:
-            #plt.figure(drive+1)
             for response in [0,1,2]:
-                #ax1 = plt.subplot(3,1,response+1)                    
                 mag = np.abs(mats[:,response,drive])
 
                 # check for NaNs from empty directory or incomplete
@@ -1481,12 +1692,21 @@ class Data_dir:
                         mag[nanind] = mag[nanind-1]
                 #mag[nans] = np.zeros(len(mag[nans])) + mag[nans-1]
                 if label and response == 0:
-                    axarr1[response, drive].loglog(keys, mag, label = self.label)
+                    try:
+                        axarr1[response, drive].loglog(keys, mag, label = self.label)
+                    except:
+                        print "some zeros are bad"
                 elif show_zDC and response == 2:
-                    axarr1[response, drive].loglog(keys, mag, \
-                               label="Avg Z: %0.4f"%self.ave_dc_pos[-1])
+                    try:
+                        axarr1[response, drive].loglog(keys, mag, \
+                                                       label="Avg Z: %0.4f"%self.ave_dc_pos[-1])
+                    except:
+                        print "some zeros are bad"
                 else:
-                    axarr1[response, drive].loglog(keys, mag)
+                    try:
+                        axarr1[response, drive].loglog(keys, mag)
+                    except:
+                        print "some zeros are bad"
 
                 if show:
                     axarr1[response,drive].legend(loc=0)
@@ -1500,7 +1720,7 @@ class Data_dir:
 
         # Plot the phase of the transfer function:
         #     Same plot/subplot breakdown as before
-        f2, axarr2 = plt.subplots(3,3, sharex='col', sharey='row')
+        
         f2.suptitle("Phase of Transfer Function")
         if phase and not noise:
             for drive in [0,1,2]:
@@ -1531,9 +1751,6 @@ class Data_dir:
                     if lim:
                         axarr2[response, drive].ylim(-1.5*np.pi, 1.5*np.pi)
 
-                    if show:
-                        axarr2[response, drive].legend(loc=0)
-
                 axarr2[response, drive].set_xlabel("Frequency [Hz]")
 
             for drive in [0,1,2]:
@@ -1542,19 +1759,6 @@ class Data_dir:
             for response in [0,1,2]:
                 axarr2[response, 0].set_ylabel("Response in \'%i\' [rad]" %response)
 
-        # If the show command was on a noise plot, the phase plots
-        # need to be correctly labeled with their legend, as the phase
-        # response of the noise is never plotted and thus this function
-        # never reaches the 'ax2.legend()' line in the phase block above
-        elif noise and show:
-            if show:
-                for drive in [0,1,2]:
-                    for response in [0,1,2]:
-                        axarr2[response, drive].legend(loc=0)
-            
-        # Show all the plots that have been built up
-        if show:
-            plt.show()
 
                 
 
@@ -1568,24 +1772,35 @@ class Data_dir:
         
         #phi = np.mean(np.angle(dir_obj.step_cal_vec[:n_phi])) #measure the phase angle from the first n_phi samples.
         #yfit =  np.abs(dir_obj.step_cal_vec)*np.cos(np.angle(dir_obj.step_cal_vec) - phi)
+
         yfit = np.abs(self.step_cal_vec)
+
         plt.figure(1)
         plt.ion()
         plt.plot(yfit, 'o')
         plt.show()
+
         print "CHARGE STEP CALIBRATION"
         print "Enter guess at number of steps and charge at steps [[q1, q2, q3, ...], [x1, x2, x3, ...], vpq]"
         nstep = input(": ")
         
         #function for fit with volts per charge as only arg.
-        def ffun(x, vpq):
+        def ffun(x, vpq, offset):
             qqs = vpq*np.array(nstep[0])
-            return multi_step_fun(x, qqs, nstep[1])
+            try:
+                offarr = np.zeros(len(x))
+                offarr[x>nstep[-1]] += offset
+            except TypeError:
+                if x > nstep[-1]:
+                    offarr = offset
+                else:
+                    offarr = 0
+            return multi_step_fun(x, qqs, nstep[1]) + offarr
 
         xfit = np.arange(len(self.step_cal_vec))
         
         #fit
-        p0 = nstep[2]#Initial guess for the fit
+        p0 = [nstep[2],0.02]#Initial guess for the fit
         popt, pcov = curve_fit(ffun, xfit, yfit, p0 = p0)
 
         fitobj = Fit(popt, pcov, ffun)#Store fit in object.
@@ -1610,7 +1825,7 @@ class Data_dir:
     def load_step_cal(self, fname):
         def ffun(x, vpq):
             qqs = vpq*np.array(nstep[0])
-            return multi_step_fun(x, qqs, nstep[1])
+            return multi_step_fun(x, qqs, nstep[1]) + offset
 
         step_cal_in = pickle.load( open(fname, "rb"))
         new_fitobj = Fit(step_cal_in[0], step_cal_in[1], ffun)

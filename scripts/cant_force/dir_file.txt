@@ -302,9 +302,9 @@
 
 ##### Transfer functions
 
-132; /data/20160714/bead1/tf_20160715/freq_comb_elec5_1-500Hz_1_5Vppamp, /data/20160714/bead1/tf_20160715/freq_comb_elec3_1-500Hz_1_5Vppamp, /data/20160714/bead1/tf_20160715/freq_comb_elec1_1-500Hz_1_5Vppamp; 2016-07-15; 20
+133; /data/20160714/bead1/tf_20160715/freq_comb_elec5_1-500Hz_1_5Vppamp, /data/20160714/bead1/tf_20160715/freq_comb_elec3_1-500Hz_1_5Vppamp, /data/20160714/bead1/tf_20160715/freq_comb_elec1_1-500Hz_1_5Vppamp; 2016-07-15 1.5 V; 20
 
-133; /data/20160714/bead1/tf_20160715/freq_comb_elec5_1-500Hz_5Vppamp, /data/20160714/bead1/tf_20160715/freq_comb_elec3_1-500Hz_5Vppamp, /data/20160714/bead1/tf_20160715/freq_comb_elec1_1-500Hz_5Vppamp; 2016-07-15; 20
+132; /data/20160714/bead1/tf_20160715/freq_comb_elec5_1-500Hz_5Vppamp, /data/20160714/bead1/tf_20160715/freq_comb_elec3_1-500Hz_5Vppamp, /data/20160714/bead1/tf_20160715/freq_comb_elec1_1-500Hz_5Vppamp; 2016-07-15 5 V; 20
 
 134; /data/20160714/bead1/tf_20160715/freq_comb_elec2_1-500Hz_5Vppamp, /data/20160714/bead1/tf_20160715/freq_comb_elec4_1-500Hz_5Vppamp, /data/20160714/bead1/tf_20160715/freq_comb_elec6_1-500Hz_5Vppamp; 2016-07-15; 20
 
@@ -338,7 +338,8 @@
 152; /data/20160714/bead1/heights/find_height_15_35_5V; Lower Half; 20
 153; /data/20160714/bead1/heights/find_height_15_35_5V_70um; Lower Half; 20
 154; /data/20160714/bead1/heights/find_height_15_35_5V_80um; Lower Half; 20
-155; /data/20160714/bead1/heights/find_height_20_30_5V_80um; Lower Half; 20
+155; /data/20160714/bead1/heights/find_height_20_30_5V_80um; Lower Half; 20  
+##### I fucked up this directory (155)
 
 
 
@@ -351,3 +352,324 @@
 160; /data/20160714/bead1/pressures_comingup/cant_sweep_18Hz_70um_1e-3mbar; 1e-3 mbar; 20
 161; /data/20160714/bead1/pressures_comingup/cant_sweep_18Hz_70um_2e-3mbar; 2e-3 mbar; 20
 162; /data/20160714/bead1/pressures_comingup/cant_sweep_18Hz_70um_5e-3mbar; 5e-3 mbar; 20
+
+163; /data/20160714/bead1/weekend_spectra2; Weekend; 20
+164; /data/20160714/bead1/dipole_response; Dipole; 20
+
+
+##### Dipole respoonse was being weird
+
+165; /data/20160714/bead1/heights/find_height_20_30_5V_80um2; Height Again; 20
+166; /data/20160714/bead1/heights_20160718/find_height_0_40_5V_80um; Height; 20
+167; /data/20160714/bead1/heights_20160718/find_height_0_40_5V_80um_2; Height; 20
+
+168; /data/20160714/bead1/heights_20160718/find_height_20_40_5V_80um; Height; 20
+
+169; /data/20160714/bead1/heights_20160718/find_height_30_50_5V_80um; Height; 20
+170; /data/20160714/bead1/heights_20160718/find_height_20_30_5V_80um; Height; 20
+171; /data/20160714/bead1/heights_20160718/find_height_20_30_5V_70um; Height; 20
+
+
+
+172; /data/20160714/bead1/tf_20160718/freq_comb_elec1_1-500Hz_9Vppamp, /data/20160714/bead1/tf_20160718/freq_comb_elec3_1-500Hz_9Vppamp, /data/20160714/bead1/tf_20160718/freq_comb_elec5_1-500Hz_9Vppamp; 2016-07-18; 20
+
+173; /data/20160714/bead1/heights_20160719/find_height_0_40_5V_80um; Height; 20
+174; /data/20160714/bead1/heights_20160719/find_height_15_35_5V_80um; Height; 20
+
+175; /data/20160714/bead1/heights_20160719/resp_at_height_0_0-5V_80um; 0 um; 20
+176; /data/20160714/bead1/heights_20160719/resp_at_height_25_0-5V_80um; 25 um; 20
+177; /data/20160714/bead1/heights_20160719/resp_at_height_30_0-5V_80um; 30 um; 20
+178; /data/20160714/bead1/heights_20160719/resp_at_height_40_0-5V_80um; 40 um; 20
+179; /data/20160714/bead1/heights_20160719/resp_at_height_60_0-5V_80um; 60 um; 20
+
+
+##### More Pressures
+
+180; /data/20160714/bead1/pressures_comingup_20160719/cant_sweep_18Hz_80um_turbobase; Turbo Base - 18 Hz; 20
+181; /data/20160714/bead1/pressures_comingup_20160719/cant_sweep_18Hz_80um_2e-4; 2e-4 mbar - 18 Hz; 20
+182; /data/20160714/bead1/pressures_comingup_20160719/cant_sweep_18Hz_80um_5e-4; 5e-4 mbar - 18 Hz; 20
+183; /data/20160714/bead1/pressures_comingup_20160719/cant_sweep_18Hz_80um_1e-3; 1e-3 mbar - 18 Hz; 20
+184; /data/20160714/bead1/pressures_comingup_20160719/cant_sweep_18Hz_80um_2e-3; 2e-3 mbar - 18 Hz; 20
+185; /data/20160714/bead1/pressures_comingup_20160719/cant_sweep_18Hz_80um_5e-3; 5e-3 mbar - 18 Hz; 20
+186; /data/20160714/bead1/pressures_comingup_20160719/cant_sweep_18Hz_80um_1e-2; 1e-2 mbar - 18 Hz; 20
+
+
+187; /data/20160714/bead1/pressures_comingup_20160719/cant_sweep_1_5Hz_80um_turbobase; Turbo Base - 1.5 Hz; 20
+188; /data/20160714/bead1/pressures_comingup_20160719/cant_sweep_1_5Hz_70um_2e-4; 2e-4 mbar - 1.5 Hz; 20
+189; /data/20160714/bead1/pressures_comingup_20160719/cant_sweep_1_5Hz_70um_6e-4; 6e-4 mbar - 1.5 Hz; 20
+190; /data/20160714/bead1/pressures_comingup_20160719/cant_sweep_1_5Hz_70um_1e-3; 1e-3 mbar - 1.5 Hz; 20
+191; /data/20160714/bead1/pressures_comingup_20160719/cant_sweep_1_5Hz_70um_2e-3; 2e-3 mbar - 1.5 Hz; 20
+192; /data/20160714/bead1/pressures_comingup_20160719/cant_sweep_1_5Hz_70um_5e-3; 5e-3 mbar - 1.5 Hz; 20
+193; /data/20160714/bead1/pressures_comingup_20160719/cant_sweep_1_5Hz_70um_1e-2; 1e-2 mbar - 1.5 Hz; 20
+
+
+
+#### 'Nother Round
+
+194; /data/20160714/bead1/pressures_N2_20160720/cant_sweep_18Hz_80um_base; Turbo Base - 18 Hz; 20
+195; /data/20160714/bead1/pressures_N2_20160720/cant_sweep_18Hz_80um_2e-4mbar; 2e-4 mbar - 18 Hz; 20
+196; /data/20160714/bead1/pressures_N2_20160720/cant_sweep_18Hz_80um_5e-4mbar; 5e-4 mbar - 18 Hz; 20
+197; /data/20160714/bead1/pressures_N2_20160720/cant_sweep_18Hz_80um_1e-3mbar; 1e-3 mbar - 18 Hz; 20
+198; /data/20160714/bead1/pressures_N2_20160720/cant_sweep_18Hz_80um_2e-3mbar; 2e-3 mbar - 18 Hz; 20
+199; /data/20160714/bead1/pressures_N2_20160720/cant_sweep_18Hz_80um_5e-3mbar; 5e-3 mbar - 18 Hz; 20
+200; /data/20160714/bead1/pressures_N2_20160720/cant_sweep_18Hz_80um_1e-2mbar; 1e-2 mbar - 18 Hz; 20
+
+
+201; /data/20160714/bead1/pressures_N2_20160720/cant_sweep_1_5Hz_80um_base; Turbo Base - 1.5 Hz; 20
+202; /data/20160714/bead1/pressures_N2_20160720/cant_sweep_1_5Hz_70um_2e-4; 2e-4 mbar - 1.5 Hz; 20
+203; /data/20160714/bead1/pressures_N2_20160720/cant_sweep_1_5Hz_70um_6e-4; 6e-4 mbar - 1.5 Hz; 20
+204; /data/20160714/bead1/pressures_N2_20160720/cant_sweep_1_5Hz_70um_1e-3; 1e-3 mbar - 1.5 Hz; 20
+205; /data/20160714/bead1/pressures_N2_20160720/cant_sweep_1_5Hz_70um_2e-3; 2e-3 mbar - 1.5 Hz; 20
+206; /data/20160714/bead1/pressures_N2_20160720/cant_sweep_1_5Hz_70um_5e-3; 5e-3 mbar - 1.5 Hz; 20
+207; /data/20160714/bead1/pressures_N2_20160720/cant_sweep_1_5Hz_70um_1e-2; 1e-2 mbar - 1.5 Hz; 20
+
+
+
+
+
+208; /data/20160714/bead1/junk/backgrounds3; Junk; 20
+
+
+
+
+
+
+######### NEW BEAD
+
+
+209; /data/20160720/bead3/20160720_overnight_spectra; Overnight; 20
+
+210; /data/20160720/bead3/20160721_tf/freq_comb_elec1_1-500Hz_9Vppamp, /data/20160720/bead3/20160721_tf/freq_comb_elec3_1-500Hz_9Vppamp, /data/20160720/bead3/20160721_tf/freq_comb_elec5_1-500Hz_9Vppamp; 2016-07-21; 20
+
+211; /data/20160720/bead3/20160721_tf/freq_comb_elec1_1-500Hz_9Vppamp, /data/20160720/bead3/20160721_tf/freq_comb_elec3_1-500Hz_9Vppamp, /data/20160720/bead3/20160721_tf/freq_comb_elec5_1-500Hz_9Vppamp; 2016-07-21 HF; 20
+
+212; /data/20160720/bead3/finding_opt_dist; 0 V background; 30
+213; /data/20160720/bead3/finding_opt_dist2; 0 V background; 20
+
+
+#### Finding Height
+
+214; /data/20160720/bead3/20160721_heights/find_height_0-40_2V_70um; Height; 20
+215; /data/20160720/bead3/20160721_heights/find_height_20-60_2V_70um; Height; 20
+216; /data/20160720/bead3/20160721_heights/find_height_15-55_2V_70um; Height; 20
+
+
+217; /data/20160720/bead3/20160721_heights/resp_at_height_35_0-4V_18Hz_70um; Resp at Height; 30
+
+218; /data/20160720/bead3/20160721_heights/find_height_25_45_2V_70um; Height; 20
+
+
+
+
+#### Pressures
+
+219; /data/20160720/bead3/20160721_pressures_N2/cant_sweep_18Hz_80um_base; Base; 20
+220; /data/20160720/bead3/20160721_pressures_N2/cant_sweep_18Hz_80um_base2; Base 2; 20
+221; /data/20160720/bead3/20160721_pressures_N2/cant_sweep_18Hz_80um_base3; Base 3; 20
+222; /data/20160720/bead3/20160721_pressures_N2/cant_sweep_18Hz_80um_2e-4mbar; 2e-4 mbar; 20
+223; /data/20160720/bead3/20160721_pressures_N2/cant_sweep_18Hz_80um_5e-4mbar; 5e-4 mbar; 20
+224; /data/20160720/bead3/20160721_pressures_N2/cant_sweep_18Hz_80um_1e-3mbar; 1e-3 mbar; 20
+225; /data/20160720/bead3/20160721_pressures_N2/cant_sweep_18Hz_80um_2e-3mbar; 2e-3 mbar; 20
+226; /data/20160720/bead3/20160721_pressures_N2/cant_sweep_18Hz_80um_5e-3mbar; 5e-3 mbar; 20
+227; /data/20160720/bead3/20160721_pressures_N2/cant_sweep_18Hz_80um_1e-2mbar; 1e-2 mbar; 20
+228; /data/20160720/bead3/20160721_pressures_N2/cant_sweep_18Hz_80um_2e-2mbar; 2e-2 mbar; 20
+
+229; /data/20160720/bead3/20160721_pressures_N2/cant_sweep_1_5Hz_80um_base; Base; 20
+230; /data/20160720/bead3/20160721_pressures_N2/cant_sweep_1_5Hz_80um_base2; Base 2; 20
+231; /data/20160720/bead3/20160721_pressures_N2/cant_sweep_1_5Hz_80um_base3; Base 3; 20
+232; /data/20160720/bead3/20160721_pressures_N2/cant_sweep_1_5Hz_80um_2e-4mbar; 2e-4 mbar; 20
+233; /data/20160720/bead3/20160721_pressures_N2/cant_sweep_1_5Hz_80um_5e-4mbar; 5e-4 mbar; 20
+234; /data/20160720/bead3/20160721_pressures_N2/cant_sweep_1_5Hz_80um_1e-3mbar; 1e-3 mbar; 20
+235; /data/20160720/bead3/20160721_pressures_N2/cant_sweep_1_5Hz_80um_2e-3mbar; 2e-3 mbar; 20
+236; /data/20160720/bead3/20160721_pressures_N2/cant_sweep_1_5Hz_80um_5e-3mbar; 5e-3 mbar; 20
+237; /data/20160720/bead3/20160721_pressures_N2/cant_sweep_1_5Hz_80um_1e-2mbar; 1e-2 mbar; 20
+238; /data/20160720/bead3/20160721_pressures_N2/cant_sweep_1_5Hz_80um_2e-2mbar; 2e-2 mbar; 20
+
+
+
+
+239; /data/20160720/bead3/20160722_pressures_He/cant_sweep_18Hz_80um_base; Base; 20
+240; /data/20160720/bead3/20160722_pressures_He/cant_sweep_18Hz_80um_base2; Base 2; 20
+241; /data/20160720/bead3/20160722_pressures_He/cant_sweep_18Hz_80um_base3; Base 3; 20
+242; /data/20160720/bead3/20160722_pressures_He/cant_sweep_18Hz_80um_2e-4mbar; 2e-4 mbar; 20
+243; /data/20160720/bead3/20160722_pressures_He/cant_sweep_18Hz_80um_5e-4mbar; 5e-4 mbar; 20
+244; /data/20160720/bead3/20160722_pressures_He/cant_sweep_18Hz_80um_1e-3mbar; 1e-3 mbar; 20
+245; /data/20160720/bead3/20160722_pressures_He/cant_sweep_18Hz_80um_2e-3mbar; 2e-3 mbar; 20
+246; /data/20160720/bead3/20160722_pressures_He/cant_sweep_18Hz_80um_5e-3mbar; 5e-3 mbar; 20
+247; /data/20160720/bead3/20160722_pressures_He/cant_sweep_18Hz_80um_1e-2mbar; 1e-2 mbar; 20
+248; /data/20160720/bead3/20160722_pressures_He/cant_sweep_18Hz_80um_2e-2mbar; 2e-2 mbar; 20
+
+249; /data/20160720/bead3/20160722_pressures_He/cant_sweep_1_5Hz_80um_base; Base; 20
+250; /data/20160720/bead3/20160722_pressures_He/cant_sweep_1_5Hz_80um_base2; Base 2; 20
+251; /data/20160720/bead3/20160722_pressures_He/cant_sweep_1_5Hz_80um_base3; Base 3; 20
+252; /data/20160720/bead3/20160722_pressures_He/cant_sweep_1_5Hz_80um_2e-4mbar; 2e-4 mbar; 20
+253; /data/20160720/bead3/20160722_pressures_He/cant_sweep_1_5Hz_80um_5e-4mbar; 5e-4 mbar; 20
+254; /data/20160720/bead3/20160722_pressures_He/cant_sweep_1_5Hz_80um_1e-3mbar; 1e-3 mbar; 20
+255; /data/20160720/bead3/20160722_pressures_He/cant_sweep_1_5Hz_80um_2e-3mbar; 2e-3 mbar; 20
+256; /data/20160720/bead3/20160722_pressures_He/cant_sweep_1_5Hz_80um_5e-3mbar; 5e-3 mbar; 20
+257; /data/20160720/bead3/20160722_pressures_He/cant_sweep_1_5Hz_80um_1e-2mbar; 1e-2 mbar; 20
+258; /data/20160720/bead3/20160722_pressures_He/cant_sweep_1_5Hz_80um_2e-2mbar; 2e-2 mbar; 20
+
+
+
+259; /data/20160720/bead3/20160722_pressures_N2/cant_sweep_18Hz_80um_base; Base; 20
+260; /data/20160720/bead3/20160722_pressures_N2/cant_sweep_18Hz_80um_base2; Base 2; 20
+261; /data/20160720/bead3/20160722_pressures_N2/cant_sweep_18Hz_80um_base3; Base 3; 20
+262; /data/20160720/bead3/20160722_pressures_N2/cant_sweep_18Hz_80um_2e-4mbar; 2e-4 mbar; 20
+263; /data/20160720/bead3/20160722_pressures_N2/cant_sweep_18Hz_80um_5e-4mbar; 5e-4 mbar; 20
+264; /data/20160720/bead3/20160722_pressures_N2/cant_sweep_18Hz_80um_1e-3mbar; 1e-3 mbar; 20
+265; /data/20160720/bead3/20160722_pressures_N2/cant_sweep_18Hz_80um_2e-3mbar; 2e-3 mbar; 20
+266; /data/20160720/bead3/20160722_pressures_N2/cant_sweep_18Hz_80um_5e-3mbar; 5e-3 mbar; 20
+267; /data/20160720/bead3/20160722_pressures_N2/cant_sweep_18Hz_80um_1e-2mbar; 1e-2 mbar; 20
+268; /data/20160720/bead3/20160722_pressures_N2/cant_sweep_18Hz_80um_2e-2mbar; 2e-2 mbar; 20
+
+269; /data/20160720/bead3/20160722_pressures_N2/cant_sweep_1_5Hz_80um_base; Base; 20
+270; /data/20160720/bead3/20160722_pressures_N2/cant_sweep_1_5Hz_80um_base2; Base 2; 20
+271; /data/20160720/bead3/20160722_pressures_N2/cant_sweep_1_5Hz_80um_base3; Base 3; 20
+272; /data/20160720/bead3/20160722_pressures_N2/cant_sweep_1_5Hz_80um_2e-4mbar; 2e-4 mbar; 20
+273; /data/20160720/bead3/20160722_pressures_N2/cant_sweep_1_5Hz_80um_5e-4mbar; 5e-4 mbar; 20
+274; /data/20160720/bead3/20160722_pressures_N2/cant_sweep_1_5Hz_80um_1e-3mbar; 1e-3 mbar; 20
+275; /data/20160720/bead3/20160722_pressures_N2/cant_sweep_1_5Hz_80um_2e-3mbar; 2e-3 mbar; 20
+276; /data/20160720/bead3/20160722_pressures_N2/cant_sweep_1_5Hz_80um_5e-3mbar; 5e-3 mbar; 20
+277; /data/20160720/bead3/20160722_pressures_N2/cant_sweep_1_5Hz_80um_1e-2mbar; 1e-2 mbar; 20
+278; /data/20160720/bead3/20160722_pressures_N2/cant_sweep_1_5Hz_80um_2e-2mbar; 2e-2 mbar; 20
+
+
+## Pressure backgrounds
+
+666; /data/20160720/bead3/20160722_pressures_backgrounds/cant_sweep_18Hz_80um_base; Base Background; 20
+667; /data/20160720/bead3/20160722_pressures_backgrounds/cant_sweep_18Hz_80um_base2; Base Background; 20
+
+
+
+## Dipole wobble
+
+668; /data/20160720/bead3/20160725_dipole_wobble/5V_0um; 5V; 20
+669; /data/20160720/bead3/20160725_overnight_spectra; Overnight; 20
+
+
+
+######### NEW BEAD
+
+## First Overnight
+
+670; /data/20160726/bead1/20160726_overnight_spectra; Overnight; 20
+
+
+## First TF
+
+299; /data/20160727/bead1/20160727_tf/freq_comb_elec1_1-500Hz_1_5Vppamp, /data/20160727/bead1/20160727_tf/freq_comb_elec3_1-500Hz_1_5Vppamp, /data/20160727/bead1/20160727_tf/freq_comb_elec5_1-500Hz_1_5Vppamp; 2016-07-27 HF; 20
+
+300;
+
+301; /data/20160727/bead1/20160727_heights/find_height_20-60_0V_80um; Blocked Light Background; 20
+302; /data/20160727/bead1/20160727_heights/find_height_20-60_0V_80um2; Blocked Light Background; 20
+303; /data/20160727/bead1/20160727_heights/find_height_20-60_0V_80um3; Blocked Light Background; 20
+
+304; /data/20160727/bead1/20160727_heights/find_height_20-60_1V_80um; 1V Dipole Resp; 20
+305; /data/20160727/bead1/20160727_heights/find_height_20-60_2V_80um; 2V Dipole Resp; 20
+
+306; /data/20160727/bead1/20160727_heights/find_height_20-60_3V_80um; 3V Dipole Resp; 20
+307; /data/20160727/bead1/20160727_heights/find_height_30-50_3V_80um; 3V Dipole Resp; 20
+308; /data/20160727/bead1/20160727_heights/find_height_35-45_3V_80um; 3V Dipole Resp; 20
+
+309; /data/20160727/bead1/20160727_heights/resp_at_height_40_0-4V_80um; Dipole Resp, Various V; 20
+
+
+
+
+310; /data/20160727/bead1/20160727_overnight_spectra; Overnight; 20
+
+
+
+### Residual Gas Force with Noble Gases
+
+311; /data/20160727/bead1/20160728_pressures_He/cant_sweep_18Hz_80um_base; Base 1; 20 
+312; /data/20160727/bead1/20160728_pressures_He/cant_sweep_18Hz_80um_base2; Base 1; 20 
+313; /data/20160727/bead1/20160728_pressures_He/cant_sweep_18Hz_80um_base3; Base 1; 20 
+314; /data/20160727/bead1/20160728_pressures_He/cant_sweep_18Hz_80um_base4; Base 1; 20 
+315; /data/20160727/bead1/20160728_pressures_He/cant_sweep_18Hz_80um_base5; Base 1; 20 
+316; /data/20160727/bead1/20160728_pressures_He/cant_sweep_18Hz_80um_2e-4mbar; 2e-4; 20 
+317; /data/20160727/bead1/20160728_pressures_He/cant_sweep_18Hz_80um_5e-4mbar; 5e-4; 20 
+318; /data/20160727/bead1/20160728_pressures_He/cant_sweep_18Hz_80um_1e-3mbar; 1e-3; 20 
+319; /data/20160727/bead1/20160728_pressures_He/cant_sweep_18Hz_80um_2e-3mbar; 2e-3; 20 
+320; /data/20160727/bead1/20160728_pressures_He/cant_sweep_18Hz_80um_5e-3mbar; 5e-3; 20 
+321; /data/20160727/bead1/20160728_pressures_He/cant_sweep_18Hz_80um_1e-2mbar; 1e-2; 20 
+322; /data/20160727/bead1/20160728_pressures_He/cant_sweep_18Hz_80um_2e-2mbar; 2e-2; 20 
+
+323; /data/20160727/bead1/20160728_pressures_He/cant_sweep_1_5Hz_80um_base; Base 1; 20 
+324; /data/20160727/bead1/20160728_pressures_He/cant_sweep_1_5Hz_80um_base2; Base 1; 20 
+325; /data/20160727/bead1/20160728_pressures_He/cant_sweep_1_5Hz_80um_base3; Base 1; 20 
+326; /data/20160727/bead1/20160728_pressures_He/cant_sweep_1_5Hz_80um_base4; Base 1; 20 
+327; /data/20160727/bead1/20160728_pressures_He/cant_sweep_1_5Hz_80um_base5; Base 1; 20 
+328; /data/20160727/bead1/20160728_pressures_He/cant_sweep_1_5Hz_80um_2e-4mbar; 2e-4; 20 
+329; /data/20160727/bead1/20160728_pressures_He/cant_sweep_1_5Hz_80um_5e-4mbar; 5e-4; 20 
+330; /data/20160727/bead1/20160728_pressures_He/cant_sweep_1_5Hz_80um_1e-3mbar; 1e-3; 20 
+331; /data/20160727/bead1/20160728_pressures_He/cant_sweep_1_5Hz_80um_2e-3mbar; 2e-3; 20 
+332; /data/20160727/bead1/20160728_pressures_He/cant_sweep_1_5Hz_80um_5e-3mbar; 5e-3; 20 
+333; /data/20160727/bead1/20160728_pressures_He/cant_sweep_1_5Hz_80um_1e-2mbar; 1e-2; 20 
+334; /data/20160727/bead1/20160728_pressures_He/cant_sweep_1_5Hz_80um_2e-2mbar; 2e-2; 20 
+
+335; /data/20160727/bead1/20160728_pressures_background/cant_sweep_18Hz_80um_base; Background; 20 
+336; /data/20160727/bead1/20160728_pressures_background/cant_sweep_1_5Hz_80um_base; Background; 20 
+
+
+### Find height with pressure force
+
+337; /data/20160727/bead1/20160728_pressures_He/cant_sweep_18Hz_80um_2e-2mbar_HEIGHTS; Background; 20 
+338; /data/20160727/bead1/20160728_pressures_He/cant_sweep_18Hz_80um_2e-2mbar_HEIGHTS2; Background; 20 
+339; /data/20160727/bead1/20160728_pressures_He/cant_sweep_18Hz_80um_2e-2mbar_HEIGHTS3; Background; 20 
+
+
+### Argon
+
+340; /data/20160727/bead1/20160728_pressures_Ar/cant_sweep_18Hz_80um_base; Base 1; 20 
+341; /data/20160727/bead1/20160728_pressures_Ar/cant_sweep_18Hz_80um_base2; Base 2; 20 
+342; /data/20160727/bead1/20160728_pressures_Ar/cant_sweep_18Hz_80um_base3; Base 3; 20 
+343; /data/20160727/bead1/20160728_pressures_Ar/cant_sweep_18Hz_80um_base4; Base 4; 20 
+344; /data/20160727/bead1/20160728_pressures_Ar/cant_sweep_18Hz_80um_base5; Base 5; 20 
+345; /data/20160727/bead1/20160728_pressures_Ar/cant_sweep_18Hz_80um_base6; Base 6; 20 
+346; /data/20160727/bead1/20160728_pressures_Ar/cant_sweep_18Hz_80um_base7; Base 7; 20 
+347; /data/20160727/bead1/20160728_pressures_Ar/cant_sweep_18Hz_80um_2e-4mbar; 2e-4; 20 
+348; /data/20160727/bead1/20160728_pressures_Ar/cant_sweep_18Hz_80um_5e-4mbar; 5e-4; 20 
+349; /data/20160727/bead1/20160728_pressures_Ar/cant_sweep_18Hz_80um_1e-3mbar; 1e-3; 20 
+350; /data/20160727/bead1/20160728_pressures_Ar/cant_sweep_18Hz_80um_2e-3mbar; 2e-3; 20 
+351; /data/20160727/bead1/20160728_pressures_Ar/cant_sweep_18Hz_80um_5e-3mbar; 5e-3; 20 
+352; /data/20160727/bead1/20160728_pressures_Ar/cant_sweep_18Hz_80um_1e-2mbar; 1e-2; 20 
+353; /data/20160727/bead1/20160728_pressures_Ar/cant_sweep_18Hz_80um_2e-2mbar; 2e-2; 20 
+
+354; /data/20160727/bead1/20160728_pressures_Ar/cant_sweep_1_5Hz_80um_base; Base 1; 20 
+355; /data/20160727/bead1/20160728_pressures_Ar/cant_sweep_1_5Hz_80um_base2; Base 2; 20 
+356; /data/20160727/bead1/20160728_pressures_Ar/cant_sweep_1_5Hz_80um_base3; Base 3; 20 
+357; /data/20160727/bead1/20160728_pressures_Ar/cant_sweep_1_5Hz_80um_base4; Base 4; 20 
+358; /data/20160727/bead1/20160728_pressures_Ar/cant_sweep_1_5Hz_80um_base5; Base 5; 20 
+359; /data/20160727/bead1/20160728_pressures_Ar/cant_sweep_1_5Hz_80um_base6; Base 6; 20 
+360; /data/20160727/bead1/20160728_pressures_Ar/cant_sweep_1_5Hz_80um_base7; Base 7; 20 
+361; /data/20160727/bead1/20160728_pressures_Ar/cant_sweep_1_5Hz_80um_2e-4mbar; 2e-4; 20 
+362; /data/20160727/bead1/20160728_pressures_Ar/cant_sweep_1_5Hz_80um_5e-4mbar; 5e-4; 20 
+363; /data/20160727/bead1/20160728_pressures_Ar/cant_sweep_1_5Hz_80um_1e-3mbar; 1e-3; 20 
+364; /data/20160727/bead1/20160728_pressures_Ar/cant_sweep_1_5Hz_80um_2e-3mbar; 2e-3; 20 
+365; /data/20160727/bead1/20160728_pressures_Ar/cant_sweep_1_5Hz_80um_5e-3mbar; 5e-3; 20 
+366; /data/20160727/bead1/20160728_pressures_Ar/cant_sweep_1_5Hz_80um_1e-2mbar; 1e-2; 20 
+367; /data/20160727/bead1/20160728_pressures_Ar/cant_sweep_1_5Hz_80um_2e-2mbar; 2e-2; 20 
+
+
+
+
+
+
+##################### NEW SMEARING OF BEADS ##########
+
+
+
+
+368; /data/20160802/bead1/20160802_overnight_spectra; Overnight; 20
+
+
+369; /data/20160802/bead1/20160803_tf/freq_comb_elec1_1-500Hz_7Vppamp, /data/20160802/bead1/20160803_tf/freq_comb_elec3_1-500Hz_7Vppamp, /data/20160802/bead1/20160803_tf/freq_comb_elec5_1-500Hz_7Vppamp; 2016-08-03; 20
+
+
+
+### Finding Height
+
+370; /data/20160802/bead1/20160803_heights/find_height_35-45_18Hz_80um_5V; Heights; 20

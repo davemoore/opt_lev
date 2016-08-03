@@ -12,7 +12,7 @@ from scipy.optimize import minimize_scalar as minimize
 import cPickle as pickle
 
 #dirs = [42,38,39,40,41]
-dirs = [119,]
+dirs = [209,]
 
 ddict = bu.load_dir_file( "/home/charles/opt_lev_classy/scripts/cant_force/dir_file.txt" )
 #print ddict
@@ -24,8 +24,13 @@ init_data = [0., 0., 20.]
 
 load_charge_cal = True
 #files = np.arange(0,40,1)
-files = np.array([25,])
+files = np.array([1,2,3,4,5,6,7,8,9,10])
 maxfiles = 1000
+
+bin_size = 5
+
+tf_path = './trans_funcs/Hout_20160718.p'
+step_cal_path = './calibrations/step_cal_20160718.p'
 
 #################
 
@@ -79,24 +84,22 @@ for i, time in enumerate(times):
     newobj.files = time_dict[time]
     newobj.load_dir(cu.diag_loader, maxfiles=maxfiles)
 
-    newobj.load_H("./trans_funcs/Hout_20160630.p")
+    newobj.load_H(tf_path)
     
     if load_charge_cal:
-        newobj.load_step_cal('./calibrations/step_cal_20160701.p')
+        newobj.load_step_cal(step_cal_path)
     else:
         newobj.charge_step_calibration = step_calibration
 
     newobj.diagonalize_files()#simpleDCmat=True)
-
-    newobj.get_conv_facs()
 
     col = colors_yeay[i]
     if calibrate:
         cal_facs = newobj.conv_facs
     else:
         cal_facs = [1.,1.,1.]
-    newobj.get_avg_force_v_pos(axis = 1, bin_size = 4)
-    newobj.get_avg_diag_force_v_pos(axis = 1, bin_size = 4)
+    newobj.get_avg_force_v_pos(bin_size = bin_size)
+    newobj.get_avg_diag_force_v_pos(bin_size = bin_size)
 
     keys = newobj.avg_force_v_pos.keys()
     for key in keys:
