@@ -10,7 +10,9 @@ from scipy.optimize import curve_fit
 import bead_util as bu
 from scipy.optimize import minimize_scalar as minimize 
 
-dirs = [370,]
+dirs = [410,]
+bdirs = [385,]
+subtract_background = False
 
 ddict = bu.load_dir_file( "/home/charles/opt_lev_classy/scripts/cant_force/dir_file.txt" )
 #print ddict
@@ -31,13 +33,13 @@ maxfiles = 1000
 
 fig_title = 'Force vs. Cantilever Position: Finding height'
 
-tf_path = './trans_funcs/Hout_20160803.p'
-step_cal_path = './calibrations/step_cal_20160803.p'
+tf_path = './trans_funcs/Hout_20160808.p'
+step_cal_path = './calibrations/step_cal_20160808.p'
 
 #################
 
-def ffn(x, a, b):
-    return a * (1. / x)**2 + b * (1. / x)
+def ffn(x, a, b, c):
+    return a * (1. / x)**2 + b * (1. / x) + c
 
 def ffn2(x, a, b, c):
     return a * (x - b)**2 + c
@@ -54,7 +56,8 @@ def proc_dir(d):
     return dir_obj
 
 dir_objs = map(proc_dir, dirs)
-
+if subtract_background:
+    bdir_objs = map(proc_dir, bdirs)
 
 pos_dict = {}
 for obj in dir_objs:
@@ -63,9 +66,17 @@ for obj in dir_objs:
         cpos = cpos * 80. / 10.   # 80um travel per 10V control
         if cpos not in pos_dict:
             pos_dict[cpos] = []
-            pos_dict[cpos].append(fobj.fname)
-        else:
-            pos_dict[cpos].append(fobj.fname)
+        pos_dict[cpos].append(fobj.fname)
+
+if subtract_background:
+    bpos_dict = {}
+    for obj in bdir_objs:
+        for fobj in obj.fobjs:
+            cpos = fobj.get_stage_settings(axis=step_axis)[0]
+            cpos = cpos * 80. / 10.   # 80um travel per 10V control
+            if cpos not in bpos_dict:
+                bpos_dict[cpos] = []
+            bpos_dict[cpos].append(fobj.fname)
 
 
 colors = bu.get_color_map(len(pos_dict.keys()))
@@ -78,6 +89,8 @@ fits = {}
 diag_fits = {}
 
 f, axarr = plt.subplots(3,2,sharex='all',sharey='all',figsize=(10,12),dpi=100)
+if subtract_background:
+    f2, axarr2 = plt.subplots(3,2,sharex='all',sharey='all',figsize=(10,12),dpi=100)
 for i, pos in enumerate(pos_keys):
     newobj = cu.Data_dir(0, init_data, pos)
     newobj.files = pos_dict[pos]
@@ -98,6 +111,28 @@ for i, pos in enumerate(pos_keys):
                              build_conv_facs=True, drive_freq=18.)
     newobj.get_avg_diag_force_v_pos(cant_axis = cant_axis, bin_size = bin_size)
 
+    # Load background files
+    if subtract_background:
+        bobj = cu.Data_dir(0, init_data, pos)
+        bobj.files = bpos_dict[pos]
+        bobj.load_dir(cu.diag_loader, maxfiles=maxfiles)
+        bobj.get_avg_force_v_pos(cant_axis=cant_axis, bin_size = bin_size)
+
+
+        bobj.load_H(tf_path)
+
+        if load_charge_cal:
+            bobj.load_step_cal(step_cal_path)
+        else:
+            bobj.charge_step_calibration = step_calibration
+
+        bobj.calibrate_H()
+
+        bobj.diagonalize_files(reconstruct_lowf=True,lowf_thresh=200.,# plot_Happ=True, \
+                                 build_conv_facs=True, drive_freq=18.)
+        bobj.get_avg_diag_force_v_pos(cant_axis = cant_axis, bin_size = bin_size)
+
+
 
     keys = newobj.avg_diag_force_v_pos.keys()
     cal_facs = newobj.conv_facs
@@ -111,6 +146,11 @@ for i, pos in enumerate(pos_keys):
     for key in keys:
         diagdat = newobj.avg_diag_force_v_pos[key]
         dat = newobj.avg_force_v_pos[key]
+
+        if subtract_background:
+            diagbdat = bobj.avg_diag_force_v_pos[key]
+            bdat = bobj.avg_force_v_pos[key]
+
         #offset = 0
         lab = posshort + ' um'
         for resp in [0,1,2]:
@@ -125,15 +165,25 @@ for i, pos in enumerate(pos_keys):
                                    diagdat[resp,0][2]*1e15, \
                                    fmt='.-', ms=10, color = color, label=lab)
 
+            if subtract_background:
+                axarr2[resp,0].errorbar(dat[resp,0][0], \
+                                   (dat[resp,0][1]-bdat[resp,0][1]+offset)*cal_facs[resp]*1e15, \
+                                   dat[resp,0][2]*cal_facs[resp]*1e15, \
+                                   fmt='.-', ms=10, color = color, label=lab)
+                axarr2[resp,1].errorbar(diagdat[resp,0][0], \
+                                   (diagdat[resp,0][1]-diagbdat[resp,0][1]+diagoffset)*1e15, \
+                                   diagdat[resp,0][2]*1e15, \
+                                   fmt='.-', ms=10, color = color, label=lab)
+
         if fit_height:
             offset = -dat[respaxis,0][1][-1]
             diagoffset = -diagdat[respaxis,0][1][-1]
             popt, pcov = curve_fit(ffn, dat[respaxis,0][0], \
                                            (dat[respaxis,0][1]+offset)*cal_facs[respaxis]*1e15, \
-                                           p0=[1.,0.1])
+                                           p0=[1.,0.1,0])
             diagpopt, diagpcov = curve_fit(ffn, diagdat[respaxis,0][0], \
                                            (diagdat[respaxis,0][1]+diagoffset)*1e15, \
-                                           p0=[1.,0.1])
+                                           p0=[1.,0.1,0])
 
             fits[pos] = (popt, pcov)
             diag_fits[pos] = (diagpopt, diagpcov)
@@ -163,17 +213,17 @@ if fit_height:
     arr1 = []
     arr2 = []
     for key in keys:
-        arr1.append(ffn(fit_dist, fits[key][0][0], fits[key][0][1]))
-        arr2.append(ffn(fit_dist, diag_fits[key][0][0], diag_fits[key][0][1]))
+        arr1.append(ffn(fit_dist, fits[key][0][0], fits[key][0][1], fits[key][0][2]))
+        arr2.append(ffn(fit_dist, diag_fits[key][0][0], diag_fits[key][0][1], diag_fits[key][0][2]))
 
     diff1 = np.abs(np.amax(arr1) - np.amin(arr1))
     diff2 = np.abs(np.amax(arr2) - np.amin(arr2))
 
     p0_1 = [1, 40, 1]
-    p0_2 = [1, 40, 1]
+    p0_2 = [1, 40, -1]
 
-    fit1, err1 = curve_fit(ffn2, keys, arr1, p0 = p0_1)
-    fit2, err2 = curve_fit(ffn2, keys, arr2, p0 = p0_2)
+    fit1, err1 = curve_fit(ffn2, keys, arr1, p0 = p0_1, maxfev=10000)
+    fit2, err2 = curve_fit(ffn2, keys, arr2, p0 = p0_2, maxfev=10000)
     xx = np.linspace(keys[0], keys[-1], 100)
     fxx1 = ffn2(xx, fit1[0], fit1[1], fit1[2]) 
     fxx2 = ffn2(xx, fit2[0], fit2[1], fit2[2]) 

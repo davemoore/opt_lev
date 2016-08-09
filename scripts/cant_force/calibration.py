@@ -12,24 +12,30 @@ from scipy.optimize import minimize_scalar as minimize
 
 #dirs = [29,30,31,32]
 #dirs = [132,133,172,]
-dirs = [369,]
+dirs = [402,]
 
 ddict = bu.load_dir_file( "/home/charles/opt_lev_classy/scripts/cant_force/dir_file.txt" )
 
-load_from_file = False
-load_charge_cal = False#True
+load_charge_cal = True
+step_cal_path = './calibrations/step_cal_20160808.p'
+thermal_path = '/data/20160808/bead1/1_5mbar_nocool_final.h5'
+
+date = '20160808'
+save = True
+
 maxfiles = 1000
 
 #################################
 
 if not load_charge_cal:
-    cal = [['/data/20160802/bead1/20160803_chargelp_cal2'], 'Cal', 15, 1e-13]
+    cal = [['/data/20160808/bead1/20160808_chargelp_cal3'], 'Cal', 15, 1e-13]
 
     cal_dir_obj = cu.Data_dir(cal[0], [0,0,cal[2]], cal[1])
     cal_dir_obj.load_dir(cu.simple_loader)
     cal_dir_obj.build_step_cal_vec()
     cal_dir_obj.step_cal()
-    cal_dir_obj.save_step_cal('./calibrations/step_cal_20160803.p')
+    if save:
+        cal_dir_obj.save_step_cal('./calibrations/step_cal_'+date+'.p')
 
     for fobj in cal_dir_obj.fobjs:
         fobj.close_dat()
@@ -50,7 +56,7 @@ def proc_dir(d):
     dir_obj.build_uncalibrated_H(average_first=True, fix_HF=True)
 
     if load_charge_cal:
-        dir_obj.load_step_cal('./calibrations/step_cal_20160803.p')
+        dir_obj.load_step_cal(step_cal_path)
     else:
         dir_obj.charge_step_calibration = step_calibration
 
@@ -58,13 +64,14 @@ def proc_dir(d):
 
     dir_obj.calibrate_H()
 
-    dir_obj.thermal_cal_file_path = '/data/20160802/bead1/1_5mbar_zcool.h5'
+    dir_obj.thermal_cal_file_path = thermal_path
     dir_obj.thermal_calibration()
 
     dir_obj.build_Hfuncs(fpeaks=[245, 255, 50], weight_peak=False, weight_lowf=True,\
                          plot_fits=True, plot_inits=True, weight_phase=True, grid=True)#, fit_osc_sum=True)
     
     return dir_obj
+
 
 dir_objs = map(proc_dir, dirs)
 
@@ -98,4 +105,5 @@ for obj in dir_objs:
     plt.show()
     #obj.plot_H(phase=False, label=False, show=True, noise=True)
     #print obj.label
-    obj.save_H("./trans_funcs/Hout_20160803.p")
+    if save:
+        obj.save_H('./trans_funcs/Hout_'+date+'.p')

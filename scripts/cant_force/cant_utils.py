@@ -1424,7 +1424,7 @@ class Data_dir:
                 therm_fits = self.thermal_cal_fobj.thermal_cal
                 if (drive == 2) or (resp == 2):
                     # Z-direction is considerably different than X or Y
-                    Amp = 1e19
+                    Amp = 1e17
                     f0 = therm_fits[2].popt[1]
                     g = therm_fits[2].popt[2]
                     fit_freqs = [1.,100.]

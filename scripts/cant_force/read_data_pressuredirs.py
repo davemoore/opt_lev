@@ -29,12 +29,17 @@ import time
 #dirs = [311,316,317,318,319,320,321,322]   # 18 Hz with He
 #dirs = [323,328,329,330,331,332,333,334]   # 1.5 Hz with He
 
-dirs = [340,347,348,349,350,]#351,352,353]   # 18 Hz with Ar
+#dirs = [340,347,348,349,350,]#351,352,353]   # 18 Hz with Ar
 #dirs = [354,361,362,363,364,365,366,367]   # 1.5 Hz with Ar
+
+
+#### New Gas Handling System
+
+dirs = [393, 394, 394, 396, 397, 398]
 
 ############
 
-background_dirs = [335,]
+background_dirs = [389,]
 
 ddict = bu.load_dir_file( "/home/charles/opt_lev_classy/scripts/cant_force/dir_file.txt" )
 #print ddict
@@ -52,7 +57,7 @@ maxfiles = 1000
 
 subtract_background = True
 
-fig_title = 'Force vs. Cantilever Position: 18 Hz, Various Pressures N2'
+fig_title = 'Force vs. Cantilever Position: 17 Hz, Various Pressures Kr'
 setylim = False
 ylim = [-2.5,13.5]
 
@@ -60,8 +65,8 @@ plot_log_scale = True
 logylim = [0.005, 100]
 
 
-tf_path = './trans_funcs/Hout_20160727.p'
-step_cal_path = './calibrations/step_cal_20160727.p'
+tf_path = './trans_funcs/Hout_20160805.p'
+step_cal_path = './calibrations/step_cal_20160805.p'
 
 
 #################
@@ -108,7 +113,7 @@ dir_objs = map(proc_dir, dirs)
 
 background_dir_objs = map(proc_dir, background_dirs)
 
-thermal_cal_file_path = '/data/20160715/bead1/1_5mbar_zcool_final2.h5'
+thermal_cal_file_path = '/data/20160805/bead1/1_5mbar_zcool_final.h5'
 
 xdat_background = []
 backgrounds = [[], [], []]

@@ -673,3 +673,98 @@
 ### Finding Height
 
 370; /data/20160802/bead1/20160803_heights/find_height_35-45_18Hz_80um_5V; Heights; 20
+371; /data/20160802/bead1/20160803_heights/find_height_38-43_18Hz_80um_5V; Heights; 20
+372; /data/20160802/bead1/20160803_heights/find_height_35-45_18Hz_80um_5V_2; Heights; 20
+373; /data/20160802/bead1/20160803_heights/find_height_35-45_18Hz_80um_0V; Heights; 20
+374; /data/20160802/bead1/20160803_heights/find_height_35-45_18Hz_80um_7V; Heights; 20
+
+375; /data/20160802/bead1/20160803_heights/resp_at_height_31_18Hz_80um_0-5V; Resp at Height; 20
+
+
+
+376; /data/20160802/bead1/20160803_backgrounds/cant_sweep_18Hz_80um_base; Base; 20
+
+
+
+
+
+
+#### Sadness, lost so many beads
+
+
+
+
+#### NEW BEAD
+
+377; /data/20160804/bead2/20160804_tf/freq_comb_elec1_1-500Hz_5Vppamp, /data/20160804/bead2/20160804_tf/freq_comb_elec3_1-500Hz_5Vppamp, /data/20160804/bead2/20160804_tf/freq_comb_elec5_1-500Hz_5Vppamp; 2016-08-04; 20
+
+
+
+378; /data/20160804/bead2/20160804_heights/find_height_35-45_18Hz_80um_2V; Heights; 20
+
+379; /data/20160804/bead2/20160804_overnight_spectra; Overnight; 20
+
+
+
+
+
+
+
+### NEW Bead
+
+380; /data/20160805/bead1/20160805_tf/freq_comb_elec1_1-500Hz_5Vppamp, /data/20160805/bead1/20160805_tf/freq_comb_elec3_1-500Hz_5Vppamp, /data/20160805/bead1/20160805_tf/freq_comb_elec5_1-500Hz_5Vppamp; 2016-08-05; 20
+
+381; /data/20160805/bead1/20160805_tf/freq_comb_elec1_1-500Hz_5Vppamp_2, /data/20160805/bead1/20160805_tf/freq_comb_elec3_1-500Hz_5Vppamp_2, /data/20160805/bead1/20160805_tf/freq_comb_elec5_1-500Hz_5Vppamp_2; 2016-08-05; 20
+
+382; /data/20160805/bead1/20160805_heights/find_height_30-50_18Hz_80um_0V; Heights; 20
+383; /data/20160805/bead1/20160805_heights/find_height_30-50_18Hz_80um_2V; Heights; 20
+384; /data/20160805/bead1/20160805_heights/find_height_30-50_18Hz_80um_4V; Heights; 20
+
+385; /data/20160805/bead1/20160805_heights/find_height_25-45_18Hz_80um_0V; Heights; 20
+386; /data/20160805/bead1/20160805_heights/find_height_25-45_18Hz_80um_4V; Heights; 20
+
+387; /data/20160805/bead1/20160805_heights/resp_at_height_37_18Hz_80um_0-5V; Dipole Resp; 20
+
+388; /data/20160805/bead1/20160805_group_meeting; Group Meeting; 20
+
+
+
+389; /data/20160805/bead1/20160805_pressures_Kr/cant_sweep_17Hz_80um_base; Base; 20
+390; /data/20160805/bead1/20160805_pressures_Kr/cant_sweep_17Hz_80um_base2; Base 2; 20
+391; /data/20160805/bead1/20160805_pressures_Kr/cant_sweep_17Hz_80um_base3; Base 3; 20
+392; /data/20160805/bead1/20160805_pressures_Kr/cant_sweep_17Hz_80um_base3; Base 3; 20
+393; /data/20160805/bead1/20160805_pressures_Kr/cant_sweep_17Hz_80um_2e-4mbar; 2e-4; 20
+394; /data/20160805/bead1/20160805_pressures_Kr/cant_sweep_17Hz_80um_5e-4mbar; 2e-4; 20
+395; /data/20160805/bead1/20160805_pressures_Kr/cant_sweep_17Hz_80um_1e-3mbar; 2e-4; 20
+396; /data/20160805/bead1/20160805_pressures_Kr/cant_sweep_17Hz_80um_2e-3mbar; 2e-4; 20
+397; /data/20160805/bead1/20160805_pressures_Kr/cant_sweep_17Hz_80um_5e-3mbar; 2e-4; 20
+398; /data/20160805/bead1/20160805_pressures_Kr/cant_sweep_17Hz_80um_1e-2mbar; 2e-4; 20
+399; /data/20160805/bead1/20160805_pressures_Kr/cant_sweep_17Hz_80um_2e-2mbar; 2e-4; 20
+
+
+400; /data/20160805/bead1/20160805_overnight_spectra; Overnight; 20
+
+
+
+#### Another new Bead!!
+
+401; /data/20160808/bead1/20160808_tf/freq_comb_elec1_1-500Hz_7Vppamp, /data/20160808/bead1/20160808_tf/freq_comb_elec3_1-500Hz_7Vppamp, /data/20160808/bead1/20160808_tf/freq_comb_elec5_1-500Hz_7Vppamp; 2016-08-08; 20
+
+402; /data/20160808/bead1/20160808_tf/freq_comb_elec1_1-500Hz_9Vppamp, /data/20160808/bead1/20160808_tf/freq_comb_elec3_1-500Hz_9Vppamp, /data/20160808/bead1/20160808_tf/freq_comb_elec5_1-500Hz_9Vppamp; 2016-08-08; 20
+
+403; /data/20160808/bead1/20160808_heights/find_height_30-50_18Hz_80um_4V; Heights; 20
+
+404; /data/20160808/bead1/20160808_heights/find_height_30-50_18Hz_80um_5V; Heights; 20
+
+405; /data/20160808/bead1/20160808_heights/find_height_30-40_18Hz_80um_5V; Heights; 20
+
+406; /data/20160808/bead1/20160808_heights/find_height_40-50_18Hz_80um_5V; Heights; 20
+
+407; /data/20160808/bead1/20160808_heights/find_height_30-40_18Hz_80um_3V; Heights; 20
+
+408; /data/20160808/bead1/20160809_heights/find_height_30-40_18Hz_80um_5V; Heights; 20
+409; /data/20160808/bead1/20160809_heights/find_height_20-50_18Hz_80um_5V; Heights; 20
+410; /data/20160808/bead1/20160809_heights/find_height_20-60_18Hz_80um_5V; Heights; 20
+
+
+

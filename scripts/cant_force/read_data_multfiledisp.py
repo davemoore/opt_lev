@@ -12,7 +12,7 @@ from scipy.optimize import minimize_scalar as minimize
 import cPickle as pickle
 
 #dirs = [42,38,39,40,41]
-dirs = [209,]
+dirs = [376,]
 
 ddict = bu.load_dir_file( "/home/charles/opt_lev_classy/scripts/cant_force/dir_file.txt" )
 #print ddict
@@ -28,9 +28,10 @@ files = np.array([1,2,3,4,5,6,7,8,9,10])
 maxfiles = 1000
 
 bin_size = 5
+resp_axis = 1
 
-tf_path = './trans_funcs/Hout_20160718.p'
-step_cal_path = './calibrations/step_cal_20160718.p'
+tf_path = './trans_funcs/Hout_20160803.p'
+step_cal_path = './calibrations/step_cal_20160803.p'
 
 #################
 
@@ -91,7 +92,7 @@ for i, time in enumerate(times):
     else:
         newobj.charge_step_calibration = step_calibration
 
-    newobj.diagonalize_files()#simpleDCmat=True)
+    newobj.diagonalize_files(build_conv_facs=True)#simpleDCmat=True)
 
     col = colors_yeay[i]
     if calibrate:
@@ -107,9 +108,9 @@ for i, time in enumerate(times):
         #offset = -1.0 * obj.avg_force_v_pos[key][1][-1]
         lab = newobj.label
         plt.figure(1)
-        plt.errorbar(newobj.avg_force_v_pos[key][0], (newobj.avg_force_v_pos[key][1] + offset) * cal_facs[1] * 1e15, newobj.avg_force_v_pos[key][2] * cal_facs[1] * 1e15, label = lab, fmt='.-', ms=10)#, color = col)
+        plt.errorbar(newobj.avg_force_v_pos[key][resp_axis,0][0], (newobj.avg_force_v_pos[key][resp_axis,0][1] + offset) * cal_facs[1] * 1e15, newobj.avg_force_v_pos[key][resp_axis,0][2] * cal_facs[1] * 1e15, label = lab, fmt='.-', ms=10)#, color = col)
         plt.figure(2)
-        plt.errorbar(newobj.avg_diag_force_v_pos[key][0], (newobj.avg_diag_force_v_pos[key][1] + offset) * 1e15, newobj.avg_diag_force_v_pos[key][2] * 1e15, label = lab, fmt='.-', ms=10)#, color = col)
+        plt.errorbar(newobj.avg_diag_force_v_pos[key][resp_axis,0][0], (newobj.avg_diag_force_v_pos[key][resp_axis,0][1] + offset) * 1e15, newobj.avg_diag_force_v_pos[key][resp_axis,0][2] * 1e15, label = lab, fmt='.-', ms=10)#, color = col)
 
 for fig in [1,2]:
     plt.figure(fig)

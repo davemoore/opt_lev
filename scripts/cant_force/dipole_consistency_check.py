@@ -12,15 +12,11 @@ from scipy.optimize import minimize_scalar as minimize
 import cPickle as pickle
 import time
 
-dirs = [387,]
+dirs = [375,]
 
 ddict = bu.load_dir_file( "/home/charles/opt_lev_classy/scripts/cant_force/dir_file.txt" )
 #print ddict
 
-load_from_file = False
-show_each_file = False
-show_avg_force = False
-fft = False
 calibrate = True
 
 respdir = 'Y'
@@ -29,37 +25,69 @@ cant_axis = 2
 load_charge_cal = True
 maxfiles = 1000
 
-fig_title = 'Force vs. Cantilever Position: Dipole Response'
+fig_title = 'Force vs. Cantilever Position: Dipole Consistency'
 
-tf_path = './trans_funcs/Hout_20160805.p'
-step_cal_path = './calibrations/step_cal_20160805.p'
+tf_path = './trans_funcs/Hout_20160803.p'
+step_cal_path = './calibrations/step_cal_20160803.p'
 
+init_data = [0., 0., 20.]
+
+heights = {}
+biases = {}
 
 
 def proc_dir(d):
     dv = ddict[d]
 
     dir_obj = cu.Data_dir(dv[0], [0,0,dv[-1]], dv[1])
-    dir_obj.load_dir(cu.diag_loader, maxfiles = maxfiles)
+    dir_obj.load_dir(cu.simple_loader, maxfiles = maxfiles)
 
-    dir_obj.load_H(tf_path)
-    
-    if load_charge_cal:
-        dir_obj.load_step_cal(step_cal_path)
-    else:
-        dir_obj.charge_step_calibration = step_calibration
+    for fobj in dir_obj.fobjs:
+        pos = fobj.get_stage_settings(axis = 0)[0]
+        if pos not in heights:
+            heights[pos] = []
+        heights[pos].append(fobj.fname)
+        
+        bias = fobj.electrode_settings[24]   # Index of the cantilever
+        if bias not in biases:
+            biases[bias] = []
+        biases[bias].append(fobj.fname)
 
-    dir_obj.calibrate_H()
-    dir_obj.diagonalize_files(reconstruct_lowf=True,lowf_thresh=200.,# plot_Happ=True, \
-                              build_conv_facs=True, drive_freq=18.)
-
-    #dir_obj.plot_H(cal=True)
-    
-    return dir_obj
 
 dir_objs = map(proc_dir, dirs)
 
-thermal_cal_file_path = '/data/20160714/bead1/1_5mbar_zcool_final2.h5'
+thermal_cal_file_path = '/data/20160803/bead1/1_5mbar_zcool.h5'
+
+settings = {}
+for bias in biases.keys():
+    for pos in heights.keys():
+        setings[(bias, pos)] = list(set(biases[bias]) & set(heights[pos]))
+
+
+for i, setting in enumerate(settings):
+    bias, pos = setting
+    newobj = cu.Data_dir(0, init_data, setting)
+    newobj.files = settings[setting]
+    newobj.load_dir(cu.diag_loader, maxfiles=maxfiles)
+    newobj.get_avg_force_v_pos(cant_axis=cant_axis, bin_size = bin_size)
+
+    newobj.load_H(tf_path)
+
+    if load_charge_cal:
+        newobj.load_step_cal(step_cal_path)
+    else:
+        newobj.charge_step_calibration = step_calibration
+
+    newobj.calibrate_H()
+
+    newobj.diagonalize_files(reconstruct_lowf=True,lowf_thresh=200.,# plot_Happ=True, \
+                             build_conv_facs=True, drive_freq=18.)
+
+    plt.figure()
+    for fobj in newobj.fobjs:
+        
+
+
 
 
 #f, axarr = plt.subplots(3,2,sharey='all',sharex='all',figsize=(10,12),dpi=100)
