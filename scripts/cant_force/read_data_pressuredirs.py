@@ -12,15 +12,59 @@ from scipy.optimize import minimize_scalar as minimize
 import cPickle as pickle
 import time
 
-#### First Good Data Sets
+####################################################
+####### Input parameters for data processing #######
 
-#dirs = [220,222,223,224,225,226,227,]#228]   # 18 Hz with N2
-#dirs = [229,232,233,234,235,236,237,]#238]   # 1.5 Hz with N2
+ddict = bu.load_dir_file( "/home/charles/opt_lev_classy/scripts/cant_force/dir_file.txt" )
+#print ddict
 
-#dirs = [240,242,243,244,245,246,247,]#248]   # 18 Hz with He
-#dirs = [250,252,253,254,255,256,257,]#258]   # 1.5 Hz with He
+respdir = 'Y'
+resp_axis = 1
+cant_axis = 2
+bin_size = 5
 
-#dirs = [261,262,263,264,265,266,267,]#228]   # 18 Hz with N2
+load_charge_cal = True
+maxfiles = 1000
+
+subtract_background = True
+
+fig_title = 'Force vs. Cantilever Position: 18 Hz, Argon - 2, HERMES-160808'
+setylim = False
+ylim = [-2.5,13.5]
+
+plot_log_scale = True
+logylim = [0.005, 100]
+exp_approx = True
+cant_throw = 80.
+
+tf_path = './trans_funcs/Hout_20160808.p'
+step_cal_path = './calibrations/step_cal_20160808.p'
+
+
+####################################################
+##### Data Directories, Reverse Chronological ######
+
+background_dirs = [482, 483, 484, 485, 486, 487, 488,] # Ar-2 Background
+#background_dirs = [498, 499,] # He-2 Background
+use_endpoint = True
+
+#### New Gas Handling System
+
+# Bead 1, 8-05 calibrations
+#dirs = [393, 394, 395, 396, 397, 398] # 17 Hz with Kr
+
+
+# Bead 2, 8-08 calibrations
+
+#dirs = [413, 417, 418, 419, 420, 421, 422] # 18 Hz with Kr
+#dirs = [428, 430, 431, 432, 433, 434, 435, 436] # 18 Hz with He
+#dirs = [438, 442, 443, 444, 445, 446, 447,]#448] # 18 Hz with Ar
+#dirs = [452, 455, 456, 457, 458, 459, 460] # 18 Hz with Xe
+#dirs = [462, 466, 467, 468, 469, 470, 471] # 18 Hz with Xe - Repeat
+#dirs = [472, 476, 477, 478, 479, 480, 481] # 18 Hz with Kr - Repeat
+dirs = [482, 489, 490, 491, 492, 493, 494,]#495] # 18 Hz with Ar - Repeat
+#dirs = [497, 501, 502, 503, 504, 505, 506,]#507] # 18 Hz with He - Repeat
+
 
 
 #### Series of Noble Gas Measurements
@@ -33,60 +77,22 @@ import time
 #dirs = [354,361,362,363,364,365,366,367]   # 1.5 Hz with Ar
 
 
-#### New Gas Handling System
 
-dirs = [393, 394, 394, 396, 397, 398]
+#### First Good Data Sets
+
+#dirs = [220,222,223,224,225,226,227,]#228]   # 18 Hz with N2
+#dirs = [229,232,233,234,235,236,237,]#238]   # 1.5 Hz with N2
+
+#dirs = [240,242,243,244,245,246,247,]#248]   # 18 Hz with He
+#dirs = [250,252,253,254,255,256,257,]#258]   # 1.5 Hz with He
+
+#dirs = [261,262,263,264,265,266,267,]#228]   # 18 Hz with N2
+
 
 ############
 
-background_dirs = [389,]
-
-ddict = bu.load_dir_file( "/home/charles/opt_lev_classy/scripts/cant_force/dir_file.txt" )
-#print ddict
-
-fft = False
-calibrate = True
-
-respdir = 'Y'
-resp_axis = 1
-cant_axis = 2
-bin_size = 5
-
-load_charge_cal = True
-maxfiles = 1000
-
-subtract_background = True
-
-fig_title = 'Force vs. Cantilever Position: 17 Hz, Various Pressures Kr'
-setylim = False
-ylim = [-2.5,13.5]
-
-plot_log_scale = True
-logylim = [0.005, 100]
 
 
-tf_path = './trans_funcs/Hout_20160805.p'
-step_cal_path = './calibrations/step_cal_20160805.p'
-
-
-#################
-
-if not load_charge_cal:
-    cal = [['/data/20160627/bead1/chargelp_cal3'], 'Cal', 20]
-
-    cal_dir_obj = cu.Data_dir(cal[0], [0,0,cal[2]], cal[1])
-    cal_dir_obj.load_dir(cu.simple_loader)
-    cal_dir_obj.build_step_cal_vec()
-    cal_dir_obj.step_cal()
-    cal_dir_obj.save_step_cal('./calibrations/step_cal_20160628.p')
-
-    for fobj in cal_dir_obj.fobjs:
-        fobj.close_dat()
-
-    step_calibration = cal_dir_obj.charge_step_calibration
-
-
-#################
 
 def proc_dir(d):
     dv = ddict[d]
@@ -134,18 +140,12 @@ for i, obj in enumerate(background_dir_objs):
     cal_facs = obj.conv_facs
     for key in keys:
         for resp_axis in [0,1,2]:
-            if resp_axis == 1:
-                offset = -1.0 * obj.avg_force_v_pos[key][resp_axis,0][1][-1]
-                offset_d = -1.0 * obj.avg_diag_force_v_pos[key][resp_axis,0][1][-1]
-            else:
-                offset = 0
-                offset_d = 0
             xdat = obj.avg_force_v_pos[key][resp_axis,0][0]
-            ydat = (obj.avg_force_v_pos[key][resp_axis,0][1] + offset) * cal_facs[resp_axis]
+            ydat = (obj.avg_force_v_pos[key][resp_axis,0][1]) * cal_facs[resp_axis]
             errs = (obj.avg_force_v_pos[key][resp_axis,0][2]) * cal_facs[resp_axis]
 
             xdat_d = obj.avg_diag_force_v_pos[key][resp_axis,0][0]
-            ydat_d = obj.avg_diag_force_v_pos[key][resp_axis,0][1] + offset_d
+            ydat_d = obj.avg_diag_force_v_pos[key][resp_axis,0][1]
             errs_d = obj.avg_diag_force_v_pos[key][resp_axis,0][2]
 
             if not len(xdat_background):
@@ -177,10 +177,13 @@ for resp_axis in [0,1,2]:
         background_signs_d[resp_axis] = 1.0
 
 for resp_axis in [0,1,2]:
-    if background_signs_d[resp_axis] < 0:
-        background_offsets_d[resp_axis] = -1.0 * np.amax(backgrounds_d[resp_axis])
+    if use_endpoint:
+        background_offsets_d[resp_axis] = -1.0 * backgrounds_d[resp_axis][-1]
     else:
-        background_offsets_d[resp_axis] = -1.0 * np.amin(backgrounds_d[resp_axis])
+        if background_signs_d[resp_axis] < 0:
+            background_offsets_d[resp_axis] = -1.0 * np.amax(backgrounds_d[resp_axis])
+        else:
+            background_offsets_d[resp_axis] = -1.0 * np.amin(backgrounds_d[resp_axis])
             
 
 colors_yeay = bu.get_color_map( len(dir_objs) )
@@ -208,10 +211,7 @@ if plot_log_scale:
 
 for i, obj in enumerate(dir_objs):
     col = colors_yeay[i]
-    if calibrate:
-        cal_facs = obj.conv_facs
-    else:
-        cal_facs = [1.,1.,1.]
+    cal_facs = obj.conv_facs
 
     obj.get_avg_force_v_pos(cant_axis = cant_axis, bin_size = bin_size)
 
@@ -222,31 +222,62 @@ for i, obj in enumerate(dir_objs):
         lab = '%g mbar' %(cu.round_sig(obj.avg_pressure[2],sig=2))
 
         for resp_axis in [0,1,2]:
-            if resp_axis == 1:
-                offset = -1.0 * obj.avg_force_v_pos[key][resp_axis,0][1][-1]
-                offset_d = -1.0 * obj.avg_diag_force_v_pos[key][resp_axis,0][1][-1]
-            else:
-                offset = 0
-                offset_d = 0
+
             xdat = obj.avg_force_v_pos[key][resp_axis,0][0]
-            ydat = (obj.avg_force_v_pos[key][resp_axis,0][1] + offset) * cal_facs[resp_axis]
+            ydat = (obj.avg_force_v_pos[key][resp_axis,0][1]) * cal_facs[resp_axis]
             errs = (obj.avg_force_v_pos[key][resp_axis,0][2]) * cal_facs[resp_axis]
-            axarr[resp_axis,0].errorbar(xdat, ydat*1e15, errs*1e15, \
+            axarr[resp_axis,0].errorbar(xdat, (ydat-ydat[-1])*1e15, errs*1e15, \
                               label = lab, fmt='.-', ms=10, color = col)
 
             xdat_d = obj.avg_diag_force_v_pos[key][resp_axis,0][0]
-            ydat_d = obj.avg_diag_force_v_pos[key][resp_axis,0][1] + offset_d
+            ydat_d = obj.avg_diag_force_v_pos[key][resp_axis,0][1]
             errs_d = obj.avg_diag_force_v_pos[key][resp_axis,0][2]
-            axarr[resp_axis,1].errorbar(xdat_d, ydat_d*1e15, errs_d*1e15, \
+            axarr[resp_axis,1].errorbar(xdat_d, (ydat_d-ydat_d[-1])*1e15, errs_d*1e15, \
                               label = lab, fmt='.-', ms=10, color = col)
 
             if subtract_background:
+                ydat = ydat - backgrounds[resp_axis]
+                ydat_d = ydat_d - backgrounds_d[resp_axis]
 
-                axarr2[resp_axis,0].errorbar(xdat, (ydat-backgrounds[resp_axis])*1e15, errs*1e15, \
+            if resp_axis == 1:
+                offset = -1.0 * ydat[-1]
+                offset_d = -1.0 * ydat_d[-1]
+            elif resp_axis != 1:
+                offset = 0.
+                offset_d = 0.
+
+            if exp_approx:
+                # Fit first half to exponential -> Extrapolate for offset
+                # F = A exp[-k x]  =>  Ffar = Fclose * exp[-k (xfar - xclose)]
+                ks  = []
+                ks_d = []
+                midpoint = np.mean(xdat)
+
+                for i, point1 in enumerate(xdat):
+                    for j, point2 in enumerate(xdat):
+                        if point1 > midpoint or point2 > midpoint:
+                            continue
+                        if point1 > point2:
+                            continue
+
+                    k = -1.0 * np.log(ydat[j] / ydat[i]) / (point2 - point1)
+                    k_d = -1.0 * np.log(ydat_d[j] / ydat_d[i]) / (point2 - point1)
+                    ks.append(k)
+                    ks_d.append(k_d)
+
+                kavg = np.mean(ks)
+                kavg_d = np.mean(k_d)
+                
+                if resp_axis == 1:
+                    offset += ydat[0] * np.exp(-1.0 * kavg * cant_throw)
+                    offset_d += ydat_d[0] * np.exp(-1.0 * kavg * cant_throw)
+
+            if subtract_background:
+
+                axarr2[resp_axis,0].errorbar(xdat, ydat*1e15, errs*1e15, \
                                              label = lab, fmt='.-', ms=10, color = col)
-                axarr2[resp_axis,1].errorbar(xdat_d, (ydat_d-backgrounds_d[resp_axis])*1e15, \
-                                             errs_d*1e15, \
-                                             label = lab, fmt='.-', ms=10, color = col)
+                axarr2[resp_axis,1].errorbar(xdat_d, ydat_d*1e15, \
+                                             errs_d*1e15, label = lab, fmt='.-', ms=10, color = col)
 
             if plot_log_scale and resp_axis == 1:
                 off = background_offsets_d[resp_axis]

@@ -12,7 +12,7 @@ from scipy.optimize import minimize_scalar as minimize
 import cPickle as pickle
 
 #dirs = [42,38,39,40,41]
-dirs = [400,]
+dirs = [419,]
 
 ddict = bu.load_dir_file( "/home/charles/opt_lev_classy/scripts/cant_force/dir_file.txt" )
 #print ddict
@@ -29,8 +29,8 @@ maxfiles = 1000
 
 bin_size = 5
 
-tf_path = './trans_funcs/Hout_20160805.p'
-step_cal_path = './calibrations/step_cal_20160805.p'
+tf_path = './trans_funcs/Hout_20160808.p'
+step_cal_path = './calibrations/step_cal_20160808.p'
 
 
 def proc_dir(d):
