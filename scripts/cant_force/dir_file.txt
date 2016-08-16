@@ -786,7 +786,7 @@
 426; /data/20160808/bead1/20160809_pressures_He/cant_sweep_18Hz_80um_base4; 2e-4; 20
 427; /data/20160808/bead1/20160809_pressures_He/cant_sweep_18Hz_80um_base5; 2e-4; 20
 428; /data/20160808/bead1/20160809_pressures_He/cant_sweep_18Hz_80um_base6; 2e-4; 20
-429; /data/20160808/bead1/20160809_pressures_He/cant_sweep_18Hz_80um_baseafter; 2e-4; 20
+429; DNE
 430; /data/20160808/bead1/20160809_pressures_He/cant_sweep_18Hz_80um_2e-4mbar; 2e-4; 20
 431; /data/20160808/bead1/20160809_pressures_He/cant_sweep_18Hz_80um_5e-4mbar; 5e-4; 20
 432; /data/20160808/bead1/20160809_pressures_He/cant_sweep_18Hz_80um_1e-3mbar; 1e-3; 20

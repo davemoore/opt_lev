@@ -11,6 +11,7 @@ import copy
 import scipy.signal as sig
 import math
 import time
+from multiprocessing import Pool
 
 def round_sig(x, sig=2):
     # round a number to a certain number of sig figs
@@ -756,14 +757,22 @@ class Data_dir:
         print "#########################################"
         print "Entering Directories: ", self.paths
         print "Processing %i files:" % nfiles
+
+        #self.fobjs = []
+        #pool = Pool(4)
+        #def process_file(i):
+        #    print i,
+        #    sys.sdout.flush()
+        #    self.fobjs.append(loadfun(self.files[i], self.sep))
+        #pool.map(process_file, range(nfiles))
+
         self.fobjs = []
         for i in range(nfiles):
             print i,
             sys.stdout.flush()
-            if i == nfiles - 1:
-                print
             self.fobjs.append(loadfun(self.files[i], self.sep))
-            
+        print
+
         #l = lambda fname: loadfun(fname, self.sep)
         #self.fobjs = map(l, self.files[:maxfiles])
         per = lambda fobj: fobj.pressures
