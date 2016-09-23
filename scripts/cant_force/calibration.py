@@ -21,7 +21,7 @@ step_cal_path = './calibrations/step_cal_20160808.p'
 thermal_path = '/data/20160808/bead1/1_5mbar_nocool_final.h5'
 
 date = '20160808'
-save = True
+save = False
 
 maxfiles = 1000
 
@@ -68,7 +68,7 @@ def proc_dir(d):
     dir_obj.thermal_calibration()
 
     dir_obj.build_Hfuncs(fpeaks=[245, 255, 50], weight_peak=False, weight_lowf=True,\
-                         plot_fits=True, plot_inits=True, weight_phase=True, grid=True)#, fit_osc_sum=True)
+                         plot_fits=True, plot_inits=False, weight_phase=True, grid=True)#, fit_osc_sum=True)
     
     return dir_obj
 

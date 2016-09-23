@@ -876,3 +876,109 @@
 505; /data/20160808/bead1/20160811_pressures_He/cant_sweep_18Hz_80um_5e-3mbar; 5e-3; 20
 506; /data/20160808/bead1/20160811_pressures_He/cant_sweep_18Hz_80um_1e-2mbar; 1e-2; 20
 507; /data/20160808/bead1/20160811_pressures_He/cant_sweep_18Hz_80um_2e-2mbar; 2e-2; 20
+
+
+
+508; /data/20160808/bead1/20160818_pressures_Ne/cant_sweep_18Hz_80um_base; 2e-4; 20
+509; /data/20160808/bead1/20160818_pressures_Ne/cant_sweep_18Hz_80um_base2; 2e-4; 20
+510; /data/20160808/bead1/20160818_pressures_Ne/cant_sweep_18Hz_80um_base3; 2e-4; 20
+511; /data/20160808/bead1/20160818_pressures_Ne/cant_sweep_18Hz_80um_base4; 2e-4; 20
+512; /data/20160808/bead1/20160818_pressures_Ne/cant_sweep_18Hz_80um_base5; 2e-4; 20
+513; /data/20160808/bead1/20160818_pressures_Ne/cant_sweep_18Hz_80um_baseafter; 2e-4; 20
+514; /data/20160808/bead1/20160818_pressures_Ne/cant_sweep_18Hz_80um_2e-4mbar; 2e-4; 20
+515; /data/20160808/bead1/20160818_pressures_Ne/cant_sweep_18Hz_80um_5e-4mbar; 5e-4; 20
+516; /data/20160808/bead1/20160818_pressures_Ne/cant_sweep_18Hz_80um_1e-3mbar; 1e-3; 20
+517; /data/20160808/bead1/20160818_pressures_Ne/cant_sweep_18Hz_80um_2e-3mbar; 2e-3; 20
+518; /data/20160808/bead1/20160818_pressures_Ne/cant_sweep_18Hz_80um_5e-3mbar; 5e-3; 20
+519; /data/20160808/bead1/20160818_pressures_Ne/cant_sweep_18Hz_80um_1e-2mbar; 1e-2; 20
+
+
+520; /data/20160808/bead1/20160818_pressures_Ne_repeat/cant_sweep_18Hz_80um_base; 2e-4; 20
+521; /data/20160808/bead1/20160818_pressures_Ne_repeat/cant_sweep_18Hz_80um_base2; 2e-4; 20
+522; /data/20160808/bead1/20160818_pressures_Ne_repeat/cant_sweep_18Hz_80um_base3; 2e-4; 20
+523; /data/20160808/bead1/20160818_pressures_Ne_repeat/cant_sweep_18Hz_80um_base4; 2e-4; 20
+524; /data/20160808/bead1/20160818_pressures_Ne_repeat/cant_sweep_18Hz_80um_base5; 2e-4; 20
+525; /data/20160808/bead1/20160818_pressures_Ne_repeat/cant_sweep_18Hz_80um_baseafter; 2e-4; 20
+526; /data/20160808/bead1/20160818_pressures_Ne_repeat/cant_sweep_18Hz_80um_2e-4mbar; 2e-4; 20
+527; /data/20160808/bead1/20160818_pressures_Ne_repeat/cant_sweep_18Hz_80um_5e-4mbar; 5e-4; 20
+528; /data/20160808/bead1/20160818_pressures_Ne_repeat/cant_sweep_18Hz_80um_1e-3mbar; 1e-3; 20
+529; /data/20160808/bead1/20160818_pressures_Ne_repeat/cant_sweep_18Hz_80um_2e-3mbar; 2e-3; 20
+
+530; /data/20160808/bead1/20160818_pressures_Ne_repeat/cant_sweep_18Hz_80um_5e-3mbar; 5e-3; 20
+531; /data/20160808/bead1/20160818_pressures_Ne_repeat/cant_sweep_18Hz_80um_1e-2mbar; 1e-2; 20
+
+
+
+
+
+
+
+
+###### NO BEAD - STRAIGHTENING CANTILEVER MOTION ######
+
+530; /data/20160919/nobead/gravity_background_sep0um_Zpos0_7um; 0.7 um; -40
+531; /data/20160919/nobead/gravity_background_sep0um_Zpos0_8um; 0.8 um; -40
+532; /data/20160919/nobead/gravity_background_sep0um_Zpos0_9um; 0.9 um; -40
+533; /data/20160919/nobead/gravity_background_sep0um_Zpos1um; 1.0 um; -40
+534; /data/20160919/nobead/gravity_background_sep0um_Zpos1_1um; 1.1 um; -40
+535; /data/20160919/nobead/gravity_background_sep0um_Zpos1_2um; 1.2 um; -40
+536; /data/20160919/nobead/gravity_background_sep0um_Zpos1_3um; 1.3 um; -40
+537; /data/20160919/nobead/gravity_background_sep0um_Zpos1_4um; 1.4 um; -40
+538; /data/20160919/nobead/gravity_background_sep0um_Zpos1_5um; 1.5 um; -40
+539; /data/20160919/nobead/gravity_background_sep0um_Zpos1_6um; 1.6 um; -40
+540; /data/20160919/nobead/gravity_background_sep0um_Zpos1_7um; 1.7 um; -40
+541; /data/20160919/nobead/gravity_background_sep0um_Zpos1_8um; 1.8 um; -40
+542; /data/20160919/nobead/gravity_background_sep0um_Zpos1_9um; 1.9 um; -40
+543; /data/20160919/nobead/gravity_background_sep0um_Zpos2um; 2.0 um; -40
+
+
+544; /data/20160919/nobead/gravity_background_sep10um_Zpos0_7um; 0.7 um; -40
+545; /data/20160919/nobead/gravity_background_sep10um_Zpos0_8um; 0.8 um; -40
+546; /data/20160919/nobead/gravity_background_sep10um_Zpos0_9um; 0.9 um; -40
+547; /data/20160919/nobead/gravity_background_sep10um_Zpos1um; 1.0 um; -40
+548; /data/20160919/nobead/gravity_background_sep10um_Zpos1_1um; 1.1 um; -40
+549; /data/20160919/nobead/gravity_background_sep10um_Zpos1_2um; 1.2 um; -40
+550; /data/20160919/nobead/gravity_background_sep10um_Zpos1_3um; 1.3 um; -40
+551; /data/20160919/nobead/gravity_background_sep10um_Zpos1_4um; 1.4 um; -40
+552; /data/20160919/nobead/gravity_background_sep10um_Zpos1_5um; 1.5 um; -40
+553; /data/20160919/nobead/gravity_background_sep10um_Zpos1_6um; 1.6 um; -40
+554; /data/20160919/nobead/gravity_background_sep10um_Zpos1_7um; 1.7 um; -40
+555; /data/20160919/nobead/gravity_background_sep10um_Zpos1_8um; 1.8 um; -40
+556; /data/20160919/nobead/gravity_background_sep10um_Zpos1_9um; 1.9 um; -40
+557; /data/20160919/nobead/gravity_background_sep10um_Zpos2um; 2.0 um; -40
+
+
+558; /data/20160919/nobead/gravity_background_sep20um_Zpos0_7um; 0.7 um; -40
+559; /data/20160919/nobead/gravity_background_sep20um_Zpos0_8um; 0.8 um; -40
+560; /data/20160919/nobead/gravity_background_sep20um_Zpos0_9um; 0.9 um; -40
+561; /data/20160919/nobead/gravity_background_sep20um_Zpos1um; 1.0 um; -40
+562; /data/20160919/nobead/gravity_background_sep20um_Zpos1_1um; 1.1 um; -40
+563; /data/20160919/nobead/gravity_background_sep20um_Zpos1_2um; 1.2 um; -40
+564; /data/20160919/nobead/gravity_background_sep20um_Zpos1_3um; 1.3 um; -40
+565; /data/20160919/nobead/gravity_background_sep20um_Zpos1_4um; 1.4 um; -40
+566; /data/20160919/nobead/gravity_background_sep20um_Zpos1_5um; 1.5 um; -40
+567; /data/20160919/nobead/gravity_background_sep20um_Zpos1_6um; 1.6 um; -40
+568; /data/20160919/nobead/gravity_background_sep20um_Zpos1_7um; 1.7 um; -40
+569; /data/20160919/nobead/gravity_background_sep20um_Zpos1_8um; 1.8 um; -40
+570; /data/20160919/nobead/gravity_background_sep20um_Zpos1_9um; 1.9 um; -40
+571; /data/20160919/nobead/gravity_background_sep20um_Zpos2um; 2.0 um; -40
+
+
+## With and Without Toptica to image vertical
+
+572; /data/20160919/nobead/gravity_background_sep0um; 0 sep, Toptica On; 0
+573; /data/20160919/nobead/gravity_background_sep0um_notoptica; 0 sep, Toptica Off; 0
+
+574; /data/20160919/nobead/gravity_background_sep5um; 5 um sep, Toptica On; 5
+575; /data/20160919/nobead/gravity_background_sep5um_notoptica; 5 um sep, Toptica Off; 5
+
+576; /data/20160919/nobead/gravity_background_sep10um; 10 um sep, Toptica On; 10
+577; /data/20160919/nobead/gravity_background_sep10um_notoptica; 10 um sep, Toptica Off; 10
+
+578; /data/20160919/nobead/gravity_background_sep15um; 15 um sep, Toptica On; 15
+579; /data/20160919/nobead/gravity_background_sep15um_notoptica; 15 um sep, Toptica Off; 15
+
+580; /data/20160919/nobead/gravity_background_sep20um; 20 um sep, Toptica On; 20
+581; /data/20160919/nobead/gravity_background_sep20um_notoptica; 20 um sep, Toptica Off; 20
+
+

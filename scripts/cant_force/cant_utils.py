@@ -2,15 +2,13 @@ import numpy as np
 import matplotlib
 import bead_util as bu
 import scipy
-import os, sys
+import glob, os, sys, copy, time, math, pprocess
 from scipy.optimize import curve_fit
+import scipy.optimize as optimize
+import scipy.interpolate as interpolate
 import matplotlib.pyplot as plt
-import glob
 import cPickle as pickle
-import copy
 import scipy.signal as sig
-import math
-import time
 from multiprocessing import Pool
 
 def round_sig(x, sig=2):
@@ -278,10 +276,13 @@ class Data_file:
         self.fname = "Filename not assigned."
         #self.path = "Directory not assigned." #Assuming directory in filename
         self.pos_data = "bead position data not loaded"
+        self.image_pow_data = "Imaging power data not loaded"
+        self.binned_image_pow_data = "Binned imaging power not computed"
+        self.binned_image_pow_errs = "Binned imaging power errors not computed"
         self.diag_pos_data = "Position Data not diagonalize"
         self.dc_pos = "DC positions not computed"
         self.binned_pos_data = "Binned data not computed"
-        self.binned_data_errors = "bined data errors not computed"
+        self.binned_data_errors = "binded data errors not computed"
         self.cant_data = "cantilever position data no loaded"
         self.binned_cant_data = "Binned cantilever data not computed"
         self.separation = "separation not entered"
@@ -343,6 +344,8 @@ class Data_file:
         #Data vectors and their transforms
         self.pos_data = np.transpose(dat[:, 0:3]) #x, y, z bead position
         self.dc_pos =  np.mean(self.pos_data, axis = -1)
+        self.image_pow_data = np.transpose(dat[:, 6])
+
         #self.pos_data = np.transpose(dat[:,[elec_inds[1],elec_inds[3],elec_inds[5]]])
         self.cant_data = np.transpose(np.resize(sep, np.shape(np.transpose(self.pos_data)))) + stage_travel - np.transpose(dat[:, 17:20])*cant_cal
         self.electrode_data = np.transpose(dat[:, elec_inds]) #Record of voltages on the electrodes
@@ -383,6 +386,9 @@ class Data_file:
         else:
             dat = self.pos_data
 
+        binned_image_pow_data = [[[], [], []], [[], [], []], [[], [], []]]
+        binned_image_pow_errs = [[[], [], []], [[], [], []], [[], [], []]]
+
         binned_cant_data = [[[[], [], []], [[], [], []], [[], [], []]], \
                                  [[[], [], []], [[], [], []], [[], [], []]], \
                                  [[[], [], []], [[], [], []], [[], [], []]]] 
@@ -402,7 +408,17 @@ class Data_file:
                     binned_cant_data[si][i][j] = bins
                     binned_pos_data[si][i][j] = y_binned 
                     binned_data_errors[si][i][j] = y_errors 
+
+        for j, pv in enumerate(self.cant_data):
+            for si in np.arange(-1, 2, 1):
+                bins, ybinned, y_errors = \
+                            sbin_pn(pv, self.image_pow_data, bin_sizes[j], vel_mult=si)
+                binned_image_pow_data[si][j] = y_binned
+                binned_image_pow_errs[si][j] = y_errors
     
+        self.binned_image_pow_data = np.array(binned_image_pow_data)
+        self.binned_image_pow_errs = np.array(binned_image_pow_errs)
+
         if diag:
             self.diag_binned_cant_data = np.array(binned_cant_data)
             self.diag_binned_pos_data = np.array(binned_pos_data)
@@ -742,7 +758,9 @@ class Data_dir:
         self.avg_pos_data = "Average response not computed"
         self.ave_dc_pos = "Mean positions not computed"
         self.avg_pressure = 'pressures not loaded'
-        self.var_pressure = 'Pressures not loaded'
+        self.sigma_p = 'Pressures not loaded'
+        self.drive_amplitude = 'List not Populated'
+        self.gravity_signals = 'Gravity force curve not loaded'
         self.paths = paths
         if paths:
             self.out_path = paths[0].replace("/data/","/home/charles/analysis/")
@@ -758,13 +776,15 @@ class Data_dir:
         print "Entering Directories: ", self.paths
         print "Processing %i files:" % nfiles
 
-        #self.fobjs = []
-        #pool = Pool(4)
-        #def process_file(i):
-        #    print i,
-        #    sys.sdout.flush()
-        #    self.fobjs.append(loadfun(self.files[i], self.sep))
-        #pool.map(process_file, range(nfiles))
+        l = lambda fname: loadfun(fname, self.sep)
+
+        #nproc = 4
+        #out = pprocess.Map(reuse=1)
+        #parallel_function = out.manage(pprocess.MakeReusable(loadfun))
+        #[parallel_function(fname, self.sep) for fname in self.files[:nfiles]];
+        #self.fobjs = out[:nfiles]
+
+        #sys.stdout.flush()
 
         self.fobjs = []
         for i in range(nfiles):
@@ -777,7 +797,7 @@ class Data_dir:
         #self.fobjs = map(l, self.files[:maxfiles])
         per = lambda fobj: fobj.pressures
         self.avg_pressure = np.mean(map(per, self.fobjs), axis = 0)
-        self.var_pressure = np.std(map(per, self.fobjs), axis = 0)
+        self.sigma_p = np.std(map(per, self.fobjs), axis = 0)
 
         
         self.ave_dc_pos = np.zeros(3)
@@ -854,10 +874,9 @@ class Data_dir:
                         pos_dat_curr.append(fil[vel_mult][axis,cant_axis])
                     pos_dat_curr = np.concatenate(pos_dat_curr, axis=0)
 
-                    xout, yout, yerrs = sbin_pn(cant_dat_curr, pos_dat_curr, \
-                                        bin_size=bin_size, vel_mult = vel_mult)
-                    new_arr[axis][vel_mult] = [xout, yout, yerrs]
+                    xout, yout, yerrs = sbin_pn(cant_dat_curr, pos_dat_curr, bin_size=bin_size)
 
+                    new_arr[axis][vel_mult] = [xout, yout, yerrs]
 
             self.avg_force_v_pos[str(v)] =  np.array(new_arr)
 
@@ -915,8 +934,7 @@ class Data_dir:
                         pos_dat_curr.append(fil[vel_mult][axis,cant_axis])
                     pos_dat_curr = np.concatenate(pos_dat_curr, axis=0)
 
-                    xout, yout, yerrs = sbin_pn(cant_dat_curr, pos_dat_curr, \
-                                        bin_size=bin_size, vel_mult = vel_mult)
+                    xout, yout, yerrs = sbin_pn(cant_dat_curr, pos_dat_curr, bin_size=bin_size)
                     new_arr[axis][vel_mult] = [xout, yout, yerrs]
 
 
@@ -1290,22 +1308,26 @@ class Data_dir:
                     TF = Harr[:,resp,drive]
                     mag = np.abs(TF)
                     phase = np.angle(TF)
-                    unphase = np.unwrap(phase)
+                    unphase = np.unwrap(phase, discont=1.4*np.pi)
 
-                    if type(self.conv_facs) != str:
-                        conv_vec = np.zeros(len(freqs)) + self.conv_facs[resp]
-                        axarr1[resp,drive].loglog(freqs, conv_vec)
+                    #if type(self.conv_facs) != str:
+                    #    conv_vec = np.zeros(len(freqs)) + self.conv_facs[resp]
+                    #    axarr1[resp,drive].loglog(freqs, conv_vec)
                     axarr1[resp,drive].loglog(freqs, mag)
                     axarr1[resp,drive].grid()
                     axarr2[resp,drive].semilogx(freqs, unphase)
                     axarr2[resp,drive].grid()
             for drive in [0,1,2]:
+                axarr1[0,drive].set_title("Drive in direction \'%i\'"%drive)
+                axarr2[0,drive].set_title("Drive in direction \'%i\'"%drive)
                 axarr1[2,drive].set_xlabel('Frequency [Hz]')
                 axarr2[2,drive].set_xlabel('Frequency [Hz]')
             for resp in [0,1,2]:
                 axarr1[resp,0].set_ylabel('Mag [Newton/Volt]')
                 axarr2[resp,0].set_ylabel('Phase [rad]')
-            axarr1[0,0].set_ylim(1e-15,1e-10)
+            axarr1[0,0].set_ylim(1e-17,1e-10)
+            f1.suptitle("Magnitude of Transfer Function", fontsize=18)
+            f2.suptitle("Phase of Transfer Function", fontsize=18)
             plt.show()
 
         print
@@ -1399,14 +1421,14 @@ class Data_dir:
         fits = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
 
         if plot_fits:
-            f1, axarr1 = plt.subplots(3,3, sharex='col', sharey='row')
-            f2, axarr2 = plt.subplots(3,3, sharex='col', sharey='row')
+            f1, axarr1 = plt.subplots(3,3, sharex='all', sharey='all')
+            f2, axarr2 = plt.subplots(3,3, sharex='all', sharey='all')
             f1.suptitle("Magnitude of Transfer Function", fontsize=18)
             f2.suptitle("Phase of Transfer Function", fontsize=18)
 
             if fit_osc_sum:
-                f3, axarr3 = plt.subplots(3,3, sharex='col', sharey='row')
-                f4, axarr4 = plt.subplots(3,3, sharex='col', sharey='row')
+                f3, axarr3 = plt.subplots(3,3, sharex='all', sharey='all')
+                f4, axarr4 = plt.subplots(3,3, sharex='all', sharey='all')
                 f3.suptitle("Magnitude of Transfer Function", fontsize=18)
                 f4.suptitle("Phase of Transfer Function", fontsize=18)
 
@@ -1427,7 +1449,7 @@ class Data_dir:
                         phase[nanind] = phase[nanind-1]
 
                 # Unwrap the phase
-                unphase = np.unwrap(phase, discont=1.5*np.pi)
+                unphase = np.unwrap(phase, discont=1.4*np.pi)
                 
                 # Make initial guess based on high-pressure thermal spectra fits
                 therm_fits = self.thermal_cal_fobj.thermal_cal
@@ -1560,7 +1582,7 @@ class Data_dir:
                             phase[nanind] = phase[nanind-1]
 
                     # Unwrap the phase
-                    unphase = np.unwrap(phase, discont=1.5*np.pi)
+                    unphase = np.unwrap(phase, discont=1.4*np.pi)
 
                     phase0 = fits[resp][drive][2]
                     fit_phase_func = lambda f,a1,a2,a3:\
@@ -1640,12 +1662,12 @@ class Data_dir:
                     axarr4[2, drive].set_xlabel("Frequency [Hz]")
 
             for response in [0,1,2]:
-                axarr1[response, 0].set_ylabel("Resp in \'%i\' [Vr/Nd]" %response)
+                axarr1[response, 0].set_ylabel("Resp in \'%i\' [V/N]" %response)
                 axarr2[response, 0].set_ylabel("Resp in \'%i\' [rad]" %response)
 
                 if fit_osc_sum:
 
-                    axarr3[response, 0].set_ylabel("Resp in \'%i\' [Vr/Nd]" %response)
+                    axarr3[response, 0].set_ylabel("Resp in \'%i\' [V/N]" %response)
                     axarr4[response, 0].set_ylabel("Resp in \'%i\' [rad]" %response)
 
             plt.show()
@@ -1724,7 +1746,7 @@ class Data_dir:
         for drive in [0,1,2]:
             axarr1[0, drive].set_title("Drive in direction \'%i\'"%drive)
         for response in [0,1,2]:
-            axarr1[response, 0].set_ylabel("Response in \'%i\' [Vr/Vd]" %response)
+            axarr1[response, 0].set_ylabel("Response in \'%i\' [V/V]" %response)
 
 
         # Plot the phase of the transfer function:
@@ -1745,7 +1767,7 @@ class Data_dir:
                     phase[nans] = np.zeros(len(phase[nans])) + 1e-12
                     if np.mean(phase) == 0 and np.std(phase) == 0:
                         phase = phase + 1e-12
-                    unphase = np.unwrap(phase, discont=1.5*np.pi)
+                    unphase = np.unwrap(phase, discont=1.4*np.pi)
                     if unphase[0] < -2.5:
                         unphase = unphase + 2 * np.pi
 
@@ -1859,6 +1881,154 @@ class Data_dir:
             
         self.conv_facs = np.array(facs)
         
+
+    def generate_alpha_lambda_limit(self, rbead=2.5e-06, sep=10.0e-06, \
+                                    least_squares=True, opt_filt=False, \
+                                    resp_axis=1, cant_axis=1, rebin=False, bin_size=5., \
+                                    average_first=True, diag=False, scale=1.0e18):
+        if type(self.gravity_signals) == str:
+            print self.gravity_signals
+            return
+        
+        fcurves = self.gravity_signals[rbead][sep]
+        lambdas = fcurves.keys()
+        lambdas.sort()
+
+        fac = self.conv_facs[resp_axis]
+
+        if least_squares:
+
+            if average_first:
+                if (type(self.avg_force_v_pos) == str) or rebin:
+                    self.get_avg_force_v_pos(cant_axis=cant_axis, bin_size=bin_size)
+                    self.get_avg_diag_force_v_pos(cant_axis=cant_axis, bin_size=bin_size)
+
+                if diag:
+                    keys = self.avg_diag_force_v_pos.keys()
+                    if len(keys) > 1:
+                        print "STUPIDITYError: Multiple Keys"
+                    key = keys[0]
+                    dat = self.avg_diag_force_v_pos[key][resp_axis,0]
+                else:
+                    keys = self.avg_force_v_pos.keys()
+                    if len(keys) > 1:
+                        print "STUPIDITYError: Multiple Keys"
+                    key = keys[0]
+                    dat = self.avg_force_v_pos[key][resp_axis,0]
+
+                posdat = dat[0]
+                forcedat = dat[1]
+                errs = dat[2]
+
+                if not diag:
+                    forcedat = forcedat * fac
+                    errs = errs * fac
+
+                alphas = []
+                print "Fitting different lambda values..."
+                sys.stdout.flush()
+
+                poffsets = []
+                for yukind, yuklambda in enumerate(lambdas):
+                    #per = int(100. * float(yukind) / float(len(lambdas)))
+                    #if not per % 1:
+                    #    print str(per) + ',',
+                    #sys.stdout.flush()
+
+                    posvec, Gcurve, yukcurve = fcurves[yuklambda]
+                    Gcurve = Gcurve - np.mean(Gcurve)
+                    yukcurve = yukcurve - np.mean(yukcurve)
+
+                    Gforcefunc = interpolate.interp1d(posvec*1e6, Gcurve)
+                    yukforcefunc = interpolate.interp1d(posvec*1e6, yukcurve)
+
+                    yukforguess = yukforcefunc(posdat)
+
+                    guessalpha =  (np.max(forcedat) - np.min(forcedat)) / \
+                                  (np.max(yukforguess) - np.min(yukforguess))
+                    guess = np.log10(guessalpha)
+
+                    #plt.plot(posdat, forcedat)
+                    #plt.plot(posdat, Gforfit+guessalpha*yukforfit)
+                    #plt.show()
+                    
+                    def fitfun(x):
+                        alphapow = x[0]
+                        foffset = x[1]
+                        poffset = x[2]
+                        
+                        Gforfit = Gforcefunc(posdat+poffset)
+                        yukforfit = yukforcefunc(posdat+poffset)
+
+                        return scale * (forcedat - \
+                            (Gforfit + (10.0**alphapow)*yukforfit + foffset)) #/ (errs**2)
+
+                    fit = optimize.least_squares(fitfun, [guess, 0.0, 0.0], \
+                                                 bounds=([3, -np.inf, -80], [30, np.inf, 80]))
+
+                    newalpha = 10.0**fit.x[0]
+
+                    Gfit = Gforcefunc(posdat+fit.x[2])
+                    yukfit = yukforcefunc(posdat+fit.x[2])
+
+                    #plt.plot(posdat+fit.x[2], forcedat + fit.x[1])
+                    #plt.plot(posdat+fit.x[2], Gfit + newalpha*yukfit + fit.x[1])
+                    #plt.show()
+
+                    alphas.append(newalpha)
+                    poffsets.append(fit.x[2])
+                plt.figure()
+                plt.hist(poffsets)
+                plt.show()
+                raw_input()
+                return np.array(lambdas), np.array(alphas)
+
+            if not average_first:
+                allalphas = []
+                for fobjind, fobj in enumerate(self.fobjs):
+                    allalphas.append([])
+                    if (type(fobj.binned_pos_data) == str) or rebin:
+                        bin_sizes = [bin_size, bin_size, bin_size]
+                        fobj.spatial_bin(bin_sizes=bin_sizes, diag=diag)
+
+                    if diag:
+                        posdat = fobj.diag_binned_cant_data[0][resp_axis][cant_axis]
+                        forcedat = fobj.diag_binned_pos_data[0][resp_axis][cant_axis]
+                        errs = fobj.diag_binned_pos_data[0][resp_axis][cant_axis]
+                    if not diag:
+                        posdat = fobj.binned_cant_data[0][resp_axis][cant_axis]
+                        forcedat = fobj.binned_pos_data[0][resp_axis][cant_axis] * fac
+                        errs = fobj.binned_pos_data[0][resp_axis][cant_axis] * fac
+
+                    for yuklambda in lambdas:
+                        posvec, Gcurve, yukcurve = fcurves[yuklambda]
+                        Gforcefunc = interpolate.interp1d(posvec*1e6, Gcurve)
+                        yukforcefunc = interpolate.interp1d(posvec*1e6, yukcurve)
+
+                        Gforfit = Gforcefunc(posdat)
+                        yukforfit = yukforcefunc(posdat)
+
+                        fitfun = lambda alphapow: np.sum( scale * (forcedat - \
+                                    (Gforfit + (10.0**alphapow)*yukforfit) )**2 / (errs**2) )
+
+                        fit = optimize.minimize(fitfun, 6)
+
+                        newalpha = 10.0**fit.x[0]
+                        allalphas[fobjind].append(newalpha)
+                allalphas = np.array(allalphas)
+                alphas = np.mean(allalphas, axis=0)
+
+                return np.array(lambdas), alphas
+
+        if opt_filt:
+            if type(fobj.pos_data) == str:
+                print fobj.pos_data
+                return
+            
+
+
+
+
         
     def save_dir(self):
         #Method to save Data_dir object.
