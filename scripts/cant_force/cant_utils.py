@@ -1925,7 +1925,7 @@ class Data_dir:
                     errs = errs * fac
 
                 alphas = []
-                print "Fitting different lambda values..."
+                print "Fitting different alpha values..."
                 sys.stdout.flush()
 
                 poffsets = []
@@ -1944,6 +1944,7 @@ class Data_dir:
 
                     yukforguess = yukforcefunc(posdat)
 
+                    ## Fitting in the stupidest possible manner 
                     guessalpha =  (np.max(forcedat) - np.min(forcedat)) / \
                                   (np.max(yukforguess) - np.min(yukforguess))
                     guess = np.log10(guessalpha)
