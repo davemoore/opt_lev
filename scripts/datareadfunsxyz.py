@@ -7,9 +7,10 @@ import numpy as np
 import bead_util as bu
 
 
-refname = r"URmbar_xyzcool_20160422_cantfar_elec0_2000mV41Hz2000mVdc.h5"
-fname0 = r""
-path = r"C:\Data\20160418\bead2"
+refname = r"urmbar_xyzcool_nextday3.h5"
+fname0 = r"urmbar_xyzcool_bottleswap.h5"
+path = r"C:\Data\20160808\bead1"
+calib = False
 d2plt = 1
 conv_fac = 6.4e-14
 if fname0 == "":
@@ -18,6 +19,8 @@ if fname0 == "":
 	mtime = 0
 	mrf = ""
 	for fin in filelist:
+                if not (fin[-3:] == '.h5'):
+                        continue
 		f = os.path.join(path, fin) 
 		if os.path.getmtime(f)>mtime:
 			mrf = f
@@ -29,7 +32,7 @@ if fname0 == "":
 		 
 
 Fs = 5e3  ## this is ignored with HDF5 files
-NFFT = 2**16
+NFFT = 2**13
 
 def getdata(fname):
 	print "Opening file: ", fname
@@ -79,16 +82,18 @@ if d2plt:
         plt.plot(data0[3][:, 3] - np.mean(data0[3][:, 3]) )
        # plt.plot(np.abs(data0[3][:, 3])-np.mean(np.abs(data0[3][:, 3])))
        
+if calib == True:
+        r, bp, pcov = bu.get_calibration(os.path.join(path, refname), [1, 1000], make_plot = True)
 
-r, bp, pcov = bu.get_calibration(os.path.join(path, refname), [1, 1000], make_plot = True)
+        k = (bp[1]*2.*np.pi)**2*bu.bead_mass
+        fu = r*k
 
-k = (bp[1]*2.*np.pi)**2*bu.bead_mass
-fu = r*k
+        print fu
 
-print fu
-
-fu = conv_fac
-
+        fu = conv_fac
+else:
+        fu = conv_fac
+        
 fig = plt.figure()
 plt.subplot(3, 1, 1)
 plt.loglog(data0[0], fu*np.sqrt(data0[1]),label="test")

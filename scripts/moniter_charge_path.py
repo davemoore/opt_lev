@@ -10,8 +10,8 @@ import scipy.signal as sp
 import scipy.optimize as opt
 import cPickle as pickle
 
-path = r"C:\Data\20160307\bead7\chargelp_cal"
-ts = 100.
+path = r"C:\Data\20160510\bead1\chargelp_cal"
+ts = 10.
 
 fdrive = 41.
 make_plot = True
