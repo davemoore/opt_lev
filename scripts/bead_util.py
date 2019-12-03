@@ -9,7 +9,7 @@ import scipy.signal as sp
 import scipy.interpolate as interp
 import matplotlib.cm as cmx
 import matplotlib.colors as colors
-import cPickle as pickle
+import pickle
 
 bead_radius = 2.53e-6 ##m
 bead_rho = 2.0e3 ## kg/m^3
@@ -27,7 +27,7 @@ drive_column = -1
 laser_column = 3
 aod_columns = [4, 5, 6]
 
-prime_comb = np.loadtxt("/home/dcmoore/opt_lev/waveforms/rand_wf_primes.txt")
+prime_comb = np.loadtxt("/Users/dcmoore/Google Drive/yale/opt_lev/waveforms/rand_wf_primes.txt")
 ## normalize the prime_comb to have max = 1
 prime_comb /= np.max( np.abs(prime_comb) )
 
@@ -38,49 +38,49 @@ prime_freqs = [23,29,31,37,41,
                179,181,191,193,197,199]
 
 
-chamfil = h5py.File('/home/charles/opt_lev/scripts/chamsdata/2D_chameleon_force.h5', 'r')
+#chamfil = h5py.File('/home/charles/opt_lev/scripts/chamsdata/2D_chameleon_force.h5', 'r')
 ## these don't work if the data is not in ascending order
-cham_xforce = interp.RectBivariateSpline(chamfil['xcoord'],\
-                                        chamfil['ycoord'], chamfil['xforce'])
-cham_yforce = interp.RectBivariateSpline(chamfil['xcoord'],\
-                                        chamfil['ycoord'], chamfil['yforce'])
+#cham_xforce = interp.RectBivariateSpline(chamfil['xcoord'],\
+#                                        chamfil['ycoord'], chamfil['xforce'])
+#cham_yforce = interp.RectBivariateSpline(chamfil['xcoord'],\
+#                                        chamfil['ycoord'], chamfil['yforce'])
 #cham_xforce = interp.interp2d(chamfil['xcoord'],\
 #                                        chamfil['ycoord'], chamfil['xforce'])
 #cham_yforce = interp.interp2d(chamfil['xcoord'],\
 #                                        chamfil['ycoord'], chamfil['yforce'])
 
-cham_dat = np.loadtxt("/home/dcmoore/opt_lev/scripts/cant_force/cham_vs_x.txt", skiprows=9)
+cham_dat = np.loadtxt("/Users/dcmoore/Google Drive/yale/opt_lev/scripts/cant_force/cham_vs_x.txt", skiprows=9)
 cham_dat[:,0] = 0.0015 - cham_dat[:,0] ## distance from cant face in m
 cham_dat[:,0] = cham_dat[::-1,0]
 cham_dat[:,1] = cham_dat[::-1,1]
-sfac = (cham_xforce(1e-5,0)/np.interp(1e-5,cham_dat[:,0],cham_dat[:,1]))
-cham_dat[:,1] = cham_dat[:,1]*sfac
-cham_spl = interp.UnivariateSpline( cham_dat[:,0], cham_dat[:,1], s=1e-46)
+#sfac = (cham_xforce(1e-5,0)/np.interp(1e-5,cham_dat[:,0],cham_dat[:,1]))
+#cham_dat[:,1] = cham_dat[:,1]*sfac
+#cham_spl = interp.UnivariateSpline( cham_dat[:,0], cham_dat[:,1], s=1e-46)
 
-es_dat = np.loadtxt("/home/dcmoore/opt_lev/scripts/cant_force/dipole_force.txt", skiprows=9)
+es_dat = np.loadtxt("/Users/dcmoore/Google Drive/yale/opt_lev/scripts/cant_force/dipole_force.txt", skiprows=9)
 gpts = es_dat[:,0] > 15e-6
 es_spl_log = interp.UnivariateSpline( es_dat[gpts,0], np.log(np.abs(es_dat[gpts,1])), s=2.5)
 def es_spl(x):
     return np.exp(es_spl_log(x))
 
-es_dat_fixed = np.loadtxt("/home/dcmoore/opt_lev/scripts/cant_force/fixed_dipole_force.txt", skiprows=9)
+es_dat_fixed = np.loadtxt("/Users/dcmoore/Google Drive/yale/opt_lev/scripts/cant_force/fixed_dipole_force.txt", skiprows=9)
 gpts = es_dat_fixed[:,0] > 15e-6
 es_spl_log_fixed = interp.UnivariateSpline( es_dat_fixed[gpts,0], np.log(np.abs(es_dat_fixed[gpts,1])), s=2.5)
 def es_spl_fixed(x):
     return np.exp(es_spl_log_fixed(x))
 
 ### chameleon interpolator vs beta, x, lambda##########
-outfile = open("/home/dcmoore/opt_lev/scripts/cant_force/cham_force_arr.pkl","rb")
-out_dat = pickle.load(outfile)
-outfile.close()
-cham_interp_fun = interp.RegularGridInterpolator(out_dat[:3],10.0**out_dat[3],bounds_error=False)
+#outfile = open("/Users/dcmoore/Google Drive/yale/opt_lev/scripts/cant_force/cham_force_arr.pkl","rb")
+#out_dat = pickle.load(outfile)
+#outfile.close()
+#cham_interp_fun = interp.RegularGridInterpolator(out_dat[:3],10.0**out_dat[3],bounds_error=False)
 #######################################################
 
 ### yukawa interpolator vs lambda, x##########
-outfile = open("/home/dcmoore/opt_lev/scripts/cant_force/yuk_force_arr.pkl","rb")
-out_dat = pickle.load(outfile)
-outfile.close()
-yuk_interp_fun = interp.RectBivariateSpline(out_dat[0],out_dat[1],out_dat[2],s=0)
+#outfile = open("/Users/dcmoore/Google Drive/yale/opt_lev/scripts/cant_force/yuk#_force_arr.pkl","rb")
+#out_dat = pickle.load(outfile)
+#outfile.close()
+#yuk_interp_fun = interp.RectBivariateSpline(out_dat[0],out_dat[1],out_dat[2],s=0)
 #######################################################
 
 # plt.figure()
@@ -93,7 +93,7 @@ yuk_interp_fun = interp.RectBivariateSpline(out_dat[0],out_dat[1],out_dat[2],s=0
 
 
 ## get the shape of the chameleon force vs. distance from Maxime's calculation
-#cforce = np.loadtxt("/home/dcmoore/opt_lev/scripts/data/chameleon_force.txt", delimiter=",")
+#cforce = np.loadtxt("/Users/dcmoore/Google Drive/yale/opt_lev/scripts/data/chameleon_force.txt", delimiter=",")
 ## fit a spline to the data
 #cham_spl = interp.UnivariateSpline( cforce[::5,0], cforce[::5,1], s=0 )
 
@@ -122,7 +122,7 @@ def gain_fac( val ):
     if val in volt_div_vals:
         return volt_div_vals[val]
     else:
-        print "Warning, could not find volt_div value"
+        print("Warning, could not find volt_div value")
         return 1.
     
 
@@ -140,7 +140,7 @@ def getdata(fname, gain_error=1.0):
             attribs = dset.attrs
 
         except (KeyError, IOError):
-            print "Warning, got no keys for: ", fname
+            print("Warning, got no keys for: ", fname)
             dat = []
             attribs = {}
             f = []
@@ -153,7 +153,7 @@ def getdata(fname, gain_error=1.0):
 
 def labview_time_to_datetime(lt):
     ### Convert a labview timestamp (i.e. time since 1904) to a 
-    ### more useful format (python datetime object)
+    ### more useful format (pytho datetime object)
     
     ## first get number of seconds between Unix time and Labview's
     ## arbitrary starting time
@@ -213,7 +213,7 @@ def get_calibration(refname, fit_freqs, make_plot=False,
     #bp = spars
     #bcov = 0.
 
-    print bp
+    print(bp)
 
     #print attribs["temps"][0]+273
     #norm_rat = (2*kb*(attribs["temps"][0]+273)/(bead_mass)) * 1/bp[0]
@@ -343,7 +343,7 @@ def get_drive_amp(drive_data, fsamp, drive_freq="chirp", make_plot=False):
         chirp_sampled = np.sin( 2.*np.pi*samp_pts*drive_freq )
         
     else:
-        print "Warning: get_drive_amp requires numeric frequency or 'chirp'"
+        print("Warning: get_drive_amp requires numeric frequency or 'chirp'")
         return 0.
         
     ## chirp sampled lags the data by 1 samples, presumably due to the trigger,
@@ -422,7 +422,7 @@ def get_avg_trans_func( calib_list, fnums, make_plot=False, make_trans_func_plot
     ## plugged into the main computer.
 
     if( len(fnums) != 2 ):
-        print "Single charge files not defined, doing simple correlation"
+        print("Single charge files not defined, doing simple correlation")
         tot_corr = []
         for f in calib_list:
             if( "recharge" in f ): continue
@@ -451,7 +451,7 @@ def get_avg_trans_func( calib_list, fnums, make_plot=False, make_trans_func_plot
         fnums = out_nums
 
             
-    print "Making transfer function..."
+    print("Making transfer function...")
 
     ## first make the average function
     tot_vec = {}
@@ -464,7 +464,7 @@ def get_avg_trans_func( calib_list, fnums, make_plot=False, make_trans_func_plot
     for f in calib_list:
         fnum = int(re.findall("\d+.h5",f)[0][:-3])
         if( fnum < fnums[0] or fnum > fnums[1] ): continue
-        print "Calib trace: ", f
+        print("Calib trace: ", f)
         dat, attribs, cf = getdata(f)
         if( len(dat) == 0 ): continue
 
@@ -553,7 +553,7 @@ def get_avg_trans_func( calib_list, fnums, make_plot=False, make_trans_func_plot
 
 def get_avg_noise( calib_list, fnums, orth_pars, make_plot=False, norm_by_sum=False ):
 
-    print "Making noise spectrum..."
+    print("Making noise spectrum...")
 
     tot_vec_x = []
     tot_vec_y = []
@@ -568,7 +568,7 @@ def get_avg_noise( calib_list, fnums, orth_pars, make_plot=False, norm_by_sum=Fa
         if( len(fnum)>0 ):
             fnum = int(fnum[0][:-3])
             if( fnum < fnums ): continue
-        print "Noise trace: ", f
+        print("Noise trace: ", f)
         dat, attribs, cf = getdata(f)
         if( len(dat) == 0 ): continue
 
@@ -666,7 +666,7 @@ def get_noise_direction_ratio( noise_list, weight_func ):
     rat_z = np.sum( Jz/Jx * weight_func )/np.sum( weight_func )
     rat_out = [1., rat_y, rat_z]
 
-    print rat_out
+    print(rat_out)
 
     return rat_out
 
