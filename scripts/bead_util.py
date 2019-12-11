@@ -182,7 +182,7 @@ def get_calibration(refname, fit_freqs, make_plot=False,
     dat, attribs, cf = getdata(refname)
     if( len(attribs) > 0 ):
         fsamp = attribs["Fsamp"]
-    xdat = dat[:,data_columns[0]]
+    xdat = dat[:,data_columns[0]]*1.97e-7 #now in meters
     xpsd, freqs = matplotlib.mlab.psd(xdat, Fs = fsamp, NFFT = NFFT) 
     xpsd = np.ndarray.flatten(xpsd)
 
@@ -217,17 +217,22 @@ def get_calibration(refname, fit_freqs, make_plot=False,
 
     #print attribs["temps"][0]+273
     #norm_rat = (2*kb*(attribs["temps"][0]+273)/(bead_mass)) * 1/bp[0]
-    norm_rat = (2*kb*293)/(bead_mass) * 1/bp[0]
+    norm_rat = 1. #(2*kb*293)/(bead_mass) * 1/bp[0]
 
     if(make_plot):
         fig = plt.figure()
-        plt.loglog( freqs, np.sqrt(norm_rat * xpsd), '.' )
-        plt.loglog( xdat_fit, np.sqrt(norm_rat * ydat_fit**2), 'k.' )
-        xx = np.linspace( freqs[fit_bool][0], freqs[fit_bool][-1], 1e3)
-        plt.loglog( xx, np.sqrt(norm_rat * bead_spec_rt_hz( xx, bp[0], bp[1], bp[2] )**2), 'r')
+        plt.plot( freqs, np.sqrt(norm_rat * xpsd), '.' )
+        plt.plot( xdat_fit, np.sqrt(norm_rat * ydat_fit**2), 'k.' )
+        xx = np.linspace( 0, 1e3, 1e3) #freqs[fit_bool][-1], 1e3)
+        plt.plot( xx, np.sqrt(norm_rat * bead_spec_rt_hz( xx, bp[0], bp[1], bp[2] )**2), 'r')
+        ffnn = np.sqrt(norm_rat * bead_spec_rt_hz( xx, bp[0], bp[1], bp[2] )**2)
+        
         plt.xlabel("Freq [Hz]")
         plt.ylabel("PSD [m Hz$^{-1/2}$]")
-    
+
+        print("fit integral: ", np.trapz(ffnn**2, xx))
+        
+        
     return np.sqrt(norm_rat), bp, bcov
 
 
