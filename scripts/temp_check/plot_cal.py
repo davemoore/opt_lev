@@ -340,7 +340,7 @@ for f in idx_vec[::-1]:
     else:
         temp_pts.append( [dg, fint/(2*np.pi) * m * (2*np.pi*68.5)**2/bu.kb, fint2/(2*np.pi) * m * (2*np.pi*68.5)**2/bu.kb] )
 
-    xx = np.linspace(56, 70, 1000)
+    xx = np.linspace(freq[fpts][0], freq[fpts][-1], 1000)
     if(False):
         xxp = np.linspace(10, 500, 10000)
         plt.close('all')
@@ -365,16 +365,18 @@ for f in idx_vec[::-1]:
     ax1.set_xticklabels([])
     ax1.set_yticklabels([])
     plt.semilogy(freq[gpts], np.sqrt(psd_in[gpts]), '.', color=ccol, label=str(f)) ##dg))
-    plt.plot( xx, fitfun(xx, *bp), color=ccol)
+    plt.plot( xx, fitfun(xx, *bp), color=[0, 1, 0])
 
     pltidx += 1
     
 plt.figure(fig1.number)
 #plt.legend()
 plt.title("in loop")
+plt.ylim([1e-12, 1e-7])
 plt.savefig("inloop_all.pdf")
 plt.figure(fig2.number)
 plt.title("out loop")
+plt.ylim([1e-12, 1e-7])
 plt.savefig("outloop_all.pdf")
 #plt.legend()
 
