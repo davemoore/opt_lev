@@ -57,13 +57,13 @@ def P_at_fall(p, gam, E_0, alpha, beta, gamma):
     alpha = np.abs(alpha)
     
     #P = (np.sqrt(np.abs(beta**2 + 4*E_0*(G+gamma)**2*msph*omega0**2 - 4*alpha*(G+gamma)*msph*omega0**2)) - beta)/(2*Fth*(G+gamma))
-    P = (msph*omega0**2/(2*Fth**2)) * (np.sqrt( (Fth**2*gamma**2)/((alpha+G)**2*msph**2*omega0**4) + 4*Fth**2/(msph*omega0**2)*(E_0 - G*kb*Tgas/(alpha+G) - beta/(alpha+G))) - Fth*gamma/((alpha + G)*msph*omega0**2) )
+    P = (msph*omega0**2/(2*Fth**2)) * (np.sqrt( (Fth**2*gamma**2)/((alpha+G+beta+gamma)**2*msph**2*omega0**4) + 4*Fth**2/(msph*omega0**2)*(E_0 - G*kb*Tgas/(alpha+G+beta+gamma) - beta/(alpha+G+beta+gamma))) - Fth*gamma/((alpha + G+beta+gamma)*msph*omega0**2) )
     
     P[  beta/(alpha+G) >= E_0 ] = 0
 
-    for0 = G/(G+alpha)*kb*Tgas
-    for1 = beta/(G+alpha) 
-    for2 = gamma*Kf(p,gam)/((G+alpha)*msph*omega0**2) #* P
+    for0 = G/(G+alpha+beta+gamma)*kb*Tgas
+    for1 = beta/(G+alpha+beta+gamma) 
+    for2 = gamma*Kf(p,gam)/((G+alpha+beta+gamma)*msph*omega0**2) #* P
     for3 = Kf(p,gam)**2/(msph*omega0**2) #* P**2
     
     # plt.figure()
@@ -101,13 +101,18 @@ file_list = glob.glob(folder+"/*.txt")
 fig1=plt.figure()
 x = []
 y = []
-for i in file_list:
+for ii,i in enumerate(sorted(file_list)):
+    print(i)
     a = np.loadtxt(i)
     b = np.transpose(a)
     x = np.append(x, b[0])
-    y = np.append(y, b[1]/25*1.4)
+    if( ii < 3):
+        y = np.append(y, b[1])
+        yvals = b[1]
+    else:
+        y = np.append(y, b[1]/25*1.4)
+        yvals = b[1]/25*1.4        
 
-    yvals = b[1]/25*1.4
     #plt.semilogx( b[0], b[1]/25*1.4, 'o')
     plt.errorbar( b[0], yvals, xerr=b[0]*0.3, yerr=yvals*0.1, fmt='o' )
     
@@ -122,7 +127,8 @@ x = x*1e2 # it is in pascal
 const = 1e-13
 
 ffn_simp = lambda xx, C, ac, E_0: C*P_at_fall(xx, ac, E_0, 0, 0, 0)
-ffn = lambda xx, C, ac, E_0, alpha, beta, gamma: C*P_at_fall(xx, ac, E_0, alpha, beta, gamma)
+ffn_simp1 = lambda xx, C, ac, E_0, beta: C*P_at_fall(xx, ac, E_0, 0, beta, 0)
+ffn = lambda xx, C, ac, E_0, alpha, beta, gamma: C*P_at_fall(xx, ac, E_0, 0, beta, gamma)
 
 spars = [ 4.73735391e+00,  3.87456239e-01,  5.56661460e-15, -5.26259165e+00,
           7.64852352e-14,  1.05517423e-08]
@@ -137,6 +143,9 @@ gpts = x > 0
 bp, bcov = opt.curve_fit( ffn, x[gpts], y[gpts], p0=spars )
 #bp = spars
 print(bp)
+
+gpts = x > 100
+bp_simp1, bcov_simp1 = opt.curve_fit( ffn_simp1, x[gpts], y[gpts], p0=[*spars[0:3], spars[4]])
 
 # pp = np.logspace(0,5,1e3) ## Pa
 # plt.figure()
@@ -164,12 +173,13 @@ print(bp)
 yy = ffn(pp, *bp)
 plt.figure(fig1.number)
 plt.semilogx( pp/1e2, ffn_simp(pp, *bp_simp), 'k--', label='Photophoresis only' )
+plt.semilogx( pp/1e2, ffn_simp1(pp, *bp_simp1), 'k:', label='+laser noise' )
 plt.semilogx( pp/1e2, yy, 'k', label='Full model' )
 plt.ylim([0,65])
 plt.xlim([1e-2, 1.1e3])
 plt.xlabel("Pressure [mbar]")
 plt.ylabel("CO2 laser power [units??]")
-plt.legend()
+plt.legend(loc="upper left")
 plt.savefig('co2_fit.pdf')
 
 #plt.figure()
