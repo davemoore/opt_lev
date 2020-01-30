@@ -1,0 +1,6 @@
+#DataThief /Users/dcmoore/Desktop/Screen Shot 2016-07-16 at 4.55.13 PM.png Saturday 16-Jul-2016 5:00:31 PM
+1.202e7, 4.726e-2
+2.43e-5, 4.726e-2
+2.494e-5, 5.348e-14
+2.757e-3, 5.348e-14
+1.225e7, 8.906e-11
